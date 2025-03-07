@@ -1,6 +1,21 @@
 # Spree Stripe
 
-This is a Stripe extension for [Spree Commerce](https://spreecommerce.org), an open source e-commerce platform built with Ruby on Rails.
+This is the official Stripe payment gateway extension for [Spree Commerce](https://spreecommerce.org).
+
+## Features
+
+- Accept payments in over 130 currencies
+- Accept Credit Cards, Apple Pay, Google Pay, and more
+- Accept SEPA Direct Debit payments
+- Accept iDEAL payments
+- Accept SOFORT payments
+- Accept Bancontact payments
+- Accept Alipay payments
+- Accept WeChat Pay payments
+- Accept Afterpay, Klarna, Affirm, and more
+- Support for 3D Secure and other security standards
+- Support for off-session payments
+- Support for quick checkout
 
 ## Installation
 
@@ -58,4 +73,4 @@ If you'd like to contribute, please take a look at the
 [instructions](CONTRIBUTING.md) for installing dependencies and crafting a good
 pull request.
 
-Copyright (c) 2025 [name of extension creator], released under the New BSD License
+Copyright (c) 2025 [Vendo Connect Inc.](https://getvendo.com), released under the New BSD License

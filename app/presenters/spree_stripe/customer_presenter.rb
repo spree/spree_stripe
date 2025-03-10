@@ -1,0 +1,35 @@
+module SpreeStripe
+  class CustomerPresenter
+    def initialize(address: nil, email: nil, name: nil)
+      @email = email
+      @name = name
+      @address = address
+    end
+
+    def call
+      hash = {}
+      hash[:address] = address_payload if address.present?
+      hash[:email] = email if email.present?
+      hash[:name] = name if name.present?
+
+      hash
+    end
+
+    private
+
+    attr_reader :email, :name, :address
+
+    def address_payload
+      return {} unless address
+
+      {
+        city: address.city,
+        line1: address.address1,
+        line2: address.address2,
+        postal_code: address.zipcode,
+        country: address.country_name,
+        state: address.state_name
+      }
+    end
+  end
+end

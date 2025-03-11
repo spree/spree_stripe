@@ -1,0 +1,47 @@
+<% if f.object.persisted? %>
+  <div class="form-group mb-0">
+    <%= f.label :apple_developer_merchantid_domain_association, 'Apple Pay', class: 'font-weight-bold' %>
+
+    <% if f.object.apple_developer_merchantid_domain_association.attached? %>
+      <div class="form-control d-flex align-items-center justify-content-between pr-1 mb-3 bg-light">
+        Verification file uploaded!
+        <%= link_to f.object.apple_developer_merchantid_domain_association.url, class: 'btn btn-light btn-sm' do %>
+          <%= icon 'download' %>
+          Download
+        <% end %>
+      </div>
+    <% else %>
+      <p class="form-text">
+        To enable Apple Pay, you need to:
+      </p>
+
+      <ol class="mb-4">
+        <li>
+          go to
+          <%= link_to 'payment method domains', 'https://dashboard.stripe.com/settings/payment_method_domains', target: '_blank', class: 'alert-link' %>
+          in your Stripe account
+        </li>
+        <li>
+          Click <strong>Add new domain</strong> and input:
+          <div class="flex bg-light my-2 p-2 w-50 rounded" data-controller="clipboard" data-clipboard-success-content-value="Copied!">
+            <%= text_field_tag :domain, current_store.url_or_custom_domain, readonly: true, class: 'form-control-plaintext py-0', data: { 'clipboard-target': 'source' } %>
+            <button data-action="clipboard#copy" class="btn btn-sm btn-light py-1 with-tip" title="Copy to clipboboard" type="button" data-clipboard-target="button">
+              <%= icon 'clipboard', width: 16, height: 16, class: 'mr-0 text-muted' %>
+            </button>
+          </div>
+        </li>
+        <li>
+          Click <strong>Download file</strong> and attach it below.
+        </li>
+        <li>
+          Click <strong>Update</strong> on this page.
+        </li>
+        <li>
+          Click <strong>Verify</strong> to verify if file was uploaded correctly.
+        </li>
+      </ol>
+    <% end %>
+
+    <%= f.file_field :apple_developer_merchantid_domain_association, class: "form-control-file" %>
+  </div>
+<% end %>

@@ -5,15 +5,12 @@
         checkout_stripe_button_target: 'container',
         checkout_stripe_button_api_key_value: current_stripe_gateway.try(:preferred_publishable_key),
         checkout_stripe_button_order_token_value: @order.token,
-        checkout_stripe_button_order_id_value: @order.id,
         checkout_stripe_button_client_secret_value: current_stripe_payment_intent.client_secret,
-        checkout_stripe_button_country_value: current_store.default_country.iso,
-        checkout_stripe_button_single_vendor_value: @order.vendors.count == 1,
         checkout_stripe_button_currency_value: @order.currency.downcase,
         checkout_stripe_button_amount_value: @order.display_total_minus_store_credits.cents,
         checkout_stripe_button_available_countries_value: available_countries_iso.as_json,
-        checkout_stripe_button_gift_card_code_value: @order.gift_card&.code,
-        checkout_stripe_button_gift_card_amount_value: @order.gift_card_total,
+        checkout_stripe_button_gift_card_code_value: @order.respond_to?(:gift_card) ? @order.gift_card&.code : nil,
+        checkout_stripe_button_gift_card_amount_value: @order.respond_to?(:gift_card_total) ? @order.gift_card_total : nil,
         checkout_stripe_button_border_radius_value: theme_setting(:button_border_radius),
         checkout_stripe_button_height_value: defined?(height) ? height : nil,
         checkout_stripe_button_theme_value: defined?(theme) ? theme : nil,
@@ -21,9 +18,7 @@
         checkout_stripe_button_max_columns_value: defined?(max_columns) ? max_columns : nil,
         checkout_stripe_button_button_width_value: defined?(button_width) ? button_width : nil,
         checkout_stripe_button_store_url_value: current_store.formatted_url_or_custom_domain,
-        checkout_stripe_button_return_url_value: spree.stripe_payment_intent_url(current_stripe_payment_intent),
-        checkout_stripe_button_ga_begin_checkout_payload_value: store_integration('google_analytics').present? ? google_analytics_checkout_json(@order) : "{}",
-        checkout_stripe_button_ga_should_track_begin_checkout_value: checkout_started? && store_integration('google_analytics').present?
+        checkout_stripe_button_return_url_value: spree.stripe_payment_intent_url(current_stripe_payment_intent)
       } do %>
       <div id="payment-request-button"></div>
 

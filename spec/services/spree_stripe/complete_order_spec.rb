@@ -28,7 +28,7 @@ RSpec.describe SpreeStripe::CompleteOrder, :vcr do
 
     context 'regular checkout', vcr: { cassette_name: 'successful_payment_intent_with_charge' } do
       let!(:order) { create(:order_with_line_items, store: store, user: user, state: :payment) }
-      let!(:stripe_customer) { create(:stripe_customer, user: user, payment_method: stripe_gateway, profile_id: 'gcus_1QVdlA2ESifGlJezwNCqGKOP') } # to avoid API call
+      let!(:stripe_customer) { create(:gateway_customer, user: user, payment_method: stripe_gateway, profile_id: 'gcus_1QVdlA2ESifGlJezwNCqGKOP') } # to avoid API call
       let(:payment_intent) { create(:payment_intent, order: order, payment_method: stripe_gateway, stripe_id: 'pi_3Qd7ay2ESifGlJez0iSw49k1') }
 
       it_behaves_like 'a successful payment'
@@ -36,7 +36,7 @@ RSpec.describe SpreeStripe::CompleteOrder, :vcr do
 
     context 'quick checkout', vcr: { cassette_name: 'successful_payment_intent_with_charge' } do
       let!(:order) { create(:order_with_line_items, store: store, user: user, state: :address) }
-      let!(:stripe_customer) { create(:stripe_customer, user: user, payment_method: stripe_gateway, profile_id: 'gcus_1QVdlA2ESifGlJezwNCqGKOP') } # to avoid API call
+      let!(:stripe_customer) { create(:gateway_customer, user: user, payment_method: stripe_gateway, profile_id: 'gcus_1QVdlA2ESifGlJezwNCqGKOP') } # to avoid API call
       let(:payment_intent) { create(:payment_intent, order: order, payment_method: stripe_gateway, stripe_id: 'pi_3Qd7ay2ESifGlJez0iSw49k1', amount: 19.99) }
 
       it 'completes the order' do

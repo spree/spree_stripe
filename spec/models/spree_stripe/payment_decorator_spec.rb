@@ -6,7 +6,7 @@ RSpec.describe SpreeStripe::PaymentDecorator do
   let(:order) { create(:order_with_line_items, store: store, user: user) }
   let(:stripe_gateway) { create(:stripe_gateway, stores: [store]) }
 
-  let!(:stripe_customer) { create(:stripe_customer, user: user, payment_method: stripe_gateway, profile_id: 'cus_123') }
+  let!(:stripe_customer) { create(:gateway_customer, user: user, payment_method: stripe_gateway, profile_id: 'cus_123') }
   let(:source) do
     create(:credit_card,
       user: user,

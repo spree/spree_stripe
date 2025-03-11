@@ -41,22 +41,22 @@ RSpec.describe SpreeStripe::Gateway do
 
     it 'creates payment intent with a new customer' do
       VCR.use_cassette('create_payment_intent') do
-        expect { subject }.to change(SpreeStripe::Customer, :count).by(1)
+        expect { subject }.to change(Spree::GatewayCustomer, :count).by(1)
 
         expect(subject.success?).to be(true)
         expect(subject.authorization).to eq(payment_intent_id)
 
-        expect(gateway.customers.last.user).to eq(order.user)
-        expect(gateway.customers.last.profile_id).to eq(customer_id)
+        expect(gateway.gateway_customers.last.user).to eq(order.user)
+        expect(gateway.gateway_customers.last.profile_id).to eq(customer_id)
       end
     end
 
     context 'with a customer' do
-      let!(:customer) { create(:stripe_customer, user: order.user, payment_method: gateway) }
+      let!(:customer) { create(:gateway_customer, user: order.user, payment_method: gateway) }
 
       it 'creates payment intent with an existing customer' do
         VCR.use_cassette('create_payment_intent') do
-          expect { subject }.to_not change(SpreeStripe::Customer, :count)
+          expect { subject }.to_not change(Spree::GatewayCustomer, :count)
 
           expect(subject.success?).to be(true)
           expect(subject.authorization).to eq(payment_intent_id)
@@ -67,7 +67,7 @@ RSpec.describe SpreeStripe::Gateway do
     context 'when off_session is true' do
       subject { gateway.create_payment_intent(amount, order, off_session: true, payment_method_id: payment_method_id) }
 
-      let!(:gateway_customer) { create(:stripe_customer, user: order.user, profile_id: customer_id, payment_method: gateway) }
+      let!(:gateway_customer) { create(:gateway_customer, user: order.user, profile_id: customer_id, payment_method: gateway) }
 
       let(:customer_id) { 'cus_RQdclxFVLH4oau' }
       let(:payment_method_id) { 'pm_1QXmPJ2ESifGlJezC2py6ZqS' }
@@ -107,7 +107,7 @@ RSpec.describe SpreeStripe::Gateway do
   describe '#update_payment_intent' do
     subject { gateway.update_payment_intent(payment_intent_id, amount, order, payment_method_id) }
 
-    let!(:customer) { create(:stripe_customer, user: order.user, payment_method: gateway, profile_id: customer_id) }
+    let!(:customer) { create(:gateway_customer, user: order.user, payment_method: gateway, profile_id: customer_id) }
     let(:order) { create(:completed_order_with_totals, store: store) }
 
     let(:amount) { 4000 }
@@ -222,7 +222,7 @@ RSpec.describe SpreeStripe::Gateway do
 
     context 'when payment is completed' do
       let!(:order) { create(:order, total: 10) }
-      let!(:customer) { create(:stripe_customer, user: order.user, payment_method: gateway) }
+      let!(:customer) { create(:gateway_customer, user: order.user, payment_method: gateway) }
 
       let!(:payment) { create(:payment, state: 'completed', order: order, payment_method: gateway, amount: 10.0, response_code: payment_intent_id) }
       let!(:refund) { create(:refund, payment: payment, amount: 2.0) }
@@ -306,7 +306,7 @@ RSpec.describe SpreeStripe::Gateway do
 
     let!(:order) { create(:completed_order_with_totals, number: 'R111098765') }
 
-    let!(:customer) { create(:stripe_customer, user: order.user, profile_id: customer_id, payment_method: gateway) }
+    let!(:customer) { create(:gateway_customer, user: order.user, profile_id: customer_id, payment_method: gateway) }
     let!(:credit_card) { create(:credit_card, gateway_payment_profile_id: payment_method_id, payment_method: gateway) }
 
     let!(:payment) { create(:payment, number: 'ABC1DEF2', amount: 110, payment_method: gateway, order: order, source: credit_card, response_code: nil) }

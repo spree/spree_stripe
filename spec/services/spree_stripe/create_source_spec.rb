@@ -71,7 +71,7 @@ RSpec.describe SpreeStripe::CreateSource do
       end
 
       context 'if the user does not have a CC' do
-        let!(:customer) { create(:stripe_customer, user: order.user, payment_method: gateway) }
+        let!(:customer) { create(:gateway_customer, user: order.user, payment_method: gateway) }
 
         it 'creates a new source' do
           expect { subject }.to change { user.credit_cards.count }.by 1

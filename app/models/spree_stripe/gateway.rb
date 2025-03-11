@@ -124,7 +124,7 @@ module SpreeStripe
       user ||= order&.user
       return nil unless user
 
-      customers.find_by(user: user) || create_customer(order: order, user: user)
+      gateway_customers.find_by(user: user) || create_customer(order: order, user: user)
     end
 
     def create_customer(order: nil, user: nil)
@@ -141,7 +141,7 @@ module SpreeStripe
 
       response = send_request { Stripe::Customer.create(payload) }
 
-      customer = customers.build(user: user, profile_id: response.id)
+      customer = gateway_customers.build(user: user, profile_id: response.id)
       customer.save! if user.present?
       customer
     end

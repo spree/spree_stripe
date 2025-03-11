@@ -3,7 +3,6 @@ module SpreeStripe
     STRIPE_TYPE = 'SpreeStripe::Gateway'.freeze
 
     def self.prepended(base)
-      base.has_many :customers, class_name: 'SpreeStripe::Customer'
       base.has_many :payment_methods_webhook_keys, class_name: 'SpreeStripe::PaymentMethodsWebhookKey'
       base.has_many :webhook_keys, through: :payment_methods_webhook_keys, class_name: 'SpreeStripe::WebhookKey'
 

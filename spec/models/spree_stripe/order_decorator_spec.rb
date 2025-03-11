@@ -5,7 +5,7 @@ RSpec.describe SpreeStripe::OrderDecorator do
   let(:user) { create(:user) }
   let(:order) { create(:order_with_line_items, store: store, user: user) }
   let(:stripe_gateway) { create(:stripe_gateway, stores: [store]) }
-  let!(:stripe_customer) { create(:stripe_customer, user: user, payment_method: stripe_gateway, profile_id: 'cus_123') }
+  let!(:stripe_customer) { create(:gateway_customer, user: user, payment_method: stripe_gateway, profile_id: 'cus_123') }
   let!(:payment_intent) { create(:payment_intent, order: order, payment_method: stripe_gateway, amount: order.total_minus_store_credits) }
 
   before { order.reload }

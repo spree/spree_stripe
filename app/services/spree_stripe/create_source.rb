@@ -60,7 +60,7 @@ module SpreeStripe
 
       {
         user: user,
-        customer: customer,
+        gateway_customer: customer,
         payment_method: gateway,
         gateway_customer_profile_id: customer&.profile_id,
         gateway_payment_profile_id: stripe_charge.payment_method,

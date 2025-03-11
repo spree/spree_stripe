@@ -6,7 +6,7 @@ RSpec.describe SpreeStripe::PaymentIntentsController, type: :controller do
   let(:store) { Spree::Store.default }
   let(:order) { create(:order_with_line_items, store: store, state: :payment) }
   let(:stripe_gateway) { create(:stripe_gateway, stores: [store]) }
-  let(:stripe_customer) { create(:stripe_customer, user: order.user, payment_method: stripe_gateway, profile_id: customer_id) }
+  let(:stripe_customer) { create(:gateway_customer, user: order.user, payment_method: stripe_gateway, profile_id: customer_id) }
   let(:payment_intent_id) { 'pi_3QXRgr2ESifGlJez0DTXdHQ3' }
   let(:customer_id) { 'cus_RQDNPSRR7tnHve' }
   let(:payment_intent_record) { create(:payment_intent, order: order, stripe_id: payment_intent_id, payment_method: stripe_gateway) }

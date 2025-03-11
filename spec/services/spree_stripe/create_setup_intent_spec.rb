@@ -11,7 +11,7 @@ RSpec.describe SpreeStripe::CreateSetupIntent, vcr: true do
     let(:user) { create(:user) }
 
     context 'when user has saved customer' do
-      let!(:customer) { create(:stripe_customer, user: user, profile_id: saved_customer_id, payment_method: gateway) }
+      let!(:customer) { create(:gateway_customer, user: user, profile_id: saved_customer_id, payment_method: gateway) }
 
       it 'reuses saved customer, creates future payment intent and ephermal key and returns them' do
         subject
@@ -29,7 +29,7 @@ RSpec.describe SpreeStripe::CreateSetupIntent, vcr: true do
 
     context 'when user does not have saved customer' do
       it 'saves the customer , creates future payment intent and ephermal key and returns them' do
-        expect { subject }.to change(gateway.customers, :count).by(1)
+        expect { subject }.to change(gateway.gateway_customers, :count).by(1)
 
         expect(subject).to be_success
         expect(subject.value).to eq(
@@ -40,7 +40,7 @@ RSpec.describe SpreeStripe::CreateSetupIntent, vcr: true do
           }
         )
 
-        saved_customer = gateway.customers.find_by(user: user)
+        saved_customer = gateway.gateway_customers.find_by(user: user)
         expect(saved_customer.profile_id).to eq('cus_Q9v0APMRnrNbfC')
       end
     end

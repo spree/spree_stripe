@@ -1,17 +1,5 @@
 class SetupSpreeStripeModels < ActiveRecord::Migration[7.2]
   def change
-    create_table :spree_stripe_customers do |t|
-      t.string :profile_id, null: false
-      t.bigint :payment_method_id, null: false
-      t.bigint :user_id, null: false
-
-      t.timestamps
-
-      t.index ['payment_method_id'], name: 'index_spree_stripe_customers_on_payment_method_id'
-      t.index ['user_id', 'payment_method_id'], name: 'index_spree_stripe_customers_on_user_id_and_payment_method_id', unique: true
-      t.index ['user_id'], name: 'index_spree_stripe_customers_on_user_id'
-    end
-
     create_table :spree_stripe_payment_intents do |t|
       t.decimal :amount, precision: 10, scale: 2, default: '0.0', null: false
       t.bigint :order_id, null: false
@@ -49,7 +37,5 @@ class SetupSpreeStripeModels < ActiveRecord::Migration[7.2]
       t.index ['payment_method_id'], name: 'index_payment_methods_webhook_keys_on_payment_method_id'
       t.index ['webhook_key_id'], name: 'index_payment_methods_webhook_keys_on_webhook_key_id'
     end
-
-    add_reference :spree_credit_cards, :customer
   end
 end

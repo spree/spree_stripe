@@ -43,7 +43,7 @@ module SpreeStripe
       return failure('Order number is invalid') if order_number.blank?
       return failure('Payment number is invalid') if payment_number.blank?
 
-      order = store.orders.find_by(number: order_number)
+      order = Spree::Order.where(store_id: stores.ids).find_by(number: order_number)
       payment = order.payments.find_by(number: payment_number)
 
       protect_from_error do
@@ -101,7 +101,7 @@ module SpreeStripe
           amount = payment.credit_allowed
           return success(payment_intent_id, {}) if amount.zero?
           # Don't create a refund if the payment is for a shipment, we will create a refund for the whole shipping cost instead
-          return success(payment_intent_id, {}) if payment.for_shipment?
+          return success(payment_intent_id, {}) if payment.respond_to?(:for_shipment?) && payment.for_shipment?
 
           refund = payment.refunds.create!(
             amount: amount,

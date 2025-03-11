@@ -10,7 +10,7 @@ http_interactions:
       User-Agent:
       - Stripe/v1 RubyBindings/10.1.0 PayRails/7.1.0 (https://github.com/pay-rails/pay)
       Authorization:
-      - Bearer sk_test_51PZXZKKZrjZq7j2C3Z297nzP00001111
+      - Bearer <STRIPE_SECRET_KEY>
       Content-Type:
       - application/x-www-form-urlencoded
       Idempotency-Key:
@@ -92,7 +92,7 @@ http_interactions:
       User-Agent:
       - Stripe/v1 RubyBindings/10.1.0 PayRails/7.1.0 (https://github.com/pay-rails/pay)
       Authorization:
-      - Bearer sk_test_51PZXZKKZrjZq7j2C3Z297nzP00001111
+      - Bearer <STRIPE_SECRET_KEY>
       Content-Type:
       - application/x-www-form-urlencoded
       X-Stripe-Client-Telemetry:

@@ -221,7 +221,7 @@ RSpec.describe SpreeStripe::Gateway do
     let!(:refund_reason) { Spree::RefundReason.first || create(:default_refund_reason) }
 
     context 'when payment is completed' do
-      let!(:order) { create(:order, total: 100) }
+      let!(:order) { create(:order, total: 10) }
       let!(:customer) { create(:stripe_customer, user: order.user, payment_method: gateway) }
 
       let!(:payment) { create(:payment, state: 'completed', order: order, payment_method: gateway, amount: 10.0, response_code: payment_intent_id) }
@@ -229,10 +229,6 @@ RSpec.describe SpreeStripe::Gateway do
 
       let(:payment_intent_id) { 'pi_3QXmL12ESifGlJez0v0B8tUn' }
       let(:refund_id) { 're_3QXmL12ESifGlJez0GcOBHng' }
-
-      before do
-        payment.order.update!(total: 10.0)
-      end
 
       it 'creates a refund with credit_allowed_amount' do
         VCR.use_cassette('create_refund') do

@@ -51,5 +51,7 @@ class SetupSpreeStripeModels < ActiveRecord::Migration[7.2]
       t.index ['payment_method_id'], name: 'index_payment_methods_webhook_keys_on_payment_method_id'
       t.index ['webhook_key_id'], name: 'index_payment_methods_webhook_keys_on_webhook_key_id'
     end
+
+    add_reference :spree_credit_cards, :customer
   end
 end

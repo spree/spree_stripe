@@ -32,11 +32,9 @@ class SetupSpreeStripeModels < ActiveRecord::Migration[7.2]
     create_table :spree_stripe_webhook_keys do |t|
       t.string :stripe_id, null: false
       t.string :signing_secret, null: false
-      t.integer :kind, default: 0
 
       t.timestamps
 
-      t.index ['kind'], name: 'index_spree_stripe_webhook_keys_on_kind'
       t.index ['signing_secret'], name: 'index_spree_stripe_webhook_keys_on_signing_secret', unique: true
       t.index ['stripe_id'], name: 'index_spree_stripe_webhook_keys_on_stripe_id', unique: true
     end

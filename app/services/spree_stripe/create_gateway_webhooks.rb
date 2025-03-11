@@ -38,7 +38,6 @@ module SpreeStripe
       SpreeStripe::WebhookKey.create!(
         stripe_id: stripe_webhook[:id],
         signing_secret: stripe_webhook[:secret],
-        kind: connect ? :connect : :direct,
         payment_methods: [payment_method]
       )
 

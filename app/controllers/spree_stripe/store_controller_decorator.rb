@@ -6,4 +6,4 @@ module SpreeStripe
   end
 end
 
-Spree::StoreController.prepend(SpreeStripe::StoreControllerDecorator)
+Spree::StoreController.prepend(SpreeStripe::StoreControllerDecorator) if defined?(Spree::StoreController)

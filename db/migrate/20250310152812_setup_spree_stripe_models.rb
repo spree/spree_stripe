@@ -27,7 +27,7 @@ class SetupSpreeStripeModels < ActiveRecord::Migration[7.2]
       t.index ['stripe_id'], name: 'index_spree_stripe_webhook_keys_on_stripe_id', unique: true
     end
 
-    create_table :payment_methods_webhook_keys do |t|
+    create_table :spree_stripe_payment_methods_webhook_keys do |t|
       t.bigint :payment_method_id, null: false
       t.bigint :webhook_key_id, null: false
 

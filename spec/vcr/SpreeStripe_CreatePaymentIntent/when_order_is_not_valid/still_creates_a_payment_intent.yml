@@ -1,0 +1,355 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.stripe.com/v1/customers
+    body:
+      encoding: UTF-8
+      string: email=lesha_cassin%40rosenbaum.ca
+    headers:
+      User-Agent:
+      - Stripe/v1 RubyBindings/5.55.0 PayRails/3.0.24 (https://github.com/pay-rails/pay)
+      Authorization:
+      - Bearer <STRIPE_SECRET_KEY>
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Stripe-Version:
+      - '2020-08-27'
+      X-Stripe-Client-User-Agent:
+      - "<FILTERED>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Wed, 14 Dec 2022 08:49:29 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '665'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Methods:
+      - GET, POST, HEAD, OPTIONS, DELETE
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Request-Id, Stripe-Manage-Version, X-Stripe-External-Auth-Required, X-Stripe-Privileged-Session-Required
+      Access-Control-Max-Age:
+      - '300'
+      Cache-Control:
+      - no-cache, no-store
+      Idempotency-Key:
+      - b05b508b-c6e6-438f-801f-17ba2a3e2792
+      Original-Request:
+      - req_PFjhPNNDk3vGs7
+      Request-Id:
+      - req_PFjhPNNDk3vGs7
+      Stripe-Should-Retry:
+      - 'false'
+      Stripe-Version:
+      - '2020-08-27'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id": "cus_MyoHREJJkqseKL",
+          "object": "customer",
+          "address": null,
+          "balance": 0,
+          "created": 1671007769,
+          "currency": null,
+          "default_currency": null,
+          "default_source": null,
+          "delinquent": false,
+          "description": null,
+          "discount": null,
+          "email": "lesha_cassin@rosenbaum.ca",
+          "invoice_prefix": "50851972",
+          "invoice_settings": {
+            "custom_fields": null,
+            "default_payment_method": null,
+            "footer": null,
+            "rendering_options": null
+          },
+          "livemode": false,
+          "metadata": {},
+          "name": null,
+          "next_invoice_sequence": 1,
+          "phone": null,
+          "preferred_locales": [],
+          "shipping": null,
+          "tax_exempt": "none",
+          "test_clock": null
+        }
+  recorded_at: Wed, 14 Dec 2022 08:49:29 GMT
+- request:
+    method: post
+    uri: https://api.stripe.com/v1/payment_intents
+    body:
+      encoding: UTF-8
+      string: payment_method_options[card][setup_future_usage]=on_session&amount=1000&customer=cus_MyoHREJJkqseKL&currency=USD&statement_descriptor=R429091594&automatic_payment_methods[enabled]=true&transfer_group=R429091594&metadata[spree_order_id]=7c9bff71-eec9-4bad-acd2-b5bf84140ad3&shipping[address][country]=US&shipping[name]=
+    headers:
+      User-Agent:
+      - Stripe/v1 RubyBindings/5.55.0 PayRails/3.0.24 (https://github.com/pay-rails/pay)
+      Authorization:
+      - Bearer <STRIPE_SECRET_KEY>
+      Content-Type:
+      - application/x-www-form-urlencoded
+      X-Stripe-Client-Telemetry:
+      - '{"last_request_metrics":{"request_id":"req_PFjhPNNDk3vGs7","request_duration_ms":461}}'
+      Stripe-Version:
+      - '2020-08-27'
+      X-Stripe-Client-User-Agent:
+      - "<FILTERED>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Wed, 14 Dec 2022 08:49:30 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '2074'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Methods:
+      - GET, POST, HEAD, OPTIONS, DELETE
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Request-Id, Stripe-Manage-Version, X-Stripe-External-Auth-Required, X-Stripe-Privileged-Session-Required
+      Access-Control-Max-Age:
+      - '300'
+      Cache-Control:
+      - no-cache, no-store
+      Idempotency-Key:
+      - ca01474c-3af3-4071-989c-2ca31d38871b
+      Original-Request:
+      - req_kayZ7W3c2xA2T6
+      Request-Id:
+      - req_kayZ7W3c2xA2T6
+      Stripe-Should-Retry:
+      - 'false'
+      Stripe-Version:
+      - '2020-08-27'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id": "pi_3MEqecFgg8qhioDX09FNoHJL",
+          "object": "payment_intent",
+          "amount": 1000,
+          "amount_capturable": 0,
+          "amount_details": {
+            "tip": {}
+          },
+          "amount_received": 0,
+          "application": null,
+          "application_fee_amount": null,
+          "automatic_payment_methods": {
+            "enabled": true
+          },
+          "canceled_at": null,
+          "cancellation_reason": null,
+          "capture_method": "automatic",
+          "charges": {
+            "object": "list",
+            "data": [],
+            "has_more": false,
+            "total_count": 0,
+            "url": "/v1/charges?payment_intent=pi_3MEqecFgg8qhioDX09FNoHJL"
+          },
+          "client_secret": "pi_3MEqecFgg8qhioDX09FNoHJL_secret_cthKPAdXCe4oALW5nddxKCgiJ",
+          "confirmation_method": "automatic",
+          "created": 1671007770,
+          "currency": "usd",
+          "customer": "cus_MyoHREJJkqseKL",
+          "description": null,
+          "invoice": null,
+          "last_payment_error": null,
+          "livemode": false,
+          "metadata": {
+            "spree_order_id": "7c9bff71-eec9-4bad-acd2-b5bf84140ad3"
+          },
+          "next_action": null,
+          "on_behalf_of": null,
+          "payment_method": null,
+          "payment_method_options": {
+            "alipay": {},
+            "card": {
+              "installments": null,
+              "mandate_options": null,
+              "network": null,
+              "request_three_d_secure": "automatic",
+              "setup_future_usage": "on_session"
+            },
+            "klarna": {
+              "preferred_locale": null
+            },
+            "link": {
+              "persistent_token": null
+            },
+            "wechat_pay": {
+              "app_id": null,
+              "client": null
+            }
+          },
+          "payment_method_types": [
+            "card",
+            "alipay",
+            "klarna",
+            "link",
+            "wechat_pay"
+          ],
+          "processing": null,
+          "receipt_email": null,
+          "review": null,
+          "setup_future_usage": null,
+          "shipping": {
+            "address": {
+              "city": null,
+              "country": "US",
+              "line1": null,
+              "line2": null,
+              "postal_code": null,
+              "state": null
+            },
+            "carrier": null,
+            "name": "",
+            "phone": null,
+            "tracking_number": null
+          },
+          "source": null,
+          "statement_descriptor": "R429091594",
+          "statement_descriptor_suffix": null,
+          "status": "requires_payment_method",
+          "transfer_data": null,
+          "transfer_group": "R429091594"
+        }
+  recorded_at: Wed, 14 Dec 2022 08:49:30 GMT
+- request:
+    method: post
+    uri: https://api.stripe.com/v1/ephemeral_keys
+    body:
+      encoding: UTF-8
+      string: customer=cus_PlyVqje0MkF5wm
+    headers:
+      User-Agent:
+      - Stripe/v1 RubyBindings/10.1.0 PayRails/7.1.0 (https://github.com/pay-rails/pay)
+      Authorization:
+      - Bearer <STRIPE_SECRET_KEY>
+      Content-Type:
+      - application/x-www-form-urlencoded
+      X-Stripe-Client-Telemetry:
+      - '{"last_request_metrics":{"request_id":"req_kayZ7W3c2xA2T6","request_duration_ms":199}}'
+      Idempotency-Key:
+      - 7aef751d-8183-411c-a0a8-e1a28a691bb5
+      Stripe-Version:
+      - '2023-10-16'
+      X-Stripe-Client-User-Agent:
+      - "<FILTERED>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Mon, 17 Jun 2024 06:29:40 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '353'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Methods:
+      - GET,HEAD,PUT,PATCH,POST,DELETE
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required,
+        X-Stripe-Privileged-Session-Required
+      Access-Control-Max-Age:
+      - '300'
+      Cache-Control:
+      - no-cache, no-store
+      Content-Security-Policy:
+      - report-uri https://q.stripe.com/csp-report?p=v1%2Fephemeral_keys; block-all-mixed-content;
+        default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';
+        img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'
+      Cross-Origin-Opener-Policy-Report-Only:
+      - same-origin; report-to="coop"
+      Idempotency-Key:
+      - 7aef751d-8183-411c-a0a8-e1a28a691bb5
+      Original-Request:
+      - req_ZTGhds4gR3zWlW
+      Report-To:
+      - '{"group":"coop","max_age":8640,"endpoints":[{"url":"https://q.stripe.com/coop-report?s=mono-bapi-srv"}],"include_subdomains":true}'
+      Reporting-Endpoints:
+      - coop="https://q.stripe.com/coop-report?s=mono-bapi-srv"
+      Request-Id:
+      - req_ZTGhds4gR3zWlW
+      Stripe-Should-Retry:
+      - 'false'
+      Stripe-Version:
+      - '2023-10-16'
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Stripe-Priority-Routing-Enabled:
+      - 'true'
+      X-Stripe-Routing-Context-Priority-Tier:
+      - api-testmode
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id": "ephkey_1PSZ4SIhR0gIegIewU2o5Aov",
+          "object": "ephemeral_key",
+          "associated_objects": [
+            {
+              "id": "cus_PlyVqje0MkF5wm",
+              "type": "customer"
+            }
+          ],
+          "created": 1718605780,
+          "expires": 1718609380,
+          "livemode": false,
+          "secret": "ek_test_YWNjdF8xTGtSb1lJaFIwZ0llZ0llLEVCbDJ2TlAwTlVnNmU2QXNYTmtVWXhiN0lCenl5eDc_00kNSSZrp9"
+        }
+  recorded_at: Mon, 17 Jun 2024 06:29:40 GMT
+recorded_with: VCR 6.2.0

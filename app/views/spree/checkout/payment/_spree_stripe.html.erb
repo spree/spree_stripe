@@ -1,0 +1,63 @@
+<div
+  data-controller="checkout-stripe"
+  data-checkout-stripe-payment-intent-value="<%= current_stripe_payment_intent.to_json %>"
+  data-checkout-stripe-return-url-value="<%= spree.stripe_payment_intent_url(current_stripe_payment_intent) %>"
+  data-checkout-stripe-api-key-value="<%= current_stripe_gateway.try(:preferred_publishable_key) %>"
+  data-checkout-stripe-order-token-value="<%= @order.token %>"
+  data-checkout-stripe-order-email-value="<%= @order.email %>"
+  data-checkout-stripe-color-primary-value="<%= hex_color_to_rgb(theme_setting(:primary_color)) %>"
+  data-checkout-stripe-color-text-value="<%= hex_color_to_rgb(theme_setting(:text_color)) %>"
+>
+  <% payment_sources = checkout_payment_sources(payment_method) %>
+
+  <% if payment_sources.any? %>
+    <div id="existing_cards">
+      <div class="form-group">
+        <ul class="list-group mb-5 border rounded-md" data-controller="reveal">
+          <% payment_sources.each_with_index do |card, index| %>
+            <li class="p-0 m-0 border-b" id="<%= spree_dom_id(card) %>">
+              <div class="custom-control custom-radio px-5 py-4 flex items-center">
+                <label class="flex flex-row items-center cursor-pointer">
+                  <%= radio_button_tag "order[existing_card]", card.gateway_payment_profile_id, index == 0, { data: {action: "checkout-stripe#initializeStripe reveal#hide", checkout_stripe_target: index == 0 ? "defaultCard" : nil}, class: "mr-5" } %>
+                  <div class="flex space-x-4 items-center">
+                    <%= payment_method_icon_tag(card.cc_type) %>
+                    <span>****<%= card.last_digits %></span>
+                    <span><%= card.month.to_s.rjust(2, '0') %>/<%= card.year %></span>
+                  </div>
+                </label>
+              </div>
+            </li>
+          <% end %>
+          <li>
+            <div class="custom-control custom-radio px-5 py-4 flex items-center w-full">
+              <label class="flex flex-row items-center w-full pr-8">
+                <%= radio_button_tag "order[existing_card]", nil, false, {  data: {action: "checkout-stripe#initializeStripe reveal#show"}, class: "mr-5" } %>
+                <div class="w-full flex flex-col items-start space-y-4 justify-center">
+                  <span class="cursor-pointer">
+                    <%= Spree.t(:add_new_credit_card) %>
+                  </span>
+                  <!-- Display a payment form -->
+                  <div data-checkout-stripe-target="paymentElement" data-reveal-target="item" class="w-full hidden">
+                    <!--Stripe.js injects the Payment Element-->
+                  </div>
+                </div>
+              </label>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  <% else %>
+    <div data-checkout-stripe-target="paymentElement" class="w-full"></div>
+  <% end %>
+  <div data-checkout-stripe-target="messageContainer" class="hidden text-danger"></div>
+  <div data-checkout-stripe-target="loading" class="p-6">
+    <div class="mx-auto flex justify-center lg:w-1/4">
+      <svg class="animate-spin h-5 w-5 mr-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <%= Spree.t(:loading) %>...
+    </div>
+  </div>
+</div>

@@ -25,8 +25,13 @@ Gem::Specification.new do |s|
   s.add_dependency 'spree_admin', '>= 5.0.0.alpha'
   s.add_dependency 'spree_extension'
 
+  s.add_dependency 'importmap-rails'
+
   s.add_dependency 'stripe', '~> 10.1.0'
   s.add_dependency 'stripe_event', '~> 2.11'
 
+  s.add_development_dependency 'dotenv'
   s.add_development_dependency 'spree_dev_tools'
+  s.add_development_dependency 'vcr'
+  s.add_development_dependency 'webmock'
 end

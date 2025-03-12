@@ -6,3 +6,9 @@ require 'spree_stripe/configuration'
 
 require 'stripe'
 require 'stripe_event'
+
+module SpreeStripe
+  def self.queue
+    'spree_stripe'
+  end
+end

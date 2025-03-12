@@ -1,0 +1,231 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.stripe.com/v1/ephemeral_keys
+    body:
+      encoding: UTF-8
+      string: customer=cus_Q9uqUz6nXQFku2
+    headers:
+      User-Agent:
+      - Stripe/v1 RubyBindings/10.1.0 PayRails/7.1.0 (https://github.com/pay-rails/pay)
+      Authorization:
+      - Bearer <STRIPE_SECRET_KEY>
+      Content-Type:
+      - application/x-www-form-urlencoded
+      X-Stripe-Client-Telemetry:
+      - '{"last_request_metrics":{"request_id":"req_9XPTLab0BeoUmr","request_duration_ms":2}}'
+      Idempotency-Key:
+      - b9cc2319-2da6-471a-9e36-2569ceea2635
+      Stripe-Version:
+      - '2023-10-16'
+      X-Stripe-Client-User-Agent:
+      - "<FILTERED>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Thu, 23 May 2024 13:18:56 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '353'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Methods:
+      - GET,HEAD,PUT,PATCH,POST,DELETE
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required,
+        X-Stripe-Privileged-Session-Required
+      Access-Control-Max-Age:
+      - '300'
+      Cache-Control:
+      - no-cache, no-store
+      Content-Security-Policy:
+      - report-uri https://q.stripe.com/csp-report?p=v1%2Fephemeral_keys; block-all-mixed-content;
+        default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';
+        img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'
+      Cross-Origin-Opener-Policy-Report-Only:
+      - same-origin; report-to="coop"
+      Idempotency-Key:
+      - b9cc2319-2da6-471a-9e36-2569ceea2635
+      Original-Request:
+      - req_EdJmJPr5eoVRNw
+      Report-To:
+      - '{"group":"coop","max_age":8640,"endpoints":[{"url":"https://q.stripe.com/coop-report?s=mono-bapi-srv"}],"include_subdomains":true}'
+      Reporting-Endpoints:
+      - coop="https://q.stripe.com/coop-report?s=mono-bapi-srv"
+      Request-Id:
+      - req_EdJmJPr5eoVRNw
+      Stripe-Should-Retry:
+      - 'false'
+      Stripe-Version:
+      - '2023-10-16'
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Stripe-Routing-Context-Priority-Tier:
+      - api-testmode
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id": "ephkey_1PJbXoIhR0gIegIeCR9rWFAU",
+          "object": "ephemeral_key",
+          "associated_objects": [
+            {
+              "id": "cus_Q9uqUz6nXQFku2",
+              "type": "customer"
+            }
+          ],
+          "created": 1716470336,
+          "expires": 1716473936,
+          "livemode": false,
+          "secret": "ek_test_YWNjdF8xTGtSb1lJaFIwZ0llZ0llLHpNRndEbEFXdGlQZTJwV1l2WGtXeUlJRlJidVNpeHY_00PkGOSrvo"
+        }
+  recorded_at: Thu, 23 May 2024 13:18:56 GMT
+- request:
+    method: post
+    uri: https://api.stripe.com/v1/setup_intents
+    body:
+      encoding: UTF-8
+      string: customer=cus_Q9uqUz6nXQFku2&automatic_payment_methods[enabled]=true
+    headers:
+      User-Agent:
+      - Stripe/v1 RubyBindings/10.1.0 PayRails/7.1.0 (https://github.com/pay-rails/pay)
+      Authorization:
+      - Bearer <STRIPE_SECRET_KEY>
+      Content-Type:
+      - application/x-www-form-urlencoded
+      X-Stripe-Client-Telemetry:
+      - '{"last_request_metrics":{"request_id":"req_EdJmJPr5eoVRNw","request_duration_ms":343}}'
+      Idempotency-Key:
+      - 0c370640-f3a9-4eb3-8082-80bbb81a2d81
+      Stripe-Version:
+      - '2023-10-16'
+      X-Stripe-Client-User-Agent:
+      - "<FILTERED>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Thu, 23 May 2024 13:18:56 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1063'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Methods:
+      - GET,HEAD,PUT,PATCH,POST,DELETE
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required,
+        X-Stripe-Privileged-Session-Required
+      Access-Control-Max-Age:
+      - '300'
+      Cache-Control:
+      - no-cache, no-store
+      Content-Security-Policy:
+      - report-uri https://q.stripe.com/csp-report?p=v1%2Fsetup_intents; block-all-mixed-content;
+        default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';
+        img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'
+      Cross-Origin-Opener-Policy-Report-Only:
+      - same-origin; report-to="coop"
+      Idempotency-Key:
+      - 0c370640-f3a9-4eb3-8082-80bbb81a2d81
+      Original-Request:
+      - req_NoZ74eEudOh1nX
+      Report-To:
+      - '{"group":"coop","max_age":8640,"endpoints":[{"url":"https://q.stripe.com/coop-report?s=mono-bapi-srv"}],"include_subdomains":true}'
+      Reporting-Endpoints:
+      - coop="https://q.stripe.com/coop-report?s=mono-bapi-srv"
+      Request-Id:
+      - req_NoZ74eEudOh1nX
+      Stripe-Should-Retry:
+      - 'false'
+      Stripe-Version:
+      - '2023-10-16'
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Stripe-Routing-Context-Priority-Tier:
+      - api-testmode
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id": "seti_1PJbXoIhR0gIegIepptgpSqC",
+          "object": "setup_intent",
+          "application": null,
+          "automatic_payment_methods": {
+            "allow_redirects": "always",
+            "enabled": true
+          },
+          "cancellation_reason": null,
+          "client_secret": "seti_1PJbXoIhR0gIegIepptgpSqC_secret_Q9vOeLmmJTKurofB3uAZC4cNRtG2ucm",
+          "created": 1716470336,
+          "customer": "cus_Q9uqUz6nXQFku2",
+          "description": null,
+          "flow_directions": null,
+          "last_setup_error": null,
+          "latest_attempt": null,
+          "livemode": false,
+          "mandate": null,
+          "metadata": {},
+          "next_action": null,
+          "on_behalf_of": null,
+          "payment_method": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1Lsn39IhR0gIegIePcnLvSxO",
+            "parent": null
+          },
+          "payment_method_options": {
+            "card": {
+              "mandate_options": null,
+              "network": null,
+              "request_three_d_secure": "automatic"
+            }
+          },
+          "payment_method_types": [
+            "card",
+            "bancontact",
+            "ideal",
+            "link",
+            "cashapp"
+          ],
+          "single_use_mandate": null,
+          "status": "requires_payment_method",
+          "usage": "off_session"
+        }
+  recorded_at: Thu, 23 May 2024 13:18:56 GMT
+recorded_with: VCR 6.2.0

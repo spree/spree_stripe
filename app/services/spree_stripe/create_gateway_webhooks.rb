@@ -10,7 +10,7 @@ module SpreeStripe
     private
 
     def find_webhook(webhooks_data, enabled_events)
-      webhook_url = SpreeStripe::Gateway::WEBHOOK_URL
+      webhook_url = SpreeStripe::Gateway.webhook_url
 
       webhooks_data.find do |webhook|
         webhook[:url] == webhook_url && webhook[:enabled_events].sort == enabled_events.sort
@@ -46,7 +46,7 @@ module SpreeStripe
 
     def build_webhook_params(connect, events)
       {
-        url: SpreeStripe::Gateway::WEBHOOK_URL,
+        url: SpreeStripe::Gateway.webhook_url,
         enabled_events: events,
         connect: connect
       }

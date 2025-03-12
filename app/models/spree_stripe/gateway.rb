@@ -2,7 +2,6 @@ module SpreeStripe
   class Gateway < ::Spree::Gateway
     include SpreeStripe::Gateway::Tax if defined?(SpreeStripe::Gateway::Tax)
 
-    WEBHOOK_URL = "https://#{Rails.application.routes.default_url_options[:host]}/stripe".freeze
     DIRECT_ENABLED_EVENTS = %w[payment_intent.payment_failed payment_intent.succeeded].freeze
 
     preference :publishable_key, :password
@@ -17,6 +16,10 @@ module SpreeStripe
     after_commit :register_domain, on: :create
 
     has_many :payment_intents, class_name: 'SpreeStripe::PaymentIntent', foreign_key: 'payment_method_id', dependent: :delete_all
+
+    def self.webhook_url
+      "https://#{Rails.application.routes.default_url_options[:host]}/stripe"
+    end
 
     def provider_class
       self.class

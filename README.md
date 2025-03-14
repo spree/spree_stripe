@@ -16,6 +16,7 @@ This is the official Stripe payment gateway extension for [Spree Commerce](https
 - Support for 3D Secure and other security standards
 - Support for off-session payments
 - Support for quick checkout
+- Support for Storefront API integration (see the API docs [here](https://spreecommerce.org/docs/api-reference/storefront/stripe)).
 
 ## Installation
 

@@ -2,6 +2,10 @@
 
 This is the official Stripe payment gateway extension for [Spree Commerce](https://spreecommerce.org) open-source eCommerce platform. 
 
+If you like what you see, consider giving this repo a GitHub star :star:
+
+Thank you for supporting Spree open-source :heart:
+
 > [!IMPORTANT]
 > This Stripe integration for Spree is free to use for private projects but requires a [Commercial License](https://spreecommerce.org/why-consider-a-commercial-license-for-your-multi-tenant-or-saas-spree-based-project/) if you're planning to use it for your [SaaS](https://spreecommerce.org/multi-tenant-white-label-ecommerce/) or a [multi-tenant eCommerce](https://spreecommerce.org/multi-tenant-white-label-ecommerce/) website. 
 > Feel free to [reach out](https://spreecommerce.org/get-started/) to learn more.
@@ -11,9 +15,9 @@ This is the official Stripe payment gateway extension for [Spree Commerce](https
 
 ## Features
 
-- Support for off-session payments
-- Support for quick checkout
+- Support for quick checkout using Apple Pay, Google Pay, Stripe Link
 - Support for 3D Secure and other security standards
+- Support for off-session payments
 - Support for Storefront API integration (see the API docs [here](https://spreecommerce.org/docs/api-reference/storefront/stripe)).
 - Accept payments in over 130 currencies
 - Accept Credit Cards, Apple Pay, Google Pay, and more

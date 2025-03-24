@@ -5,6 +5,8 @@ module SpreeStripe
         return unless ['affirm', 'afterpay_clearpay'].include?(event.data.object&.last_payment_error&.payment_method&.type)
 
         payment_intent = SpreeStripe::PaymentIntent.find_by(stripe_id: event.data.object.id)
+        return if payment_intent.nil?
+
         order = payment_intent.order
 
         return if order.canceled?

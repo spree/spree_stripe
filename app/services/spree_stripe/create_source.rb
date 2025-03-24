@@ -1,14 +1,14 @@
 module SpreeStripe
   class CreateSource
-    def initialize(stripe_charge:, order:, gateway:)
-      @order = order
-      @stripe_charge = stripe_charge
+    def initialize(payment_method_details:, payment_method_id:, gateway:, user:, billing_details:)
+      @payment_method_details = payment_method_details
+      @payment_method_id = payment_method_id
       @gateway = gateway
+      @user = user
+      @billing_details = billing_details
     end
 
     def call
-      payment_method_details = stripe_charge.payment_method_details
-
       case payment_method_details.type
       when 'card'
         find_or_create_credit_card
@@ -34,19 +34,17 @@ module SpreeStripe
       when 'affirm'
         SpreeStripe::PaymentSources::Affirm.create!(source_params)
       else
-        raise "[STRIPE] ORDER #{order.number} Unknown payment method #{payment_method_details.type}"
+        raise "[STRIPE] Unknown payment method #{payment_method_details.type}"
       end
     end
 
     private
 
-    attr_reader :order, :stripe_charge, :gateway
-
-    delegate :user, to: :order
+    attr_reader :gateway, :user, :payment_method_details, :payment_method_id, :billing_details
 
     def find_or_create_credit_card
       if user
-        source = user.credit_cards.find_by(gateway_payment_profile_id: stripe_charge.payment_method)
+        source = user.credit_cards.find_by(gateway_payment_profile_id: payment_method_id)
 
         return source if source
       end
@@ -55,27 +53,27 @@ module SpreeStripe
     end
 
     def credit_card_params
-      card_details = stripe_charge.payment_method_details.card
-      customer = gateway.fetch_or_create_customer(order: order, user: user)
+      card_details = payment_method_details.card
+      customer = gateway.fetch_or_create_customer(user: user)
 
       {
         user: user,
         gateway_customer: customer,
         payment_method: gateway,
         gateway_customer_profile_id: customer&.profile_id,
-        gateway_payment_profile_id: stripe_charge.payment_method,
-        name: stripe_charge.billing_details.name,
+        gateway_payment_profile_id: payment_method_id,
+        name: billing_details.name,
         month: card_details.exp_month,
         year: card_details.exp_year,
         last_digits: card_details.last4,
         brand: card_details.brand,
-        private_metadata: stripe_charge.payment_method_details.card
+        private_metadata: payment_method_details.card
       }
     end
 
     def source_params
       {
-        gateway_payment_profile_id: stripe_charge.payment_method,
+        gateway_payment_profile_id: payment_method_id,
         payment_method: gateway
       }
     end

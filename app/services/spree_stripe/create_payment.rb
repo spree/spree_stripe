@@ -12,8 +12,10 @@ module SpreeStripe
       stripe_charge = payment_intent.stripe_charge
 
       source = SpreeStripe::CreateSource.new(
-        order: order,
-        stripe_charge: stripe_charge,
+        user: order.user,
+        payment_method_details: stripe_charge.payment_method_details,
+        payment_method_id: stripe_charge.payment_method,
+        billing_details: stripe_charge.billing_details,
         gateway: gateway
       ).call if stripe_charge.present?
 

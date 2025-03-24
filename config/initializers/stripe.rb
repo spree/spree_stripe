@@ -9,5 +9,6 @@ Rails.application.config.after_initialize do
   StripeEvent.configure do |events|
     events.subscribe 'payment_intent.succeeded', SpreeStripe::WebhookHandlers::PaymentIntentSucceeded.new
     events.subscribe 'payment_intent.payment_failed', SpreeStripe::WebhookHandlers::PaymentIntentPaymentFailed.new
+    events.subscribe 'setup_intent.succeeded', SpreeStripe::WebhookHandlers::SetupIntentSucceeded.new
   end
 end

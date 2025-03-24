@@ -1,7 +1,15 @@
 require 'spec_helper'
 
 RSpec.describe SpreeStripe::CreateSource do
-  subject { described_class.new(order: order, stripe_charge: stripe_charge, gateway: gateway).call }
+  subject do
+    described_class.new(
+      user: user,
+      payment_method_id: source_id,
+      payment_method_details: payment_method_details,
+      gateway: gateway,
+      billing_details: billing_details
+    ).call
+  end
 
   let(:order) { create(:order) }
   let(:user) { create(:user) }
@@ -12,35 +20,40 @@ RSpec.describe SpreeStripe::CreateSource do
     Stripe::StripeObject.construct_from(
       id: 'stripe_charge_id',
       payment_method_details: payment_method_details,
-      billing_details: double(:billing_details, name: 'John Snow'),
       payment_method: source_id,
       customer: 'cus_123'
+    )
+  end
+
+  let(:billing_details) do
+    Stripe::StripeObject.construct_from(
+      name: 'John Snow'
     )
   end
 
   let(:payment_method_details) do
     Stripe::StripeObject.construct_from(
       card: Stripe::StripeObject.construct_from(
-        brand: "mastercard",
+        brand: 'mastercard',
         checks: Stripe::StripeObject.construct_from(
-          address_line1_check: "unchecked",
-          address_postal_code_check: "unchecked",
+          address_line1_check: 'unchecked',
+          address_postal_code_check: 'unchecked',
           cvc_check: nil
         ),
-        country: "PL",
+        country: 'PL',
         exp_month: 11,
         exp_year: 2025,
-        fingerprint: "FZqjhq46SWprIY8i",
-        funding: "debit",
+        fingerprint: 'FZqjhq46SWprIY8i',
+        funding: 'debit',
         installments: nil,
-        last4: "3522",
+        last4: '3522',
         mandate: nil,
-        network: "mastercard",
+        network: 'mastercard',
         three_d_secure: nil,
         wallet: Stripe::StripeObject.construct_from(
           apple_pay: nil,
-          dynamic_last4: "3139",
-          type: "apple_pay"
+          dynamic_last4: '3139',
+          type: 'apple_pay'
         )
       ),
       type: 'card'
@@ -48,10 +61,8 @@ RSpec.describe SpreeStripe::CreateSource do
   end
 
   describe '#call' do
-    context 'if the order does not belong to the user' do
-      before do
-        order.update!(user: nil)
-      end
+    context 'user is nil' do
+      let(:user) { nil }
 
       it 'creates a source not assigned to the user' do
         expect { subject }.to change { Spree::CreditCard.count }.by 1
@@ -155,11 +166,7 @@ RSpec.describe SpreeStripe::CreateSource do
     end
 
     context 'if source is affirm' do
-      let(:payment_method_details) do
-        {
-          type: 'affirm'
-        }
-      end
+      let(:payment_method_details) { Stripe::StripeObject.construct_from(type: 'affirm') }
 
       it 'create a Affirm source' do
         expect(subject).to be_a(SpreeStripe::PaymentSources::Affirm)
@@ -170,8 +177,8 @@ RSpec.describe SpreeStripe::CreateSource do
       let(:payment_method_details) do
         Stripe::StripeObject.construct_from(
           ideal: Stripe::StripeObject.construct_from(
-            bank: "rabobank",
-            bic: "RABONL2U",
+            bank: 'rabobank',
+            bic: 'RABONL2U',
             generated_sepa_debit: nil,
             generated_sepa_debit_mandate: nil,
             iban_last4: '5264',
@@ -191,7 +198,7 @@ RSpec.describe SpreeStripe::CreateSource do
     context 'if source is link' do
       let(:payment_method_details) do
         Stripe::StripeObject.construct_from(
-          link:  Stripe::StripeObject.new,
+          link: Stripe::StripeObject.new,
           type: 'link'
         )
       end

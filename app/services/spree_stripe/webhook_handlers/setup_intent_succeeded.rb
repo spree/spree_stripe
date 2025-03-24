@@ -17,7 +17,7 @@ module SpreeStripe
             { api_key: spree_payment_method.preferred_secret_key }
           )
         rescue Stripe::StripeError => e
-          Spree::ErrorHandler.new.call(exception: e, opts: { report_context: { event: event }, user: user })
+          Spree::Dependencies.error_handler.constantize.call(exception: e, opts: { report_context: { event: event }, user: user })
           return
         end
 

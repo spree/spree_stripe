@@ -52,7 +52,7 @@ RSpec.describe SpreeStripe::WebhookHandlers::SetupIntentSucceeded do
     end
 
     let(:credit_card) { create(:credit_card, user: user, payment_method: stripe_gateway, gateway_payment_profile_id: payment_method_id) }
-    let(:error_handler) { instance_double(Spree::ErrorHandler) }
+    let(:error_handler) { instance_double(Spree::Dependencies.error_handler.constantize) }
 
     before do
       allow(Stripe::PaymentMethod).to receive(:retrieve).with(

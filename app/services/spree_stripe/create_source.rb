@@ -67,7 +67,10 @@ module SpreeStripe
         month: card_details.exp_month,
         year: card_details.exp_year,
         last_digits: card_details.last4,
-        brand: card_details.brand
+        brand: card_details.brand,
+        private_metadata: {
+          wallet: { type: payment_method_details.card&.wallet&.type }
+        }
       }
     end
 

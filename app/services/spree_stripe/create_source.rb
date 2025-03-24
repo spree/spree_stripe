@@ -1,11 +1,12 @@
 module SpreeStripe
   class CreateSource
-    def initialize(payment_method_details:, payment_method_id:, gateway:, user:, billing_details:)
+    def initialize(payment_method_details:, payment_method_id:, gateway:, billing_details:, order: nil, user: nil)
       @payment_method_details = payment_method_details
       @payment_method_id = payment_method_id
       @gateway = gateway
-      @user = user
+      @user = user || order.user
       @billing_details = billing_details
+      @order = order
     end
 
     def call
@@ -40,7 +41,7 @@ module SpreeStripe
 
     private
 
-    attr_reader :gateway, :user, :payment_method_details, :payment_method_id, :billing_details
+    attr_reader :gateway, :user, :payment_method_details, :payment_method_id, :billing_details, :order
 
     def find_or_create_credit_card
       if user
@@ -54,7 +55,7 @@ module SpreeStripe
 
     def credit_card_params
       card_details = payment_method_details.card
-      customer = gateway.fetch_or_create_customer(user: user)
+      customer = gateway.fetch_or_create_customer(user: user, order: order)
 
       {
         user: user,

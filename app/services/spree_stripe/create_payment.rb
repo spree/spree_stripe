@@ -11,13 +11,15 @@ module SpreeStripe
     def call
       stripe_charge = payment_intent.stripe_charge
 
-      source = SpreeStripe::CreateSource.new(
-        user: order.user,
-        payment_method_details: stripe_charge.payment_method_details,
-        payment_method_id: stripe_charge.payment_method,
-        billing_details: stripe_charge.billing_details,
-        gateway: gateway
-      ).call if stripe_charge.present?
+      if stripe_charge.present?
+        source = SpreeStripe::CreateSource.new(
+          order: order,
+          payment_method_details: stripe_charge.payment_method_details,
+          payment_method_id: stripe_charge.payment_method,
+          billing_details: stripe_charge.billing_details,
+          gateway: gateway
+        ).call
+      end
 
       # sometimes a job is re-tried and creates a double payment record so we need to avoid it!
       payment = order.payments.find_or_initialize_by(

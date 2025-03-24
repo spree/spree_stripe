@@ -11,10 +11,15 @@ module SpreeStripe
         user = gateway_customer.user
         return if user.nil?
 
-        stripe_payment_method = Stripe::PaymentMethod.retrieve(
-          setup_intent_data.payment_method,
-          { api_key: spree_payment_method.preferred_secret_key }
-        )
+        begin
+          stripe_payment_method = Stripe::PaymentMethod.retrieve(
+            setup_intent_data.payment_method,
+            { api_key: spree_payment_method.preferred_secret_key }
+          )
+        rescue Stripe::StripeError => e
+          Spree::ErrorHandler.new.call(exception: e, opts: { report_context: { event: event }, user: user })
+          return
+        end
 
         SpreeStripe::CreateSource.new(
           payment_method_details: stripe_payment_method,

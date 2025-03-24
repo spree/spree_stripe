@@ -94,7 +94,11 @@ RSpec.describe SpreeStripe::CreateSource do
           expect(subject.user).to eq user
           expect(subject.brand).to eq 'master'
           expect(subject.payment_method).to eq gateway
-          expect(subject.private_metadata).to eq('wallet' => { 'type' => 'apple_pay' })
+          expect(subject.private_metadata).to eq(
+            'wallet' => { 'type' => 'apple_pay' },
+            'checks' => { 'address_line1_check' => 'unchecked',
+                          'address_postal_code_check' => 'unchecked', 'cvc_check' => nil }
+          )
         end
       end
     end

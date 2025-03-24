@@ -44,7 +44,9 @@ RSpec.describe SpreeStripe::WebhookHandlers::SetupIntentSucceeded do
             brand: 'visa',
             exp_month: 12,
             exp_year: 2025,
-            last4: '4242'
+            last4: '4242',
+            wallet: { type: 'apple_pay' },
+            checks: nil
           },
           type: 'card'
         }

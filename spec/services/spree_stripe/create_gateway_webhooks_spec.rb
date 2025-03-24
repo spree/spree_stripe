@@ -19,7 +19,7 @@ RSpec.describe SpreeStripe::CreateGatewayWebhooks do
     it 'creates a webhook endpoint', vcr: { cassette_name: 'create_gateway_webhooks' } do
       expect { subject }.to change(SpreeStripe::WebhookKey, :count).by(1)
 
-      expect(stripe_webhook.enabled_events).to eq(SpreeStripe::Gateway::DIRECT_ENABLED_EVENTS)
+      expect(stripe_webhook.enabled_events).to eq(SpreeStripe::Config[:supported_webhook_events])
       expect(stripe_webhook.status).to eq('enabled')
 
       expect(webhook_key.stripe_id).to eq(stripe_webhook.id)

@@ -2,8 +2,6 @@ module SpreeStripe
   class Gateway < ::Spree::Gateway
     include SpreeStripe::Gateway::Tax if defined?(SpreeStripe::Gateway::Tax)
 
-    DIRECT_ENABLED_EVENTS = %w[payment_intent.payment_failed payment_intent.succeeded setup_intent.succeeded].freeze
-
     preference :publishable_key, :password
     preference :secret_key, :password
 

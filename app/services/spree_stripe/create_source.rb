@@ -4,7 +4,7 @@ module SpreeStripe
       @payment_method_details = payment_method_details
       @payment_method_id = payment_method_id
       @gateway = gateway
-      @user = user || order.user
+      @user = user || order&.user
       @billing_details = billing_details
       @order = order
     end

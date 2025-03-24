@@ -67,8 +67,7 @@ module SpreeStripe
         month: card_details.exp_month,
         year: card_details.exp_year,
         last_digits: card_details.last4,
-        brand: card_details.brand,
-        private_metadata: payment_method_details.card
+        brand: card_details.brand
       }
     end
 

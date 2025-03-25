@@ -1,3 +1,8 @@
+<p align="center">
+  <a href="https://spreecommerce.org">
+    <img alt="Spree Commerce x Stripe integration" src="https://vendo-production-res.cloudinary.com/image/upload/w_2000/q_auto/v1742930549/docs/github/Spree_Commerce_open-source_eCommerce_Stripe_payments_integration_-_Github_xlrcn8.jpg">
+  </a>
+
 # Spree Stripe
 
 This is the official Stripe payment gateway extension for [Spree Commerce](https://spreecommerce.org) open-source eCommerce platform. 
@@ -28,6 +33,28 @@ Thank you for supporting Spree open-source :heart:
 - Accept Alipay payments
 - Accept WeChat Pay payments
 - Accept Afterpay, Klarna, Affirm, and more
+
+## What's new?
+
+### Installment (BNPL) payments indicator on PDP (Product Detail Page)
+
+![Spree_x_Stripe_-_BNPL_Installment_payments_Product_Card_PDP_Product_Detail_Page](https://vendo-production-res.cloudinary.com/image/upload/w_2000/q_auto/v1742930027/docs/github/Spree_x_Stripe_-_BNPL_Installment_payments_Product_Card_PDP_Product_Detail_Page_k2u1dh.jpg)
+
+### Quick payment options on the cart (Apple Pay, Google Pay, Link)
+
+![Apple_Pay_Google_Pay_Link_-_Quick_payment_options_on_the_cart](https://vendo-production-res.cloudinary.com/image/upload/w_2000/q_auto/v1742930027/docs/github/Spree_x_Stripe_-_Apple_Pay_Google_Pay_Link_-_Quick_payment_options_on_the_cart_aw45x9.jpg)
+
+### Quick payments bypassing checkout 1st step (Apple Pay, Google Pay, Link)
+
+![Apple_Pay_Google_Pay_Link_-_Quick_payments_bypassing_checkout](https://vendo-production-res.cloudinary.com/image/upload/w_2000/q_auto/v1742930027/docs/github/Spree_x_Stripe_-_Apple_Pay_Google_Pay_Link_-_Quick_payments_bypassing_checkout_on_Cart_n6gbh6.jpg)
+
+### Various payment options on the payment step (cards, BNPL, Apple Pay, Google Pay, Link)
+
+![Quick payments bypassing checkout 1st step (Apple Pay, Google_Pay, Link)](https://vendo-production-res.cloudinary.com/image/upload/w_2000/q_auto/v1742930027/docs/github/Spree_x_Stripe_-_Apple_Pay_Google_Pay_Link_-_Checkout_payment_step_rxxnr9.jpg)
+
+## Spree Demo
+
+Check out this [Spree Commerce demo](https://demo.spreecommerce.org/) for yourself. 
 
 ## Installation
 

@@ -66,9 +66,9 @@ RSpec.describe SpreeStripe::WebhookHandlers::SetupIntentSucceeded do
     context 'when gateway customer exists' do
       it 'creates a new source for the user' do
         expect(SpreeStripe::CreateSource).to receive(:new).with(
-          payment_method_details: stripe_payment_method,
-          payment_method_id: payment_method_id,
-          billing_details: stripe_payment_method.billing_details,
+          stripe_payment_method_details: stripe_payment_method,
+          stripe_payment_method_id: payment_method_id,
+          stripe_billing_details: stripe_payment_method.billing_details,
           gateway: stripe_gateway,
           user: user
         ).and_call_original

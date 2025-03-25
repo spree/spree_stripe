@@ -1,16 +1,16 @@
 module SpreeStripe
   class CreateSource
-    def initialize(payment_method_details:, payment_method_id:, gateway:, billing_details:, order: nil, user: nil)
-      @payment_method_details = payment_method_details
-      @payment_method_id = payment_method_id
+    def initialize(stripe_payment_method_details:, stripe_payment_method_id:, gateway:, stripe_billing_details:, order: nil, user: nil)
+      @stripe_payment_method_details = stripe_payment_method_details
+      @stripe_payment_method_id = stripe_payment_method_id
       @gateway = gateway
       @user = user || order&.user
-      @billing_details = billing_details
+      @stripe_billing_details = stripe_billing_details
       @order = order
     end
 
     def call
-      case payment_method_details.type
+      case stripe_payment_method_details.type
       when 'card'
         find_or_create_credit_card
       when 'klarna'
@@ -20,12 +20,12 @@ module SpreeStripe
       when 'sepa_debit'
         SpreeStripe::PaymentSources::SepaDebit.create!(source_params)
       when 'p24'
-        SpreeStripe::PaymentSources::Przelewy24.create!(source_params.merge(bank: payment_method_details.p24.bank))
+        SpreeStripe::PaymentSources::Przelewy24.create!(source_params.merge(bank: stripe_payment_method_details.p24.bank))
       when 'ideal'
         SpreeStripe::PaymentSources::Ideal.create!(
           source_params.merge(
-            bank: payment_method_details.ideal.bank,
-            last4: payment_method_details.ideal.iban_last4
+            bank: stripe_payment_method_details.ideal.bank,
+            last4: stripe_payment_method_details.ideal.iban_last4
           )
         )
       when 'alipay'
@@ -35,17 +35,17 @@ module SpreeStripe
       when 'affirm'
         SpreeStripe::PaymentSources::Affirm.create!(source_params)
       else
-        raise "[STRIPE] Unknown payment method #{payment_method_details.type}"
+        raise "[STRIPE] Unknown payment method #{stripe_payment_method_details.type}"
       end
     end
 
     private
 
-    attr_reader :gateway, :user, :payment_method_details, :payment_method_id, :billing_details, :order
+    attr_reader :gateway, :user, :stripe_payment_method_details, :stripe_payment_method_id, :stripe_billing_details, :order
 
     def find_or_create_credit_card
       if user
-        source = user.credit_cards.find_by(gateway_payment_profile_id: payment_method_id)
+        source = user.credit_cards.find_by(gateway_payment_profile_id: stripe_payment_method_id)
 
         return source if source
       end
@@ -54,7 +54,7 @@ module SpreeStripe
     end
 
     def credit_card_params
-      card_details = payment_method_details.card
+      card_details = stripe_payment_method_details.card
       customer = gateway.fetch_or_create_customer(user: user, order: order)
 
       {
@@ -62,16 +62,16 @@ module SpreeStripe
         gateway_customer: customer,
         payment_method: gateway,
         gateway_customer_profile_id: customer&.profile_id,
-        gateway_payment_profile_id: payment_method_id,
-        name: billing_details.name,
+        gateway_payment_profile_id: stripe_payment_method_id,
+        name: stripe_billing_details.name,
         month: card_details.exp_month,
         year: card_details.exp_year,
         last_digits: card_details.last4,
         brand: card_details.brand,
         private_metadata: {
-          checks: payment_method_details.card&.checks,
+          checks: stripe_payment_method_details.card&.checks,
           wallet: {
-            type: payment_method_details.card&.wallet&.type
+            type: stripe_payment_method_details.card&.wallet&.type
           }
         }
       }
@@ -79,7 +79,7 @@ module SpreeStripe
 
     def source_params
       {
-        gateway_payment_profile_id: payment_method_id,
+        gateway_payment_profile_id: stripe_payment_method_id,
         payment_method: gateway
       }
     end

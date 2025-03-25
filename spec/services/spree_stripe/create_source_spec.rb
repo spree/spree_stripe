@@ -4,10 +4,10 @@ RSpec.describe SpreeStripe::CreateSource do
   subject do
     described_class.new(
       user: user,
-      payment_method_id: source_id,
-      payment_method_details: payment_method_details,
+      stripe_payment_method_id: source_id,
+      stripe_payment_method_details: payment_method_details,
       gateway: gateway,
-      billing_details: billing_details
+      stripe_billing_details: billing_details
     ).call
   end
 

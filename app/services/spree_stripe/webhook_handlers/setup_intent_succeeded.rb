@@ -22,9 +22,9 @@ module SpreeStripe
         end
 
         SpreeStripe::CreateSource.new(
-          payment_method_details: stripe_payment_method,
-          payment_method_id: setup_intent_data.payment_method,
-          billing_details: stripe_payment_method.billing_details,
+          stripe_payment_method_details: stripe_payment_method,
+          stripe_payment_method_id: setup_intent_data.payment_method,
+          stripe_billing_details: stripe_payment_method.billing_details,
           gateway: spree_payment_method,
           user: user
         ).call

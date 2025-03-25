@@ -29,11 +29,11 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Wed, 12 Mar 2025 11:52:51 GMT
+      - Mon, 24 Mar 2025 11:07:07 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '1400'
+      - '2693'
       Connection:
       - keep-alive
       Access-Control-Allow-Credentials:
@@ -52,7 +52,7 @@ http_interactions:
       Content-Security-Policy:
       - base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none';
         img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src
-        'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=IUiWncz2sBrukt_Zrjy-IwnyZ_hxQt7BdG77UuIcj8T1YLbOYBi8ptZozHAyFs_ou68DBRyfxGXcp26G
+        'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=leHIQ9Zgmujy-tBdg-b4nni1U2FK4fSuV4Hu9g7_DU09vGjY-f35ADJtVprifL9bi7IxXyGhvVltbkKj
       Cross-Origin-Opener-Policy-Report-Only:
       - same-origin; report-to="coop"
       Report-To:
@@ -60,7 +60,7 @@ http_interactions:
       Reporting-Endpoints:
       - coop="https://q.stripe.com/coop-report"
       Request-Id:
-      - req_s3ur2CF4diQz7r
+      - req_BbKJfjcSDLJZ5Y
       Stripe-Version:
       - '2023-10-16'
       Vary:
@@ -80,27 +80,11 @@ http_interactions:
           "object": "list",
           "data": [
             {
-              "id": "we_1R1ner2ESifGlJezydmoL0st",
+              "id": "we_1R68OqFgg8qhioDXoDVW3bSF",
               "object": "webhook_endpoint",
               "api_version": null,
-              "application": null,
-              "created": 1741779669,
-              "description": null,
-              "enabled_events": [
-                "payment_intent.payment_failed",
-                "payment_intent.succeeded"
-              ],
-              "livemode": false,
-              "metadata": {},
-              "status": "enabled",
-              "url": "https://app.vendo.dev/stripe"
-            },
-            {
-              "id": "we_1QqwMZ2ESifGlJezP0GF1ZHz",
-              "object": "webhook_endpoint",
-              "api_version": null,
-              "application": "ca_ROMtxw3OIzmnsWikic1yZQJ7AgMpmdOF",
-              "created": 1739191523,
+              "application": "ca_LByFvh914Xalmcl3Um4pByXHajw7AGZB",
+              "created": 1742812712,
               "description": null,
               "enabled_events": [
                 "account.updated"
@@ -111,11 +95,43 @@ http_interactions:
               "url": "https://app.lvh.me/stripe"
             },
             {
-              "id": "we_1QqwMY2ESifGlJezzFo7W4xt",
+              "id": "we_1R68OoFgg8qhioDXIMFjgJJM",
               "object": "webhook_endpoint",
               "api_version": null,
               "application": null,
-              "created": 1739191522,
+              "created": 1742812710,
+              "description": null,
+              "enabled_events": [
+                "payment_intent.payment_failed",
+                "payment_intent.succeeded",
+                "setup_intent.succeeded"
+              ],
+              "livemode": false,
+              "metadata": {},
+              "status": "enabled",
+              "url": "https://app.lvh.me/stripe"
+            },
+            {
+              "id": "we_1R1UJAFgg8qhioDX6q4gtXb0",
+              "object": "webhook_endpoint",
+              "api_version": null,
+              "application": "ca_LByFvh914Xalmcl3Um4pByXHajw7AGZB",
+              "created": 1741705288,
+              "description": null,
+              "enabled_events": [
+                "account.updated"
+              ],
+              "livemode": false,
+              "metadata": {},
+              "status": "enabled",
+              "url": "https://app.lvh.me/stripe"
+            },
+            {
+              "id": "we_1R1UJAFgg8qhioDXGwIH58LV",
+              "object": "webhook_endpoint",
+              "api_version": null,
+              "application": null,
+              "created": 1741705288,
               "description": null,
               "enabled_events": [
                 "payment_intent.payment_failed",
@@ -126,18 +142,48 @@ http_interactions:
               "metadata": {},
               "status": "enabled",
               "url": "https://app.lvh.me/stripe"
+            },
+            {
+              "id": "we_1PSyaxFgg8qhioDXvJqXIGut",
+              "object": "webhook_endpoint",
+              "api_version": null,
+              "application": "ca_LByFvh914Xalmcl3Um4pByXHajw7AGZB",
+              "created": 1718703895,
+              "description": null,
+              "enabled_events": [
+                "account.updated"
+              ],
+              "livemode": false,
+              "metadata": {},
+              "status": "enabled",
+              "url": "https://app.lvh.me/stripe"
+            },
+            {
+              "id": "we_1NYPpkFgg8qhioDX0B5XJlCH",
+              "object": "webhook_endpoint",
+              "api_version": null,
+              "application": "ca_LByFvh914Xalmcl3Um4pByXHajw7AGZB",
+              "created": 1690447568,
+              "description": null,
+              "enabled_events": [
+                "account.updated"
+              ],
+              "livemode": false,
+              "metadata": {},
+              "status": "enabled",
+              "url": "https://app.lvh.me/stripe"
             }
           ],
           "has_more": false,
           "url": "/v1/webhook_endpoints"
         }
-  recorded_at: Wed, 12 Mar 2025 11:52:51 GMT
+  recorded_at: Mon, 24 Mar 2025 11:07:07 GMT
 - request:
     method: post
     uri: https://api.stripe.com/v1/webhook_endpoints
     body:
       encoding: UTF-8
-      string: url=https%3A%2F%2Fspreecommerce.org%2Fstripe&enabled_events[0]=payment_intent.payment_failed&enabled_events[1]=payment_intent.succeeded&connect=false
+      string: url=https%3A%2F%2Fspreecommerce.org%2Fstripe&enabled_events[0]=payment_intent.payment_failed&enabled_events[1]=payment_intent.succeeded&enabled_events[2]=setup_intent.succeeded&connect=false
     headers:
       User-Agent:
       - Stripe/v1 RubyBindings/10.1.0 Spree Stripe/5.0.0.alpha (https://spreecommerce.org)
@@ -146,7 +192,7 @@ http_interactions:
       Content-Type:
       - application/x-www-form-urlencoded
       X-Stripe-Client-Telemetry:
-      - '{"last_request_metrics":{"request_id":"req_s3ur2CF4diQz7r","request_duration_ms":382}}'
+      - '{"last_request_metrics":{"request_id":"req_BbKJfjcSDLJZ5Y","request_duration_ms":368}}'
       Stripe-Version:
       - '2023-10-16'
       X-Stripe-Client-User-Agent:
@@ -163,11 +209,11 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Wed, 12 Mar 2025 11:52:52 GMT
+      - Mon, 24 Mar 2025 11:07:07 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '423'
+      - '453'
       Connection:
       - keep-alive
       Access-Control-Allow-Credentials:
@@ -186,19 +232,19 @@ http_interactions:
       Content-Security-Policy:
       - base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none';
         img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src
-        'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=BCkujAbeMJLB1IkFhaz64rzT9xKtCHee3TOXcJ2i2osJEKsTULLhJQXAcgriFiP6v6OzcFVvGzdw9E4y
+        'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=rD6kflVGRLCHsHjtM9QpoF7GvAf7wx0VGXc19OkrO0WWnYUGn70etcg1q0RxF1sSg7HK9WrnR87G97RI
       Cross-Origin-Opener-Policy-Report-Only:
       - same-origin; report-to="coop"
       Idempotency-Key:
-      - becba226-79b1-4e28-8b4e-a7c70d1b159c
+      - 9229fc61-926d-4c55-961a-2c1515a39a31
       Original-Request:
-      - req_NfvZyvtwxdEI47
+      - req_xWw9WuhPumgFVh
       Report-To:
       - '{"group":"coop","max_age":8640,"endpoints":[{"url":"https://q.stripe.com/coop-report"}],"include_subdomains":true}'
       Reporting-Endpoints:
       - coop="https://q.stripe.com/coop-report"
       Request-Id:
-      - req_NfvZyvtwxdEI47
+      - req_xWw9WuhPumgFVh
       Stripe-Should-Retry:
       - 'false'
       Stripe-Version:
@@ -217,15 +263,16 @@ http_interactions:
       encoding: UTF-8
       string: |-
         {
-          "id": "we_1R1nqB2ESifGlJezoq0xxQZT",
+          "id": "we_1R68qVFgg8qhioDX8hQVp09k",
           "object": "webhook_endpoint",
           "api_version": null,
           "application": null,
-          "created": 1741780371,
+          "created": 1742814427,
           "description": null,
           "enabled_events": [
             "payment_intent.payment_failed",
-            "payment_intent.succeeded"
+            "payment_intent.succeeded",
+            "setup_intent.succeeded"
           ],
           "livemode": false,
           "metadata": {},
@@ -233,7 +280,7 @@ http_interactions:
           "status": "enabled",
           "url": "https://spreecommerce.org/stripe"
         }
-  recorded_at: Wed, 12 Mar 2025 11:52:52 GMT
+  recorded_at: Mon, 24 Mar 2025 11:07:07 GMT
 - request:
     method: get
     uri: https://api.stripe.com/v1/webhook_endpoints
@@ -248,7 +295,7 @@ http_interactions:
       Content-Type:
       - application/x-www-form-urlencoded
       X-Stripe-Client-Telemetry:
-      - '{"last_request_metrics":{"request_id":"req_NfvZyvtwxdEI47","request_duration_ms":101}}'
+      - '{"last_request_metrics":{"request_id":"req_xWw9WuhPumgFVh","request_duration_ms":484}}'
       Stripe-Version:
       - '2023-10-16'
       X-Stripe-Client-User-Agent:
@@ -265,11 +312,11 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Wed, 12 Mar 2025 11:59:34 GMT
+      - Mon, 24 Mar 2025 11:07:07 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '1835'
+      - '3162'
       Connection:
       - keep-alive
       Access-Control-Allow-Credentials:
@@ -288,7 +335,7 @@ http_interactions:
       Content-Security-Policy:
       - base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none';
         img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src
-        'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=rAEd74QYqOXKneapX4roiZAZ8Bou0USEUPf3PV_nrMbGhtHJpBjCUoMVdNOi1TmmdJ1ss3cevSMh-QjB
+        'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=rD6kflVGRLCHsHjtM9QpoF7GvAf7wx0VGXc19OkrO0WWnYUGn70etcg1q0RxF1sSg7HK9WrnR87G97RI
       Cross-Origin-Opener-Policy-Report-Only:
       - same-origin; report-to="coop"
       Report-To:
@@ -296,7 +343,7 @@ http_interactions:
       Reporting-Endpoints:
       - coop="https://q.stripe.com/coop-report"
       Request-Id:
-      - req_bXcJ7XMZQD10WX
+      - req_ixbzBmj4F1vaWy
       Stripe-Version:
       - '2023-10-16'
       Vary:
@@ -316,15 +363,16 @@ http_interactions:
           "object": "list",
           "data": [
             {
-              "id": "we_1R1nqB2ESifGlJezoq0xxQZT",
+              "id": "we_1R68qVFgg8qhioDX8hQVp09k",
               "object": "webhook_endpoint",
               "api_version": null,
               "application": null,
-              "created": 1741780371,
+              "created": 1742814427,
               "description": null,
               "enabled_events": [
                 "payment_intent.payment_failed",
-                "payment_intent.succeeded"
+                "payment_intent.succeeded",
+                "setup_intent.succeeded"
               ],
               "livemode": false,
               "metadata": {},
@@ -332,27 +380,11 @@ http_interactions:
               "url": "https://spreecommerce.org/stripe"
             },
             {
-              "id": "we_1R1ner2ESifGlJezydmoL0st",
+              "id": "we_1R68OqFgg8qhioDXoDVW3bSF",
               "object": "webhook_endpoint",
               "api_version": null,
-              "application": null,
-              "created": 1741779669,
-              "description": null,
-              "enabled_events": [
-                "payment_intent.payment_failed",
-                "payment_intent.succeeded"
-              ],
-              "livemode": false,
-              "metadata": {},
-              "status": "enabled",
-              "url": "https://app.vendo.dev/stripe"
-            },
-            {
-              "id": "we_1QqwMZ2ESifGlJezP0GF1ZHz",
-              "object": "webhook_endpoint",
-              "api_version": null,
-              "application": "ca_ROMtxw3OIzmnsWikic1yZQJ7AgMpmdOF",
-              "created": 1739191523,
+              "application": "ca_LByFvh914Xalmcl3Um4pByXHajw7AGZB",
+              "created": 1742812712,
               "description": null,
               "enabled_events": [
                 "account.updated"
@@ -363,11 +395,43 @@ http_interactions:
               "url": "https://app.lvh.me/stripe"
             },
             {
-              "id": "we_1QqwMY2ESifGlJezzFo7W4xt",
+              "id": "we_1R68OoFgg8qhioDXIMFjgJJM",
               "object": "webhook_endpoint",
               "api_version": null,
               "application": null,
-              "created": 1739191522,
+              "created": 1742812710,
+              "description": null,
+              "enabled_events": [
+                "payment_intent.payment_failed",
+                "payment_intent.succeeded",
+                "setup_intent.succeeded"
+              ],
+              "livemode": false,
+              "metadata": {},
+              "status": "enabled",
+              "url": "https://app.lvh.me/stripe"
+            },
+            {
+              "id": "we_1R1UJAFgg8qhioDX6q4gtXb0",
+              "object": "webhook_endpoint",
+              "api_version": null,
+              "application": "ca_LByFvh914Xalmcl3Um4pByXHajw7AGZB",
+              "created": 1741705288,
+              "description": null,
+              "enabled_events": [
+                "account.updated"
+              ],
+              "livemode": false,
+              "metadata": {},
+              "status": "enabled",
+              "url": "https://app.lvh.me/stripe"
+            },
+            {
+              "id": "we_1R1UJAFgg8qhioDXGwIH58LV",
+              "object": "webhook_endpoint",
+              "api_version": null,
+              "application": null,
+              "created": 1741705288,
               "description": null,
               "enabled_events": [
                 "payment_intent.payment_failed",
@@ -378,10 +442,40 @@ http_interactions:
               "metadata": {},
               "status": "enabled",
               "url": "https://app.lvh.me/stripe"
+            },
+            {
+              "id": "we_1PSyaxFgg8qhioDXvJqXIGut",
+              "object": "webhook_endpoint",
+              "api_version": null,
+              "application": "ca_LByFvh914Xalmcl3Um4pByXHajw7AGZB",
+              "created": 1718703895,
+              "description": null,
+              "enabled_events": [
+                "account.updated"
+              ],
+              "livemode": false,
+              "metadata": {},
+              "status": "enabled",
+              "url": "https://app.lvh.me/stripe"
+            },
+            {
+              "id": "we_1NYPpkFgg8qhioDX0B5XJlCH",
+              "object": "webhook_endpoint",
+              "api_version": null,
+              "application": "ca_LByFvh914Xalmcl3Um4pByXHajw7AGZB",
+              "created": 1690447568,
+              "description": null,
+              "enabled_events": [
+                "account.updated"
+              ],
+              "livemode": false,
+              "metadata": {},
+              "status": "enabled",
+              "url": "https://app.lvh.me/stripe"
             }
           ],
           "has_more": false,
           "url": "/v1/webhook_endpoints"
         }
-  recorded_at: Wed, 12 Mar 2025 11:59:34 GMT
-recorded_with: VCR 6.2.0
+  recorded_at: Mon, 24 Mar 2025 11:07:07 GMT
+recorded_with: VCR 6.3.1

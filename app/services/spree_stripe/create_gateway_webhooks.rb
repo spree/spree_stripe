@@ -1,6 +1,6 @@
 module SpreeStripe
   class CreateGatewayWebhooks
-    def call(payment_method:, events: SpreeStripe::Gateway::DIRECT_ENABLED_EVENTS, connect: false)
+    def call(payment_method:, events: SpreeStripe::Config[:supported_webhook_events], connect: false)
       webhook_list = Stripe::WebhookEndpoint.list({}, { api_key: payment_method.preferred_secret_key })
       webhook = find_webhook(webhook_list[:data], events)
 

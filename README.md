@@ -52,9 +52,13 @@ Thank you for supporting Spree open-source :heart:
 
 ![Quick payments bypassing checkout 1st step (Apple Pay, Google_Pay, Link)](https://vendo-production-res.cloudinary.com/image/upload/w_2000/q_auto/v1742930027/docs/github/Spree_x_Stripe_-_Apple_Pay_Google_Pay_Link_-_Checkout_payment_step_rxxnr9.jpg)
 
-## Spree Demo
+## Spree 5 Demo
 
-Check out this [Spree Commerce demo](https://demo.spreecommerce.org/) for yourself. 
+Check out the [Spree Commerce demo](https://demo.spreecommerce.org/) for yourself, including this Stripe integration.
+
+This demo runs on Spree 5 which is the biggest Spree release ever. Stay tuned for the official announcement on all the exciting features and integrations - coming up soon!
+
+![Spree Commerce 5 version](https://vendo-production-res.cloudinary.com/image/upload/w_2000/q_auto/v1742985405/docs/github/Spree_Commerce_open-source_eCommerce_myzurl.jpg)
 
 ## Installation
 

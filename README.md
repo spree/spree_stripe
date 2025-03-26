@@ -5,7 +5,7 @@
 
 # Spree Stripe
 
-This is the official Stripe payment gateway extension for [Spree Commerce](https://spreecommerce.org) open-source eCommerce platform. 
+This is the official Stripe payment gateway extension for [Spree Commerce](https://spreecommerce.org) [open-source eCommerce platform](https://spreecommerce.org/). 
 
 If you like what you see, consider giving this repo a GitHub star :star:
 
@@ -38,7 +38,7 @@ Thank you for supporting Spree open-source :heart:
 
 ### Installment (BNPL) payments indicator on PDP (Product Detail Page)
 
-![Spree_x_Stripe_-_BNPL_Installment_payments_Product_Card_PDP_Product_Detail_Page](https://vendo-production-res.cloudinary.com/image/upload/w_2000/q_auto/v1742930027/docs/github/Spree_x_Stripe_-_BNPL_Installment_payments_Product_Card_PDP_Product_Detail_Page_k2u1dh.jpg)
+![Spree_x_Stripe_-_BNPL_Installment_payments_Product_Card_PDP_Product_Detail_Page](https://vendo-production-res.cloudinary.com/image/upload/w_2000/q_auto/v1742983146/docs/github/Spree_x_Stripe_-_BNPL_Installment_payments_Product_Card_PDP_Product_Detail_Page_amhfkw.jpg)
 
 ### Quick payment options on the cart (Apple Pay, Google Pay, Link)
 

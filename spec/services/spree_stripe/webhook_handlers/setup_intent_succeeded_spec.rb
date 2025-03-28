@@ -54,7 +54,6 @@ RSpec.describe SpreeStripe::WebhookHandlers::SetupIntentSucceeded do
     end
 
     let(:credit_card) { create(:credit_card, user: user, payment_method: stripe_gateway, gateway_payment_profile_id: payment_method_id) }
-    let(:error_handler) { instance_double(Spree::Dependencies.error_handler.constantize) }
 
     before do
       allow(Stripe::PaymentMethod).to receive(:retrieve).with(
@@ -93,20 +92,17 @@ RSpec.describe SpreeStripe::WebhookHandlers::SetupIntentSucceeded do
 
         before do
           allow(Stripe::PaymentMethod).to receive(:retrieve).and_raise(stripe_error)
-          allow(Spree::ErrorHandler).to receive(:new).and_return(error_handler)
-          allow(error_handler).to receive(:call)
         end
 
         it 'handles the error and does not create a source' do
-          expect { subject }.not_to change(Spree::CreditCard, :count)
-
-          expect(error_handler).to have_received(:call).with(
-            exception: stripe_error,
-            opts: {
-              report_context: { event: event },
-              user: user
-            }
+          expect(Rails.error).to receive(:report).with(
+            stripe_error,
+            context: { event: event, user_id: user.id },
+            source: 'spree_stripe',
+            handled: false
           )
+
+          expect { subject }.not_to change(Spree::CreditCard, :count)
         end
       end
     end

@@ -65,7 +65,7 @@ This demo runs on Spree 5 which is the biggest Spree release ever. Stay tuned fo
 1. Add this extension to your Gemfile with this line:
 
     ```ruby
-    bundle add spree_stripe --github=spree/spree_stripe
+    bundle add spree_stripe
     ```
 
 2. Run the install generator

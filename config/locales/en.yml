@@ -1,14 +1,12 @@
-# Sample localization file for English. Add more files in this directory for other locales.
-# See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
-
+---
 en:
   spree:
     stripe:
       payment_intent_errors:
-        requires_payment_method: "Payment intent requires payment method"
-        requires_confirmation: "Payment intent requires confirmation"
-        requires_action: "Payment intent requires action"
-        processing: "Payment intent processing"
-        requires_capture: "Payment intent requires capture"
-        canceled: "Payment intent canceled"
-        succeeded: "Payment intent succeeded"
+        canceled: Payment intent canceled
+        processing: Payment intent processing
+        requires_action: Payment intent requires action
+        requires_capture: Payment intent requires capture
+        requires_confirmation: Payment intent requires confirmation
+        requires_payment_method: Payment intent requires payment method
+        succeeded: Payment intent succeeded

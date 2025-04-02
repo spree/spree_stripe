@@ -54,9 +54,15 @@ Thank you for supporting Spree open-source :heart:
 
 ## Spree 5 Demo
 
-Check out the [Spree Commerce demo](https://demo.spreecommerce.org/) for yourself, including this Stripe integration.
+We’re thrilled to unveil [Spree 5](https://spreecommerce.org/announcing-spree-5-the-biggest-open-source-release-ever/
+) — the most powerful and feature-packed open-source release in Spree Commerce’s history, including:
+- A completly revamped Admin Dashboard experience: boost your team's productivity 
+- A Mobile-First, No-code Customizable Storefront: raise conversions and loyalty
+- Enterprise Edition Admin Features: Stripe Connect, Klaviyo integrations
 
-This demo runs on Spree 5 which is the biggest Spree release ever. Stay tuned for the official announcement on all the exciting features and integrations - coming up soon!
+Read the [full Spree 5 announcement here](https://spreecommerce.org/announcing-spree-5-the-biggest-open-source-release-ever/).
+
+Check out the [Spree 5 demo](https://demo.spreecommerce.org/) for yourself, including this Stripe integration.
 
 ![Spree Commerce 5 version](https://vendo-production-res.cloudinary.com/image/upload/w_2000/q_auto/v1742985405/docs/github/Spree_Commerce_open-source_eCommerce_myzurl.jpg)
 

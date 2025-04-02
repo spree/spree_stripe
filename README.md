@@ -7,6 +7,10 @@
 
 This is the official Stripe payment gateway extension for [Spree Commerce](https://spreecommerce.org) [open-source eCommerce platform](https://spreecommerce.org/). 
 
+This Stripe integration is bundled in the [Spree Starter](https://github.com/spree/spree_starter/) for your development convenience. 
+
+Or you could follow the [installation instructions](https://github.com/spree/spree_stripe/edit/main/README.md#installation) below.
+
 If you like what you see, consider giving this repo a GitHub star :star:
 
 Thank you for supporting Spree open-source :heart:
@@ -52,21 +56,6 @@ Thank you for supporting Spree open-source :heart:
 
 ![Quick payments bypassing checkout 1st step (Apple Pay, Google_Pay, Link)](https://vendo-production-res.cloudinary.com/image/upload/w_2000/q_auto/v1742930027/docs/github/Spree_x_Stripe_-_Apple_Pay_Google_Pay_Link_-_Checkout_payment_step_rxxnr9.jpg)
 
-## Spree 5 Announcement & Demo
-
-[![Spree Commerce 5 version](https://vendo-production-res.cloudinary.com/image/upload/w_2000/q_auto/v1742985405/docs/github/Spree_Commerce_open-source_eCommerce_myzurl.jpg)](https://spreecommerce.org/announcing-spree-5-the-biggest-open-source-release-ever/)
-
-We’re thrilled to unveil [Spree 5](https://spreecommerce.org/announcing-spree-5-the-biggest-open-source-release-ever/
-) — the most powerful and feature-packed open-source release in Spree Commerce’s history, including:
-- A completly revamped Admin Dashboard experience: boost your team's productivity 
-- A Mobile-First, No-code Customizable Storefront: raise conversions and loyalty
-- New integrations: a native [Stripe integration](https://github.com/spree/spree_stripe), and also Stripe Connect, Klaviyo integrations available with the Enterprise Edition
-- Enterprise Edition Admin Features: Audit Log, [Multi-Vendor Marketplace](https://spreecommerce.org/marketplace-ecommerce/), [Multi-tenant / White-label SaaS eCommerce](https://spreecommerce.org/multi-tenant-white-label-ecommerce/)
-
-Read the [full Spree 5 announcement here](https://spreecommerce.org/announcing-spree-5-the-biggest-open-source-release-ever/).
-
-Check out the [Spree 5 demo](https://demo.spreecommerce.org/) for yourself, including this Stripe integration.
-
 ## Installation
 
 1. Add this extension to your Gemfile with this line:
@@ -84,6 +73,8 @@ Check out the [Spree 5 demo](https://demo.spreecommerce.org/) for yourself, incl
 3. Restart your server
 
   If your server was running, restart it so that it can find the assets properly.
+
+  This Stripe integration is also bundled in the [Spree Starter](https://github.com/spree/spree_starter/) for your development convenience.
 
 ## Developing
 
@@ -137,3 +128,19 @@ Spree Commerce [Enterprise Edition](https://spreecommerce.org/spree-commerce-ver
 - Built-in fraud prevention tools
 
 Feel free to [reach out](https://spreecommerce.org/get-started/) to learn more.
+
+## Spree 5 Announcement & Demo
+
+[![Spree Commerce 5 version](https://vendo-production-res.cloudinary.com/image/upload/w_2000/q_auto/v1742985405/docs/github/Spree_Commerce_open-source_eCommerce_myzurl.jpg)](https://spreecommerce.org/announcing-spree-5-the-biggest-open-source-release-ever/)
+
+We’re thrilled to unveil [Spree 5](https://spreecommerce.org/announcing-spree-5-the-biggest-open-source-release-ever/
+) — the most powerful and feature-packed open-source release in Spree Commerce’s history, including:
+- A completly revamped Admin Dashboard experience: boost your team's productivity 
+- A Mobile-First, No-code Customizable Storefront: raise conversions and loyalty
+- New integrations: a native [Stripe integration](https://github.com/spree/spree_stripe), and also Stripe Connect, Klaviyo integrations available with the Enterprise Edition
+- Enterprise Edition Admin Features: Audit Log, [Multi-Vendor Marketplace](https://spreecommerce.org/marketplace-ecommerce/), [Multi-tenant / White-label SaaS eCommerce](https://spreecommerce.org/multi-tenant-white-label-ecommerce/)
+
+Read the [full Spree 5 announcement here](https://spreecommerce.org/announcing-spree-5-the-biggest-open-source-release-ever/).
+
+Check out the [Spree 5 demo](https://demo.spreecommerce.org/) for yourself, including this Stripe integration.
+

@@ -44,6 +44,26 @@ module Spree
               render_serialized_payload { serialize_resource(@payment_intent) }
             end
 
+            def confirm
+              @payment_intent = spree_current_order.payment_intents.find(params[:id])
+
+              stripe_payment_intent = @payment_intent.stripe_payment_intent
+
+              if spree_current_order.completed?
+                render_error_payload(Spree.t(:order_already_completed))
+              elsif stripe_payment_intent.status == 'succeeded'
+                spree_authorize! :update, spree_current_order, order_token
+
+                SpreeStripe::CompleteOrder.new(payment_intent: @payment_intent).call
+
+                render_serialized_payload { serialize_resource(@payment_intent) }
+              else
+                render_error_payload(Spree.t("stripe.payment_intent_errors.#{stripe_payment_intent.status}"))
+              end
+            rescue Spree::Core::GatewayError => e
+              render_error_payload(e.message)
+            end
+
             private
 
             def permitted_attributes

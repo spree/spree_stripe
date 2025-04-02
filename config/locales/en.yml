@@ -2,4 +2,11 @@
 # See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
 
 en:
-  hello: "Hello world"
+  spree:
+    stripe:
+      payment_intent_errors:
+        succeeded: "Payment intent succeeded"
+        processing: "Payment intent processing"
+        requires_action: "Payment intent requires action"
+        requires_payment_method: "Payment intent requires payment method"
+        canceled: "Payment intent canceled"

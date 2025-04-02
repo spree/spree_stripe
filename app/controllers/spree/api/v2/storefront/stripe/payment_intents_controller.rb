@@ -5,7 +5,7 @@ module Spree
         module Stripe
           class PaymentIntentsController < BaseController
             include Spree::Api::V2::Storefront::OrderConcern
-            before_action :ensure_order
+            before_action :ensure_order, except: [:confirm]
 
             # POST /api/v2/storefront/stripe/payment_intents
             def create
@@ -45,11 +45,18 @@ module Spree
             end
 
             def confirm
-              @payment_intent = spree_current_order.payment_intents.find(params[:id])
+              @payment_intent = SpreeStripe::PaymentIntent.find(params[:id])
 
               stripe_payment_intent = @payment_intent.stripe_payment_intent
+              order = @payment_intent.order
 
-              if stripe_payment_intent.status == 'succeeded'
+              if order.canceled?
+                render_error_payload(Spree.t('order_canceled'))
+              elsif order.completed?
+                render_error_payload(Spree.t('order_already_completed'))
+              elsif order != spree_current_order
+                raise ActiveRecord::RecordNotFound
+              elsif stripe_payment_intent.status == 'succeeded'
                 spree_authorize! :update, spree_current_order, order_token
 
                 SpreeStripe::CompleteOrder.new(payment_intent: @payment_intent).call

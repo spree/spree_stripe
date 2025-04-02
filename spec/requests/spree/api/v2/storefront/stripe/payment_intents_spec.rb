@@ -128,7 +128,7 @@ RSpec.describe Spree::Api::V2::Storefront::Stripe::PaymentIntentsController, typ
 
     context 'when order is canceled' do
       before do
-        order.update_columns(state: 'canceled')
+        payment_intent.update(order: create(:order))
         subject
       end
 
@@ -143,8 +143,16 @@ RSpec.describe Spree::Api::V2::Storefront::Stripe::PaymentIntentsController, typ
         subject
       end
 
-      it 'returns 404' do
-        expect(response.status).to eq(404)
+      it 'returns 422' do
+        expect(response.status).to eq(422)
+        expect(json_response['error']).to eq(Spree.t('order_already_completed'))
+      end
+    end
+
+    context "when payment intent's order is not the current order" do
+      before do
+        order.update_columns(state: 'payment', total: 10.0)
+        subject
       end
     end
 

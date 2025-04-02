@@ -49,9 +49,7 @@ module Spree
 
               stripe_payment_intent = @payment_intent.stripe_payment_intent
 
-              if spree_current_order.completed?
-                render_error_payload(Spree.t(:order_already_completed))
-              elsif stripe_payment_intent.status == 'succeeded'
+              if stripe_payment_intent.status == 'succeeded'
                 spree_authorize! :update, spree_current_order, order_token
 
                 SpreeStripe::CompleteOrder.new(payment_intent: @payment_intent).call

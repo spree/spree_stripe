@@ -18,7 +18,7 @@ module Spree
                 spree_current_order,
                 stripe_gateway,
                 stripe_payment_method_id: stripe_payment_method_id,
-                off_session: permitted_attributes[:off_session] || false
+                off_session: permitted_attributes[:off_session].to_b || false
               )
 
               render_serialized_payload { serialize_resource(@payment_intent) }
@@ -38,7 +38,7 @@ module Spree
               spree_authorize! :update, spree_current_order, order_token
 
               @payment_intent = spree_current_order.payment_intents.find(params[:id])
-              @payment_intent.attributes = permitted_attributes
+              @payment_intent.attributes = permitted_attributes.except(:off_session)
               @payment_intent.save!
 
               render_serialized_payload { serialize_resource(@payment_intent) }

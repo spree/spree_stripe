@@ -33,6 +33,7 @@ module SpreeStripe
         stripe_id: response.authorization,
         client_secret: response.params['client_secret'],
         customer_id: customer&.profile_id,
+        stripe_payment_method_id: stripe_payment_method_id,
         ephemeral_key_secret: ephemeral_key_secret
       )
     end

@@ -8,18 +8,19 @@ RSpec.describe Spree::Api::V2::Storefront::Stripe::PaymentIntentsController, typ
   let(:user) { nil }
 
   let(:headers) { { 'X-Spree-Order-Token' => order.token } }
-    let(:params) do
-      {
-        payment_intent: {
-          amount: amount,
-          stripe_payment_method_id: stripe_payment_method_id
-        }
+  let(:params) do
+    {
+      payment_intent: {
+        amount: amount,
+        stripe_payment_method_id: stripe_payment_method_id,
+        off_session: off_session
       }
-    end
+    }
+  end
 
   let(:amount) { 12.34 }
   let(:stripe_payment_method_id) { 'pm_1234567890' }
-
+  let(:off_session) { false }
   let(:stripe_response) do
     double(
       :stripe_response,
@@ -38,7 +39,7 @@ RSpec.describe Spree::Api::V2::Storefront::Stripe::PaymentIntentsController, typ
       order.update(total: amount)
 
       allow_any_instance_of(gateway.class).to receive(:create_payment_intent)
-        .with(Spree::Money.new(amount).cents, order, payment_method_id: stripe_payment_method_id, off_session: false)
+        .with(Spree::Money.new(amount).cents, order, payment_method_id: stripe_payment_method_id, off_session: off_session)
         .and_return(stripe_response)
 
       post '/api/v2/storefront/stripe/payment_intents', headers: headers, params: params
@@ -61,6 +62,7 @@ RSpec.describe Spree::Api::V2::Storefront::Stripe::PaymentIntentsController, typ
       expect(payment_intent.payment_method).to eq(gateway)
       expect(payment_intent.stripe_id).to eq(payment_intent_id)
       expect(payment_intent.client_secret).to eq(client_secret)
+      expect(payment_intent.stripe_payment_method_id).to eq(stripe_payment_method_id)
     end
   end
 

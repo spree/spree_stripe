@@ -151,8 +151,12 @@ RSpec.describe Spree::Api::V2::Storefront::Stripe::PaymentIntentsController, typ
 
     context "when payment intent's order is not the current order" do
       before do
-        order.update_columns(state: 'payment', total: 10.0)
+        payment_intent.update(order: create(:order))
         subject
+      end
+
+      it 'returns 404' do
+        expect(response.status).to eq(404)
       end
     end
 

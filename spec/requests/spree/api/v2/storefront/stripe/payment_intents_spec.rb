@@ -97,7 +97,7 @@ RSpec.describe Spree::Api::V2::Storefront::Stripe::PaymentIntentsController, typ
 
   describe 'payment_intents#confirm' do
     subject do
-      post "/api/v2/storefront/stripe/payment_intents/#{payment_intent.id}/confirm", headers: headers
+      patch "/api/v2/storefront/stripe/payment_intents/#{payment_intent.id}/confirm", headers: headers
     end
 
     let(:payment_intent) do

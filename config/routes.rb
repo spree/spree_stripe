@@ -18,7 +18,7 @@ Spree::Core::Engine.add_routes do
           resources :setup_intents, only: %i[create]
           resources :payment_intents, only: %i[show create update] do
             member do
-              post :confirm
+              patch :confirm
             end
           end
         end

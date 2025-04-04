@@ -16,7 +16,11 @@ Spree::Core::Engine.add_routes do
       namespace :storefront do
         namespace :stripe do
           resources :setup_intents, only: %i[create]
-          resources :payment_intents, only: %i[show create update]
+          resources :payment_intents, only: %i[show create update] do
+            member do
+              patch :confirm
+            end
+          end
         end
       end
     end

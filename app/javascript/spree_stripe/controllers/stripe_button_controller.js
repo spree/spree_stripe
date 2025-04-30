@@ -18,7 +18,11 @@ export default class extends Controller {
     maxRows: Number,
     maxColumns: Number,
     buttonWidth: Number,
-    storeUrl: String,
+    checkoutPath: String,
+    checkoutAdvancePath: String,
+    checkoutSelectShippingMethodPath: String,
+    checkoutValidateGiftCardDataPath: String,
+    checkoutValidateOrderForPaymentPath: String,
     returnUrl: String,
   }
 
@@ -139,7 +143,7 @@ export default class extends Controller {
     }
 
     // 1st we need to persist the address to the order
-    const saveAddressResponse = await fetch(`${this.storeUrlValue}/api/v2/storefront/checkout`, {
+    const saveAddressResponse = await fetch(`${this.checkoutPathValue}`, {
       method: 'PATCH',
       headers: {
         'X-Spree-Order-Token': this.orderTokenValue,
@@ -153,7 +157,7 @@ export default class extends Controller {
       // In case of any error here we have to allow user try again
       try {
         const response = await fetch(
-          `${this.storeUrlValue}/api/v2/storefront/checkout/advance?state=delivery&include=shipments.shipping_rates,line_items.vendor`,
+          `${this.checkoutAdvancePathValue}?state=delivery&include=shipments.shipping_rates,line_items.vendor`,
           {
             method: 'PATCH',
             headers: {
@@ -197,7 +201,7 @@ export default class extends Controller {
 
       this.currentShippingOptionId = shippingRateId
 
-      const response = await fetch(`${this.storeUrlValue}/api/v2/storefront/checkout/select_shipping_method`, {
+      const response = await fetch(`${this.checkoutSelectShippingMethodPathValue}`, {
         method: 'PATCH',
         headers: {
           'X-Spree-Order-Token': this.orderTokenValue,
@@ -232,7 +236,7 @@ export default class extends Controller {
 
     if (this.giftCardCodeValue && this.giftCardAmountValue) {
       const giftCardValidationResponse = await fetch(
-        `${this.storeUrlValue}/api/v2/storefront/checkout/validate_gift_card_data`,
+        `${this.checkoutValidateGiftCardDataPathValue}`,
         {
           method: 'POST',
           headers: {
@@ -252,7 +256,7 @@ export default class extends Controller {
     }
 
     const validationResponse = await fetch(
-      `${this.storeUrlValue}/api/v2/storefront/checkout/validate_order_for_payment?skip_state=true`,
+      `${this.checkoutValidateOrderForPaymentPathValue}?skip_state=true`,
       {
         method: 'POST',
         headers: {
@@ -297,7 +301,7 @@ export default class extends Controller {
       do_not_change_state: true
     }
 
-    const updateResponse = await fetch(`${this.storeUrlValue}/api/v2/storefront/checkout`, {
+    const updateResponse = await fetch(`${this.checkoutPathValue}`, {
       method: 'PATCH',
       headers: {
         'X-Spree-Order-Token': this.orderTokenValue,
@@ -307,7 +311,7 @@ export default class extends Controller {
     })
 
     if (updateResponse.status === 200) {
-      const advanceResponse = await fetch(`${this.storeUrlValue}/api/v2/storefront/checkout/advance?state=payment`, {
+      const advanceResponse = await fetch(`${this.checkoutAdvancePathValue}?state=payment`, {
         method: 'PATCH',
         headers: {
           'X-Spree-Order-Token': this.orderTokenValue,
@@ -369,7 +373,7 @@ export default class extends Controller {
 
     if (this.shippingRates?.length > 1 && this.currentShippingOptionId !== defaultShippingMethodId) {
       // reset shipping choice
-      await fetch(`${this.storeUrlValue}/api/v2/storefront/checkout/select_shipping_method`, {
+      await fetch(`${this.checkoutSelectShippingMethodPathValue}`, {
         method: 'PATCH',
         headers: {
           'X-Spree-Order-Token': this.orderTokenValue,
@@ -380,7 +384,7 @@ export default class extends Controller {
     }
 
     // reset addresses
-    await fetch(`${this.storeUrlValue}/api/v2/storefront/checkout`, {
+    await fetch(`${this.checkoutPathValue}`, {
       method: 'PATCH',
       headers: {
         'X-Spree-Order-Token': this.orderTokenValue,

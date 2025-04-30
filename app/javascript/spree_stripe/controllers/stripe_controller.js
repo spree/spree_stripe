@@ -11,7 +11,9 @@ export default class extends Controller {
     colorPrimary: String,
     colorBackground: String,
     colorText: String,
-    storeUrl: String
+    paymentIntentPath: String,
+    checkoutPath: String,
+    checkoutValidateOrderForPaymentPath: String
   }
 
   static targets = [
@@ -53,7 +55,7 @@ export default class extends Controller {
     }
 
     const response = await fetch(
-      `${this.storeUrlValue}/api/v2/storefront/stripe/payment_intents/${this.paymentIntentValue.id}`,
+      `${this.paymentIntentPathValue}`,
       {
         method: 'PATCH',
         headers: this.spreeApiHeaders,
@@ -179,7 +181,7 @@ export default class extends Controller {
 
   async validateOrderForPayment() {
     const response = await fetch(
-      `${this.storeUrlValue}/api/v2/storefront/checkout/validate_order_for_payment`,
+      `${this.checkoutValidateOrderForPaymentPathValue}`,
       {
         method: 'POST',
         headers: this.spreeApiHeaders
@@ -204,7 +206,7 @@ export default class extends Controller {
   async updateBillingAddress() {
     // billing address same as shipping address
     if (this.billingAddressCheckbox.checked) {
-      const response = await fetch(`${this.storeUrlValue}/api/v2/storefront/checkout?include=billing_address`, {
+      const response = await fetch(`${this.checkoutPathValue}?include=billing_address`, {
         method: 'PATCH',
         headers: this.spreeApiHeaders,
         body: JSON.stringify({
@@ -228,7 +230,7 @@ export default class extends Controller {
     if (this.billingAddressForm.checkValidity()) {
       const formData = new FormData(this.billingAddressForm);
 
-      const response = await fetch(`${this.storeUrlValue}/api/v2/storefront/checkout?include=billing_address`, {
+      const response = await fetch(`${this.checkoutPathValue}?include=billing_address`, {
         method: 'PATCH',
         headers: this.spreeApiHeaders,
         body: JSON.stringify({

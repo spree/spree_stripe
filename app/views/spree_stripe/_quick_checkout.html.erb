@@ -1,4 +1,3 @@
-<% binding.pry %>
 <% if quick_checkout_enabled?(@order) && current_stripe_gateway.present? && current_stripe_payment_intent.present? %>
   <div id="quick-checkout" class="<%= defined?(container_class) ? container_class : nil %>">
     <%= tag.div class: 'w-full', data: {

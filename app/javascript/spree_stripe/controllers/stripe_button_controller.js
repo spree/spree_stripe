@@ -143,7 +143,7 @@ export default class extends Controller {
     }
 
     // 1st we need to persist the address to the order
-    const saveAddressResponse = await fetch(`${this.checkoutPathValue}`, {
+    const saveAddressResponse = await fetch(this.checkoutPathValue, {
       method: 'PATCH',
       headers: {
         'X-Spree-Order-Token': this.orderTokenValue,
@@ -201,7 +201,7 @@ export default class extends Controller {
 
       this.currentShippingOptionId = shippingRateId
 
-      const response = await fetch(`${this.checkoutSelectShippingMethodPathValue}`, {
+      const response = await fetch(this.checkoutSelectShippingMethodPathValue, {
         method: 'PATCH',
         headers: {
           'X-Spree-Order-Token': this.orderTokenValue,
@@ -236,7 +236,7 @@ export default class extends Controller {
 
     if (this.giftCardCodeValue && this.giftCardAmountValue) {
       const giftCardValidationResponse = await fetch(
-        `${this.checkoutValidateGiftCardDataPathValue}`,
+        this.checkoutValidateGiftCardDataPathValue,
         {
           method: 'POST',
           headers: {
@@ -301,7 +301,7 @@ export default class extends Controller {
       do_not_change_state: true
     }
 
-    const updateResponse = await fetch(`${this.checkoutPathValue}`, {
+    const updateResponse = await fetch(this.checkoutPathValue, {
       method: 'PATCH',
       headers: {
         'X-Spree-Order-Token': this.orderTokenValue,
@@ -373,7 +373,7 @@ export default class extends Controller {
 
     if (this.shippingRates?.length > 1 && this.currentShippingOptionId !== defaultShippingMethodId) {
       // reset shipping choice
-      await fetch(`${this.checkoutSelectShippingMethodPathValue}`, {
+      await fetch(this.checkoutSelectShippingMethodPathValue, {
         method: 'PATCH',
         headers: {
           'X-Spree-Order-Token': this.orderTokenValue,
@@ -384,7 +384,7 @@ export default class extends Controller {
     }
 
     // reset addresses
-    await fetch(`${this.checkoutPathValue}`, {
+    await fetch(this.checkoutPathValue, {
       method: 'PATCH',
       headers: {
         'X-Spree-Order-Token': this.orderTokenValue,

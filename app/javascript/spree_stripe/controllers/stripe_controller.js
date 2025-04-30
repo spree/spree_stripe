@@ -55,7 +55,7 @@ export default class extends Controller {
     }
 
     const response = await fetch(
-      `${this.paymentIntentPathValue}`,
+      this.paymentIntentPathValue,
       {
         method: 'PATCH',
         headers: this.spreeApiHeaders,
@@ -181,7 +181,7 @@ export default class extends Controller {
 
   async validateOrderForPayment() {
     const response = await fetch(
-      `${this.checkoutValidateOrderForPaymentPathValue}`,
+      this.checkoutValidateOrderForPaymentPathValue,
       {
         method: 'POST',
         headers: this.spreeApiHeaders

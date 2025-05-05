@@ -17,7 +17,11 @@
         checkout_stripe_button_max_rows_value: defined?(max_rows) ? max_rows : nil,
         checkout_stripe_button_max_columns_value: defined?(max_columns) ? max_columns : nil,
         checkout_stripe_button_button_width_value: defined?(button_width) ? button_width : nil,
-        checkout_stripe_button_store_url_value: current_store.formatted_url_or_custom_domain,
+        checkout_stripe_button_checkout_path_value: spree.api_v2_storefront_checkout_path,
+        checkout_stripe_button_checkout_advance_path_value: spree.advance_api_v2_storefront_checkout_path,
+        checkout_stripe_button_checkout_select_shipping_method_path_value: spree.select_shipping_method_api_v2_storefront_checkout_path,
+        checkout_stripe_button_checkout_validate_gift_card_data_path_value: spree.api_v2_storefront_checkout_validate_gift_card_data_path,
+        checkout_stripe_button_checkout_validate_order_for_payment_path_value: spree.validate_order_for_payment_api_v2_storefront_checkout_path,
         checkout_stripe_button_return_url_value: spree.stripe_payment_intent_url(current_stripe_payment_intent)
       } do %>
       <div id="payment-request-button"></div>

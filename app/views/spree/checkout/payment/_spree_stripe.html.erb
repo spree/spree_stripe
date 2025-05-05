@@ -7,7 +7,9 @@
   data-checkout-stripe-order-email-value="<%= @order.email %>"
   data-checkout-stripe-color-primary-value="<%= hex_color_to_rgb(theme_setting(:primary_color)) %>"
   data-checkout-stripe-color-text-value="<%= hex_color_to_rgb(theme_setting(:text_color)) %>"
-  data-checkout-stripe-store-url-value="<%= current_store.formatted_url_or_custom_domain %>"
+  data-checkout-stripe-payment-intent-path-value="<%= spree.api_v2_storefront_stripe_payment_intent_path(current_stripe_payment_intent.id) %>"
+  data-checkout-stripe-checkout-path-value="<%= spree.api_v2_storefront_checkout_path %>"
+  data-checkout-stripe-checkout-validate-order-for-payment-path-value="<%= spree.validate_order_for_payment_api_v2_storefront_checkout_path %>"
 >
   <% payment_sources = checkout_payment_sources(payment_method) %>
 

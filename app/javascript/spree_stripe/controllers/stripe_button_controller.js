@@ -234,7 +234,7 @@ export default class extends Controller {
       return
     }
 
-    if (this.giftCardCodeValue && this.giftCardAmountValue) {
+    if (this.giftCardCodeValue && this.giftCardAmountValue && this.checkoutValidateGiftCardDataPathValue) {
       const giftCardValidationResponse = await fetch(
         this.checkoutValidateGiftCardDataPathValue,
         {

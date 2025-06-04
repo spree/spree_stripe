@@ -9,7 +9,7 @@ This is the official Stripe payment gateway extension for [Spree Commerce](https
 
 This Stripe integration is bundled in the [Spree Starter](https://github.com/spree/spree_starter/) for your development convenience. 
 
-Or you could follow the [installation instructions](https://github.com/spree/spree_stripe/edit/main/README.md#installation) below.
+Or you could follow the [installation instructions](https://spreecommerce.org/docs/integrations/payments/stripe).
 
 If you like what you see, consider giving this repo a GitHub star :star:
 

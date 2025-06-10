@@ -185,7 +185,7 @@ module SpreeStripe
           order: order,
           customer: fetch_or_create_customer(order: order)&.profile_id,
           payment_method_id: payment_method_id
-        ).call.slice(:amount, :currency, :payment_method, :shipping, :customer)
+        ).call.slice(:amount, :currency, :payment_method, :shipping, :customer, :statement_descriptor_suffix)
 
         response = send_request { Stripe::PaymentIntent.update(payment_intent_id, payload) }
 

@@ -22,7 +22,8 @@
         checkout_stripe_button_checkout_select_shipping_method_path_value: spree.select_shipping_method_api_v2_storefront_checkout_path,
         checkout_stripe_button_checkout_validate_gift_card_data_path_value: respond_to?(:validate_gift_card_data_api_v2_storefront_checkout_path) ? spree.validate_gift_card_data_api_v2_storefront_checkout_path : nil,
         checkout_stripe_button_checkout_validate_order_for_payment_path_value: spree.validate_order_for_payment_api_v2_storefront_checkout_path,
-        checkout_stripe_button_return_url_value: spree.stripe_payment_intent_url(current_stripe_payment_intent)
+        checkout_stripe_button_return_url_value: spree.stripe_payment_intent_url(current_stripe_payment_intent),
+        checkout_stripe_button_shipping_required_value: @order.respond_to?(:quick_checkout_require_address?) ? @order.quick_checkout_require_address? : true
       } do %>
       <div id="payment-request-button"></div>
 

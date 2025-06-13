@@ -117,21 +117,15 @@ export default class extends Controller {
         ]
       })
     })
-    prButton.on('shippingaddresschange', this.handleAddressChange.bind(this))
-    prButton.on('shippingratechange', this.handleShippingOptionChange.bind(this))
+    if (this.shippingRequiredValue) {
+      prButton.on('shippingaddresschange', this.handleAddressChange.bind(this))
+      prButton.on('shippingratechange', this.handleShippingOptionChange.bind(this))
+    }
     prButton.on('confirm', this.handleFinalizePayment.bind(this))
     prButton.on('cancel', this.handleCancelPayment.bind(this))
   }
 
   async handleAddressChange(ev) {
-    if (!this.shippingRequiredValue) {
-      ev.resolve({
-        shippingRates: [],
-        lineItems: this.buildLineItems({ data: { attributes: { total_minus_store_credits_cents: this.amountValue } } })
-      })
-      return
-    }
-
     // Perform server-side request to fetch shipping options
     // https://stripe.com/docs/js/payment_request/events/on_shipping_address_change#payment_request_on_shipping_address_change-handler-shippingAddress
     const orderUpdatePayload = {
@@ -200,11 +194,6 @@ export default class extends Controller {
   }
 
   async handleShippingOptionChange(ev) {
-    if (!this.shippingRequiredValue) {
-      ev.resolve()
-      return
-    }
-
     const { resolve, shippingRate, reject } = ev
 
     if (shippingRate) {
@@ -243,7 +232,7 @@ export default class extends Controller {
       shippingRateId = String(shippingRateId).replace(/_google_pay_\d+/, '')
     }
 
-    if (!shippingRateId || shippingRateId === 'loading') {
+    if (this.shippingRequiredValue && (!shippingRateId || shippingRateId === 'loading')) {
       ev.paymentFailed({ reason: 'invalid_shipping_address' })
       return
     }

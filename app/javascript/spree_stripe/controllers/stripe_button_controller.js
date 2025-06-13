@@ -23,6 +23,7 @@ export default class extends Controller {
     checkoutSelectShippingMethodPath: String,
     checkoutValidateGiftCardDataPath: String,
     checkoutValidateOrderForPaymentPath: String,
+    shippingRequired: { type: Boolean, default: true },
     returnUrl: String,
   }
 
@@ -103,10 +104,10 @@ export default class extends Controller {
 
       event.resolve({
         emailRequired: true,
-        shippingAddressRequired: true,
+        shippingAddressRequired: this.shippingRequiredValue,
         allowedShippingCountries: this.availableCountriesValue,
         // If we want to collect shipping address then we need to provide at least one shipping option, it will be updated to the real ones in the `shippingaddresschange` event
-        shippingRates: [{ id: 'loading', displayName: 'Loading...', amount: 0 }],
+        shippingRates: this.shippingRequiredValue ? [{ id: 'loading', displayName: 'Loading...', amount: 0 }] : [],
         lineItems: [
           { name: 'Subtotal', amount: 0 },
           { name: 'Shipping', amount: 0 },
@@ -123,6 +124,14 @@ export default class extends Controller {
   }
 
   async handleAddressChange(ev) {
+    if (!this.shippingRequiredValue) {
+      ev.resolve({
+        shippingRates: [],
+        lineItems: this.buildLineItems({ data: { attributes: { total_minus_store_credits_cents: this.amountValue } } })
+      })
+      return
+    }
+
     // Perform server-side request to fetch shipping options
     // https://stripe.com/docs/js/payment_request/events/on_shipping_address_change#payment_request_on_shipping_address_change-handler-shippingAddress
     const orderUpdatePayload = {
@@ -191,6 +200,11 @@ export default class extends Controller {
   }
 
   async handleShippingOptionChange(ev) {
+    if (!this.shippingRequiredValue) {
+      ev.resolve()
+      return
+    }
+
     const { resolve, shippingRate, reject } = ev
 
     if (shippingRate) {

@@ -4,6 +4,14 @@ module SpreeStripe
       base.has_many :payment_intents, class_name: 'SpreeStripe::PaymentIntent', dependent: :destroy
     end
 
+    def refresh_payment_intents
+      return if completed?
+
+      payment_intents.each do |payment_intent|
+        payment_intent.update_stripe_payment_intent
+      end
+    end
+
     def update_payment_intents
       return if completed?
       return unless total_minus_store_credits.positive?

@@ -288,18 +288,7 @@ export default class extends Controller {
     const orderUpdatePayload = {
       order: {
         email: ev.billingDetails.email,
-        ship_address_attributes: {
-          quick_checkout: true,
-          firstname: ev.shippingAddress.name.split(' ')[0],
-          lastname: ev.shippingAddress.name.split(' ')[1],
-          address1: ev.shippingAddress.address.line1,
-          address2: ev.shippingAddress.address.line2,
-          city: ev.shippingAddress.address.city,
-          zipcode: ev.shippingAddress.address.postal_code,
-          country_iso: ev.shippingAddress.address.country,
-          state_name: ev.shippingAddress.address.state,
-          phone: ev.billingDetails.phone
-        }
+        ship_address_attributes: this.ShipAddressAttributes(ev)
       },
       do_not_change_state: true
     }
@@ -313,49 +302,42 @@ export default class extends Controller {
       body: JSON.stringify(orderUpdatePayload)
     })
 
-    if (updateResponse.status === 200) {
-      const advanceResponse = await fetch(`${this.checkoutAdvancePathValue}?state=payment`, {
-        method: 'PATCH',
-        headers: {
-          'X-Spree-Order-Token': this.orderTokenValue,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ shipping_method_id: shippingRateId })
+    if (updateResponse.status !== 200) return
+
+    const advanceResponse = await fetch(`${this.checkoutAdvancePathValue}?state=payment`, {
+      method: 'PATCH',
+      headers: {
+        'X-Spree-Order-Token': this.orderTokenValue,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ shipping_method_id: shippingRateId })
+    })
+
+    if (advanceResponse.status !== 200) return
+
+    try {
+      const { error: paymentMethodError, paymentMethod } = await this.stripe.createPaymentMethod({
+        elements: this.elements
       })
 
-      if (advanceResponse.status === 200) {
-        try {
-          const { error: paymentMethodError, paymentMethod } = await this.stripe.createPaymentMethod({
-            elements: this.elements
-          })
-
-          if (paymentMethodError) {
-            showFlashMessage(error, 'error')
-            return
-          }
-
-          const { error } = await this.stripe.confirmPayment({
-            clientSecret: this.clientSecretValue,
-            confirmParams: {
-              payment_method: paymentMethod.id,
-              // Stripe will automatically add `payment_intent` and `payment_intent_client_secret` params
-              return_url: this.returnUrlValue
-            }
-          })
-          if (error) {
-            if (error.length > 0) {
-              showFlashMessage(error, 'error')
-            }
-            return
-          }
-        } catch (e) {
-          console.log(e)
-        }
-      } else {
-        ev.paymentFailed()
+      if (paymentMethodError) {
+        showFlashMessage(error, 'error')
+        return
       }
-    } else {
-      ev.paymentFailed()
+
+      const { error } = await this.stripe.confirmPayment({
+        clientSecret: this.clientSecretValue,
+        confirmParams: {
+          payment_method: paymentMethod.id,
+          // Stripe will automatically add `payment_intent` and `payment_intent_client_secret` params
+          return_url: this.returnUrlValue
+        }
+      })
+      if (error?.length > 0) {
+        showFlashMessage(error, 'error')
+      }
+    } catch (e) {
+      console.log(e)
     }
   }
 
@@ -455,5 +437,27 @@ export default class extends Controller {
     const amount = attributes.tax_total_cents
 
     return { name: 'Tax', amount: amount }
+  }
+
+  ShipAddressAttributes(ev) {
+    if (ev.shippingAddress) {
+      return {
+        quick_checkout: true,
+        firstname: ev.shippingAddress.name.split(' ')[0],
+        lastname: ev.shippingAddress.name.split(' ')[1],
+        address1: ev.shippingAddress.address.line1,
+        address2: ev.shippingAddress.address.line2,
+        city: ev.shippingAddress.address.city,
+        zipcode: ev.shippingAddress.address.postal_code,
+        country_iso: ev.shippingAddress.address.country,
+        state_name: ev.shippingAddress.address.state,
+        phone: ev.billingDetails.phone
+      }
+    }
+    else {
+      return {
+        quick_checkout: true,
+      }
+    }
   }
 }

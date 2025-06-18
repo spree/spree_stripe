@@ -302,7 +302,10 @@ export default class extends Controller {
       body: JSON.stringify(orderUpdatePayload)
     })
 
-    if (updateResponse.status !== 200) return
+    if (updateResponse.status !== 200) {
+      ev.paymentFailed()
+      return
+    }
 
     const advanceResponse = await fetch(`${this.checkoutAdvancePathValue}?state=payment`, {
       method: 'PATCH',
@@ -313,7 +316,10 @@ export default class extends Controller {
       body: JSON.stringify({ shipping_method_id: shippingRateId })
     })
 
-    if (advanceResponse.status !== 200) return
+    if (advanceResponse.status !== 200) {
+      ev.paymentFailed()
+      return
+    }
 
     try {
       const { error: paymentMethodError, paymentMethod } = await this.stripe.createPaymentMethod({
@@ -321,7 +327,7 @@ export default class extends Controller {
       })
 
       if (paymentMethodError) {
-        showFlashMessage(error, 'error')
+        showFlashMessage(paymentMethodError, 'error')
         return
       }
 

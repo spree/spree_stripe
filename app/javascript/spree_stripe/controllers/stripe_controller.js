@@ -205,7 +205,7 @@ export default class extends Controller {
 
   async updateBillingAddress() {
     // billing address same as shipping address
-    if (this.billingAddressCheckbox.checked) {
+    if (this.billingAddressCheckbox?.checked) {
       const response = await fetch(`${this.checkoutPathValue}?include=billing_address`, {
         method: 'PATCH',
         headers: this.spreeApiHeaders,

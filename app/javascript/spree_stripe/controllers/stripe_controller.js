@@ -206,10 +206,11 @@ export default class extends Controller {
   async updateBillingAddress() {
     // billing address same as shipping address
     if (this.billingAddressCheckbox?.checked) {
-      const response = await fetch(`${this.checkoutPathValue}?include=billing_address`, {
+      const response = await fetch(this.checkoutPathValue, {
         method: 'PATCH',
         headers: this.spreeApiHeaders,
         body: JSON.stringify({
+          include: 'billing_address',
           order: {
             use_shipping: true
           }
@@ -230,10 +231,11 @@ export default class extends Controller {
     if (this.billingAddressForm.checkValidity()) {
       const formData = new FormData(this.billingAddressForm);
 
-      const response = await fetch(`${this.checkoutPathValue}?include=billing_address`, {
+      const response = await fetch(this.checkoutPathValue, {
         method: 'PATCH',
         headers: this.spreeApiHeaders,
         body: JSON.stringify({
+          include: 'billing_address',
           order: {
             bill_address_attributes: {
               firstname: formData.get("order[bill_address_attributes][firstname]"),

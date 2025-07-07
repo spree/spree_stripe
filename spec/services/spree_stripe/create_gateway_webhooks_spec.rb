@@ -13,7 +13,7 @@ RSpec.describe SpreeStripe::CreateGatewayWebhooks do
     let(:stripe_webhook) { stripe_webhooks[:data].find { |webhook| webhook[:url] == 'https://spreecommerce.org/stripe' } }
 
     before do
-      Rails.application.routes.default_url_options[:host] = 'spreecommerce.org'
+      allow_any_instance_of(Spree::Store).to receive(:url).and_return('spreecommerce.org')
     end
 
     it 'creates a webhook endpoint', vcr: { cassette_name: 'create_gateway_webhooks' } do

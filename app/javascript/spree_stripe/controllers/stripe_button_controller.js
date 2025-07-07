@@ -160,14 +160,19 @@ export default class extends Controller {
       // In case of any error here we have to allow user try again
       try {
         const response = await fetch(
-          `${this.checkoutAdvancePathValue}?state=delivery&include=shipments.shipping_rates,line_items.vendor`,
+          this.checkoutAdvancePathValue,
           {
             method: 'PATCH',
             headers: {
               'X-Spree-Order-Token': this.orderTokenValue,
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ quick_checkout: true, shipping_method_id: this.currentShippingOptionId })
+            body: JSON.stringify({
+              state: 'delivery',
+              include: 'shipments.shipping_rates',
+              quick_checkout: true,
+              shipping_method_id: this.currentShippingOptionId
+            })
           }
         )
         const newOrderResponse = await response.json()
@@ -259,13 +264,14 @@ export default class extends Controller {
     }
 
     const validationResponse = await fetch(
-      `${this.checkoutValidateOrderForPaymentPathValue}?skip_state=true`,
+      this.checkoutValidateOrderForPaymentPathValue,
       {
         method: 'POST',
         headers: {
           'X-Spree-Order-Token': this.orderTokenValue,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({ skip_state: true })
       }
     )
 
@@ -307,13 +313,16 @@ export default class extends Controller {
       return
     }
 
-    const advanceResponse = await fetch(`${this.checkoutAdvancePathValue}?state=payment`, {
+    const advanceResponse = await fetch(this.checkoutAdvancePathValue, {
       method: 'PATCH',
       headers: {
         'X-Spree-Order-Token': this.orderTokenValue,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ shipping_method_id: shippingRateId })
+      body: JSON.stringify({
+        state: 'payment',
+        shipping_method_id: shippingRateId
+      })
     })
 
     if (advanceResponse.status !== 200) {

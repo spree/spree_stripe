@@ -96,7 +96,7 @@ http_interactions:
               "livemode": false,
               "metadata": {},
               "status": "enabled",
-              "url": "https://spreecommerce.org/stripe"
+              "url": "https://spreecommerce.org/stripe/"
             },
             {
               "id": "we_1R68OqFgg8qhioDXoDVW3bSF",
@@ -293,7 +293,7 @@ http_interactions:
               "livemode": false,
               "metadata": {},
               "status": "enabled",
-              "url": "https://spreecommerce.org/stripe"
+              "url": "https://spreecommerce.org/stripe/"
             },
             {
               "id": "we_1R68OqFgg8qhioDXoDVW3bSF",

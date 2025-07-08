@@ -9,7 +9,7 @@ RSpec.describe SpreeStripe::Gateway do
     subject { gateway.webhook_url }
 
     it 'returns the webhook url' do
-      expect(subject).to eq("https://#{store.url}/stripe")
+      expect(subject).to eq("https://#{store.url}/stripe/")
     end
   end
 

@@ -10,7 +10,7 @@ RSpec.describe SpreeStripe::CreateGatewayWebhooks do
     let(:webhook_key) { SpreeStripe::WebhookKey.last }
 
     let(:stripe_webhooks) { Stripe::WebhookEndpoint.list({}, { api_key: payment_method.preferred_secret_key }) }
-    let(:stripe_webhook) { stripe_webhooks[:data].find { |webhook| webhook[:url] == 'https://spreecommerce.org/stripe' } }
+    let(:stripe_webhook) { stripe_webhooks[:data].find { |webhook| webhook[:url] == 'https://spreecommerce.org/stripe/' } }
 
     before do
       allow_any_instance_of(Spree::Store).to receive(:url).and_return('spreecommerce.org')
@@ -40,7 +40,7 @@ RSpec.describe SpreeStripe::CreateGatewayWebhooks do
       end
 
       context 'when the webhook key does not exist' do
-        let(:spree_webhook_endpoints) { stripe_webhooks[:data].find_all { |webhook| webhook[:url] == 'https://spreecommerce.org/stripe' } }
+        let(:spree_webhook_endpoints) { stripe_webhooks[:data].find_all { |webhook| webhook[:url] == 'https://spreecommerce.org/stripe/' } }
 
         it 'creates a new webhook key', vcr: { cassette_name: 'create_another_gateway_webhooks' } do
           expect { subject }.to change(SpreeStripe::WebhookKey, :count).by(1)

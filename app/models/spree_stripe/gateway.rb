@@ -16,7 +16,7 @@ module SpreeStripe
     has_many :payment_intents, class_name: 'SpreeStripe::PaymentIntent', foreign_key: 'payment_method_id', dependent: :delete_all
 
     def webhook_url
-      "https://#{stores.first.url}/stripe"
+      StripeEvent::Engine.routes.url_helpers.root_url(host: stores.first.url, protocol: 'https')
     end
 
     def provider_class

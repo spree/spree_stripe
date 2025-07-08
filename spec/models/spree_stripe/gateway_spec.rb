@@ -5,8 +5,8 @@ RSpec.describe SpreeStripe::Gateway do
   let(:gateway) { create(:stripe_gateway, stores: [store]) }
   let(:amount) { 100 }
 
-  describe '.webhook_url' do
-    subject { described_class.webhook_url }
+  describe '#webhook_url' do
+    subject { gateway.webhook_url }
 
     it 'returns the webhook url' do
       expect(subject).to eq("https://#{store.url}/stripe")

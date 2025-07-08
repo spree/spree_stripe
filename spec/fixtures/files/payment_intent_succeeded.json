@@ -1,0 +1,46 @@
+{
+  "created": 1335427082,
+  "id": "evt_payment_intent_succeeded",
+  "livemode": false,
+  "object": "event",
+  "pending_webhooks": 0,
+  "type": "payment_intent.succeeded",
+  "data": {
+    "object": {
+      "amount": 3279,
+      "amount_refunded": 0,
+      "created": 1335427082,
+      "currency": "usd",
+      "customer": null,
+      "description": null,
+      "disputed": false,
+      "failure_message": null,
+      "fee": 0,
+      "id": "pi_00000000000000",
+      "invoice": null,
+      "livemode": false,
+      "object": "charge",
+      "paid": true,
+      "refunded": false,
+      "card": {
+        "address_country": null,
+        "address_line1": "100 California Street",
+        "address_line1_check": "pass",
+        "address_line2": "",
+        "address_state": "CA",
+        "address_zip": "94111",
+        "address_zip_check": "pass",
+        "country": "US",
+        "cvc_check": "pass",
+        "exp_month": 12,
+        "exp_year": 2030,
+        "fingerprint": "6twio8INGMQkPl6M",
+        "id": "cc_00000000000000",
+        "last4": "4242",
+        "name": "John Doe",
+        "object": "card",
+        "type": "Visa"
+      }
+    }
+  }
+}

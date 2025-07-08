@@ -95,7 +95,7 @@ http_interactions:
               "livemode": false,
               "metadata": {},
               "status": "enabled",
-              "url": "https://spreecommerce.org/stripe"
+              "url": "https://spreecommerce.org/stripe/"
             },
             {
               "id": "we_1R1ner2ESifGlJezydmoL0st",
@@ -249,7 +249,7 @@ http_interactions:
           "metadata": {},
           "secret": "<SECRET>",
           "status": "enabled",
-          "url": "https://spreecommerce.org/stripe"
+          "url": "https://spreecommerce.org/stripe/"
         }
   recorded_at: Wed, 12 Mar 2025 12:36:57 GMT
 - request:
@@ -347,7 +347,7 @@ http_interactions:
               "livemode": false,
               "metadata": {},
               "status": "enabled",
-              "url": "https://spreecommerce.org/stripe"
+              "url": "https://spreecommerce.org/stripe/"
             },
             {
               "id": "we_1R1nqB2ESifGlJezoq0xxQZT",
@@ -363,7 +363,7 @@ http_interactions:
               "livemode": false,
               "metadata": {},
               "status": "enabled",
-              "url": "https://spreecommerce.org/stripe"
+              "url": "https://spreecommerce.org/stripe/"
             },
             {
               "id": "we_1R1ner2ESifGlJezydmoL0st",

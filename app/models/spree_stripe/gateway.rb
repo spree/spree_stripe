@@ -128,23 +128,34 @@ module SpreeStripe
       gateway_customers.find_by(user: user) || create_customer(order: order, user: user)
     end
 
+    # Creates a Stripe customer based on the order or user
+    #
+    # @param order [Spree::Order] the order to use for creating the Stripe customer
+    # @param user [Spree::User] the user to use for creating the Stripe customer
+    # @return [Stripe::Customer] the created Stripe customer
     def create_customer(order: nil, user: nil)
-      user ||= order&.user
-      address = order&.bill_address || user&.bill_address
-      name = order&.name || user&.name
-      email = order&.email || user&.email
-
-      payload = SpreeStripe::CustomerPresenter.new(
-        name: name,
-        email: email,
-        address: address
-      ).call
-
+      payload = build_customer_payload(order: order, user: user)
       response = send_request { Stripe::Customer.create(payload) }
 
       customer = gateway_customers.build(user: user, profile_id: response.id)
       customer.save! if user.present?
       customer
+    end
+
+    # Updates a Stripe customer based on the order or user
+    #
+    # @param order [Spree::Order] the order to use for updating the Stripe customer
+    # @param user [Spree::User] the user to use for updating the Stripe customer
+    # @return [Stripe::Customer] the updated Stripe customer
+    def update_customer(order: nil, user: nil)
+      user ||= order&.user
+      return if user.blank?
+
+      customer = gateway_customers.find_by(user: user)
+      return if customer.blank?
+
+      payload = build_customer_payload(order: order, user: user)
+      send_request { Stripe::Customer.update(customer.profile_id, payload) }
     end
 
     # Creates a Stripe payment intent for the order
@@ -361,6 +372,15 @@ module SpreeStripe
           RegisterDomainJob.perform_later(custom_domain.id, 'custom_domain')
         end
       end
+    end
+
+    def build_customer_payload(order: nil, user: nil)
+      user ||= order&.user
+      address = order&.bill_address || user&.bill_address
+      name = order&.name || user&.name
+      email = order&.email || user&.email
+
+      SpreeStripe::CustomerPresenter.new(name: name, email: email, address: address).call
     end
   end
 end

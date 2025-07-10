@@ -349,6 +349,209 @@ RSpec.describe SpreeStripe::Gateway do
     end
   end
 
+  describe '#create_customer' do
+    subject { gateway.create_customer(order: order, user: user) }
+
+    let(:order) { create(:order_with_line_items, user: user, bill_address: bill_address, email: 'test@example.com') }
+    let(:user) { create(:user, email: 'test@example.com', first_name: 'Jane', last_name: 'Moe', bill_address: user_bill_address) }
+
+    let(:bill_address) do
+      create(
+        :address,
+        city: 'San Francisco',
+        address1: '100 California Street',
+        address2: 'Apt 1',
+        postal_code: '94111',
+        state: california_state,
+        country: usa_country,
+        firstname: 'John',
+        lastname: 'Doe',
+        phone: '1234567890'
+      )
+    end
+
+    let(:user_bill_address) do
+      create(
+        :address,
+        city: 'New York',
+        address1: '100 Main Street',
+        address2: 'Apt 2',
+        postal_code: '10001',
+        state: new_york_state,
+        country: usa_country
+      )
+    end
+
+    let(:usa_country) { Spree::Country.find_by(iso: 'US') || create(:usa_country) }
+    let(:california_state) { create(:state, name: 'California', abbr: 'CA', country: usa_country) }
+    let(:new_york_state) { create(:state, name: 'New York', abbr: 'NY', country: usa_country) }
+
+    let(:gateway_customer) { Spree::GatewayCustomer.stripe.last }
+    let(:stripe_customer) { Stripe::Customer.retrieve(gateway_customer.profile_id, { api_key: gateway.preferred_secret_key }) }
+
+    it 'creates a new Stripe customer and gateway customer record' do
+      VCR.use_cassette('create_customer') do
+        expect { subject }.to change(Spree::GatewayCustomer, :count).by(1)
+
+        expect(subject).to eq(gateway_customer)
+        expect(subject.user).to eq(user)
+        expect(subject.profile_id).to eq(gateway_customer.profile_id)
+        expect(subject.payment_method).to eq(gateway)
+        expect(subject.persisted?).to be(true)
+
+        expect(stripe_customer.email).to eq(order.email)
+        expect(stripe_customer.name).to eq(order.name)
+
+        expect(stripe_customer.address.city).to eq(bill_address.city)
+        expect(stripe_customer.address.line1).to eq(bill_address.address1)
+        expect(stripe_customer.address.line2).to eq(bill_address.address2)
+        expect(stripe_customer.address.postal_code).to eq(bill_address.zipcode)
+        expect(stripe_customer.address.state).to eq(california_state.name)
+        expect(stripe_customer.address.country).to eq(usa_country.name)
+      end
+    end
+
+    context 'when user is nil' do
+      let(:user) { nil }
+
+      it 'creates a customer but does not save the gateway customer record' do
+        VCR.use_cassette('create_customer') do
+          expect { subject }.not_to change(Spree::GatewayCustomer, :count)
+
+          expect(subject).to be_new_record
+          expect(subject.user).to be_nil
+          expect(subject.profile_id).to be_present
+          expect(subject.payment_method).to eq(gateway)
+        end
+      end
+    end
+
+    context 'when only user is provided' do
+      subject { gateway.create_customer(user: user) }
+
+      it 'creates a customer using only user information' do
+        VCR.use_cassette('create_customer_based_on_user') do
+          expect { subject }.to change(Spree::GatewayCustomer, :count).by(1)
+
+          expect(subject).to eq(gateway_customer)
+          expect(subject.user).to eq(user)
+          expect(subject.profile_id).to eq(gateway_customer.profile_id)
+          expect(subject.payment_method).to eq(gateway)
+          expect(subject.persisted?).to be(true)
+
+          expect(stripe_customer.email).to eq(user.email)
+          expect(stripe_customer.name).to eq(user.name)
+
+          expect(stripe_customer.address.city).to eq(user_bill_address.city)
+          expect(stripe_customer.address.line1).to eq(user_bill_address.address1)
+          expect(stripe_customer.address.line2).to eq(user_bill_address.address2)
+          expect(stripe_customer.address.postal_code).to eq(user_bill_address.zipcode)
+          expect(stripe_customer.address.state).to eq(new_york_state.name)
+          expect(stripe_customer.address.country).to eq(usa_country.name)
+        end
+      end
+    end
+  end
+
+  describe '#update_customer' do
+    subject { gateway.update_customer(order: order, user: user) }
+
+    let(:order) { create(:order_with_line_items, user: user, bill_address: bill_address) }
+    let(:user) { create(:user, email: 'test-updated@example.com', first_name: 'Jane', last_name: 'Moe', bill_address: user_bill_address) }
+
+    let(:bill_address) do
+      create(
+        :address,
+        city: 'San Francisco',
+        address1: '200 California Street',
+        address2: 'Apt 11',
+        postal_code: '94112',
+        state: california_state,
+        country: usa_country,
+        firstname: 'John',
+        lastname: 'Doe'
+      )
+    end
+
+    let(:user_bill_address) do
+      create(
+        :address,
+        city: 'New York',
+        address1: '200 Main Street',
+        address2: 'Apt 22',
+        postal_code: '10002',
+        state: new_york_state,
+        country: usa_country
+      )
+    end
+
+    let(:usa_country) { Spree::Country.find_by(iso: 'US') || create(:usa_country) }
+    let(:california_state) { create(:state, name: 'California', abbr: 'CA', country: usa_country) }
+    let(:new_york_state) { create(:state, name: 'New York', abbr: 'NY', country: usa_country) }
+
+    let!(:gateway_customer) { create(:gateway_customer, user: user, profile_id: customer_id, payment_method: gateway) }
+    let(:customer_id) { 'cus_SeIsxI1TG3dGJv' }
+
+    let(:stripe_customer) { Stripe::Customer.retrieve(customer_id, { api_key: gateway.preferred_secret_key }) }
+
+    it 'updates the existing Stripe customer' do
+      VCR.use_cassette('update_customer') do
+        expect { subject }.not_to change(Spree::GatewayCustomer, :count)
+
+        expect(subject).to eq(stripe_customer)
+
+        expect(stripe_customer.email).to eq(order.email)
+        expect(stripe_customer.name).to eq(order.name)
+
+        expect(stripe_customer.address.city).to eq(bill_address.city)
+        expect(stripe_customer.address.line1).to eq(bill_address.address1)
+        expect(stripe_customer.address.line2).to eq(bill_address.address2)
+        expect(stripe_customer.address.postal_code).to eq(bill_address.zipcode)
+        expect(stripe_customer.address.state).to eq(california_state.name)
+        expect(stripe_customer.address.country).to eq(usa_country.name)
+      end
+    end
+
+    context 'when user is nil' do
+      let(:user) { nil }
+      let(:gateway_customer) { nil }
+
+      it 'does nothing' do
+        expect(subject).to be_nil
+      end
+    end
+
+    context 'when gateway customer does not exist' do
+      let(:gateway_customer) { nil }
+
+      it 'does nothing' do
+        expect(subject).to be_nil
+      end
+    end
+
+    context 'when only user is provided' do
+      subject { gateway.update_customer(user: user) }
+
+      it 'updates the customer using only user information' do
+        VCR.use_cassette('update_customer_based_on_user') do
+          expect { subject }.not_to change(Spree::GatewayCustomer, :count)
+
+          expect(subject).to eq(stripe_customer)
+
+          expect(stripe_customer.email).to eq(user.email)
+          expect(stripe_customer.name).to eq(user.name)
+
+          expect(stripe_customer.address.city).to eq(user_bill_address.city)
+          expect(stripe_customer.address.line1).to eq(user_bill_address.address1)
+          expect(stripe_customer.address.line2).to eq(user_bill_address.address2)
+          expect(stripe_customer.address.postal_code).to eq(user_bill_address.zipcode)
+          expect(stripe_customer.address.state).to eq(new_york_state.name)
+          expect(stripe_customer.address.country).to eq(usa_country.name)
+        end
+      end
+    end
+  end
+
   describe 'being a provider' do
     let(:provider_methods) do
       [:authorize, :purchase, :capture, :void, :credit]

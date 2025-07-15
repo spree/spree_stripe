@@ -222,6 +222,7 @@ export default class extends Controller {
       if (response.ok) {
         return responseJson.included.find(item => item.type === 'address').attributes;
       } else {
+        showFlashMessage(responseJson.error, 'error');
         this.submitTarget.disabled = false;
         return false;
       }

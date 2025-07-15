@@ -222,7 +222,8 @@ export default class extends Controller {
       if (response.ok) {
         return responseJson.included.find(item => item.type === 'address').attributes;
       } else {
-        showFlashMessage(responseJson.error, 'error');
+        const errors = Array.isArray(responseJson.error) ? responseJson.error.join('. ') : responseJson.error || 'Billing address is invalid';
+        showFlashMessage(errors, 'error');
         this.submitTarget.disabled = false;
         return false;
       }
@@ -261,11 +262,6 @@ export default class extends Controller {
       } else {
         const errors = Array.isArray(responseJson.error) ? responseJson.error.join('. ') : responseJson.error || 'Billing address is invalid';
         showFlashMessage(errors, 'error');
-
-        const flashMessage = document.getElementsByClassName('flash-message')[0];
-        if (flashMessage) {
-          flashMessage.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' });
-        }
 
         this.submitTarget.disabled = false;
         return false;

@@ -14,6 +14,4 @@ module SpreeStripe
   end
 end
 
-if ActiveRecord::Base.connected? && ActiveRecord::Base.connection.database_exists? && ActiveRecord::Base.connection.table_exists?('spree_addresses')
-  Spree::Address.prepend(SpreeStripe::AddressDecorator)
-end
+Spree::Address.prepend(SpreeStripe::AddressDecorator)

@@ -22,7 +22,7 @@ if ENV['DB'] == 'mysql'
 elsif ENV['DB'] == 'postgres'
   gem 'pg'
 else
-  gem 'sqlite3', '~> 1.4'
+  gem 'sqlite3'
 end
 
 gemspec

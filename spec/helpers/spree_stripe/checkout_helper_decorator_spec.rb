@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe SpreeStripe::CheckoutHelperDecorator, type: :helper do
-  let(:payment_method) { create(:credit_card_payment_method, active: true) }
+  let(:payment_method) { create(:stripe_gateway, active: true) }
   let(:user) { create(:user) }
   let(:future_year) { Date.current.year + 2 }
 
@@ -15,6 +15,53 @@ RSpec.describe SpreeStripe::CheckoutHelperDecorator, type: :helper do
     context 'when user has no payment sources' do
       it 'returns an empty array' do
         expect(checkout_payment_sources).to eq([])
+      end
+    end
+
+    context 'when payment method is not Stripe' do
+      let(:payment_method) { create(:credit_card_payment_method, active: true) }
+
+      let!(:non_wallet_source) do
+        create(:credit_card,
+          user: user,
+          payment_method: payment_method,
+          private_metadata: {},
+          gateway_customer_profile_id: 'profile_1',
+          year: future_year,
+          created_at: 3.days.ago
+        )
+      end
+
+      let!(:wallet_source) do
+        create(:credit_card,
+          user: user,
+          payment_method: payment_method,
+          private_metadata: { 'wallet' => { 'type' => 'apple_pay' } },
+          cc_type: 'visa',
+          last_digits: '1234',
+          month: 12,
+          year: future_year,
+          gateway_customer_profile_id: 'wallet_profile_1',
+          created_at: 2.days.ago
+        )
+      end
+
+      let!(:duplicate_wallet_source) do
+        create(:credit_card,
+          user: user,
+          payment_method: payment_method,
+          private_metadata: { 'wallet' => { 'type' => 'apple_pay' } },
+          cc_type: 'visa',
+          last_digits: '1234',
+          month: 12,
+          year: future_year,
+          gateway_customer_profile_id: 'wallet_profile_2',
+          created_at: 1.day.ago
+        )
+      end
+
+      it 'returns all payment sources unchanged without wallet processing' do
+        expect(checkout_payment_sources).to eq([non_wallet_source, wallet_source, duplicate_wallet_source])
       end
     end
 

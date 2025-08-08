@@ -263,9 +263,15 @@ module SpreeStripe
       end
     end
 
-    def create_setup_intent(customer_id)
+    def create_setup_intent(customer_id, payment_methods = [])
+      options = if payment_methods.empty?
+                  { automatic_payment_methods: { enabled: true } }
+                else
+                  { payment_method_types: payment_methods }
+                end
+
       protect_from_error do
-        response = send_request { Stripe::SetupIntent.create({ customer: customer_id, automatic_payment_methods: { enabled: true } }) }
+        response = send_request { Stripe::SetupIntent.create(customer: customer_id, **options) }
 
         success(response.client_secret, response)
       end

@@ -2,11 +2,11 @@ module SpreeStripe
   class CreateSetupIntent
     prepend Spree::ServiceModule::Base
 
-    def call(gateway:, user:)
+    def call(gateway:, user:, payment_methods: [])
       customer = gateway.fetch_or_create_customer(user: user)
 
       ephemeral_key_response = gateway.create_ephemeral_key(customer.profile_id)
-      setup_intent = gateway.create_setup_intent(customer.profile_id)
+      setup_intent = gateway.create_setup_intent(customer.profile_id, payment_methods)
 
       success(
         {

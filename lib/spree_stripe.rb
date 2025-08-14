@@ -8,7 +8,9 @@ require 'stripe'
 require 'stripe_event'
 
 module SpreeStripe
+  mattr_accessor :queue
+
   def self.queue
-    'spree_stripe'
+    @@queue ||= Spree.queues.default
   end
 end

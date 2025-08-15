@@ -16,7 +16,7 @@ module SpreeStripe
     has_many :payment_intents, class_name: 'SpreeStripe::PaymentIntent', foreign_key: 'payment_method_id', dependent: :delete_all
 
     def webhook_url
-      StripeEvent::Engine.routes.url_helpers.root_url(host: stores.first.url, protocol: 'https')
+      StripeEvent::Engine.routes.url_helpers.root_url(host: 'https://shop.mbvendo.ngrok.app', protocol: 'https')
     end
 
     def provider_class
@@ -274,6 +274,12 @@ module SpreeStripe
         response = send_request { Stripe::SetupIntent.create(customer: customer_id, **options) }
 
         success(response.client_secret, response)
+      end
+    end
+
+    def retrieve_setup_intent(setup_intent_id)
+      protect_from_error do
+        send_request { Stripe::SetupIntent.retrieve(setup_intent_id) }
       end
     end
 

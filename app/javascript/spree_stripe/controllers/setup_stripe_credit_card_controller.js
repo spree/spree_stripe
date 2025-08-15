@@ -13,7 +13,8 @@ export default class extends Controller {
     userEmail: String,
     billingAddress: Object,
     country: String,
-    state: String
+    state: String,
+    userName: String
   }
 
   static targets = [
@@ -24,11 +25,8 @@ export default class extends Controller {
     const stripeOptions = {}
 
     this.submitTarget = document.querySelector('#add-credit-card-button')
-
     this.stripe = Stripe(this.apiKeyValue, stripeOptions)
-
     this.initializeStripe({ target: { value: 'on' } })
-
     this.submitTarget.addEventListener('click', this.submit.bind(this))
   }
 
@@ -37,7 +35,6 @@ export default class extends Controller {
       theme: 'stripe',
       variables: {
         colorPrimary: this.colorPrimaryValue,
-        colorBackground: this.colorBackgroundValue,
         colorText: this.colorTextValue
       }
     }
@@ -71,7 +68,6 @@ export default class extends Controller {
 
   async submit(e) {
     e.preventDefault()
-    this.setLoading(true)
 
     this.stripe.confirmSetup({
       elements: this.elements,
@@ -79,7 +75,7 @@ export default class extends Controller {
         return_url: this.returnUrlValue,
         payment_method_data: {
           billing_details: {
-            name: this.billingAddressValue.first_name + ' ' + this.billingAddressValue.last_name,
+            name: this.userNameValue,
             email: this.userEmailValue,
             address: {
               city: this.billingAddressValue.city,
@@ -95,21 +91,8 @@ export default class extends Controller {
     }).then((result) => {
       if (result.error) {
         this.handleError(result.error)
-        // window.location.href = this.returnUrlValue
       }
     })
-  }
-
-  // Show a spinner on payment submission
-  setLoading(isLoading) {
-    if (isLoading) {
-      // Disable the button and show a spinner
-      this.submitTarget.disabled = true
-    } else {
-      this.loadingTarget.classList.add('hidden')
-      this.submitTarget.disabled = false
-      this.submitTarget.classList.remove('hidden')
-    }
   }
 }
 

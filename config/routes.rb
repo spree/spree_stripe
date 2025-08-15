@@ -4,6 +4,11 @@ Spree::Core::Engine.add_routes do
                                      as: :stripe_payment_intent,
                                      controller: '/spree_stripe/payment_intents'
 
+  # Stripe setup intents
+  get '/stripe/setup_intents', to: '/spree_stripe/setup_intents#callback',
+                               as: :stripe_setup_intent,
+                               controller: '/spree_stripe/setup_intents'
+
   # Apple Pay domain verification certificate for Apple Pay
   get '/.well-known/apple-developer-merchantid-domain-association' => '/spree_stripe/apple_pay_domain_verification#show'
 

@@ -1,13 +1,14 @@
 <div data-controller="setup-stripe-credit-card"
   data-setup-stripe-credit-card-api-key-value="<%= current_stripe_gateway.try(:preferred_publishable_key) %>"
   data-setup-stripe-credit-card-setup-intent-value="<%= @stripe_setup_intent.value[:setup_intent_client_secret] %>"
+  data-setup-stripe-credit-card-return-url-value="<%= spree.stripe_setup_intent_url %>"
   data-setup-stripe-credit-card-color-primary-value="<%= hex_color_to_rgb(theme_setting(:primary_color)) %>"
   data-setup-stripe-credit-card-color-text-value="<%= hex_color_to_rgb(theme_setting(:text_color)) %>"
-  data-setup-stripe-credit-card-return-url-value="<%= spree.account_credit_cards_url %>"
   data-setup-stripe-credit-card-billing-address-value="<%= @user.bill_address.to_json %>"
   data-setup-stripe-credit-card-country-value="<%= @user.bill_address.country.iso %>"
   data-setup-stripe-credit-card-state-value="<%= @user.bill_address.state_name_text %>"
   data-setup-stripe-credit-card-user-email-value="<%= @user.email %>"
+  data-setup-stripe-credit-card-user-name-value="<%= @user.name %>"
 >
   <div data-setup-stripe-credit-card-target="setupElement" class="w-full"></div>
 </div>

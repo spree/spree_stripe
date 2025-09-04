@@ -52,9 +52,16 @@ module SpreeStripe
       def get_or_create_tax_calculation(order)
         stripe_gateway = order.store.stripe_gateway
 
-        Rails.cache.fetch("stripe_tax_calculation_#{order.cache_key_with_version}", expires_in: 1.hour) do
+        tax_calculation = Rails.cache.fetch("stripe_tax_calculation_#{order.cache_key_with_version}", expires_in: 1.hour) do
           stripe_gateway.create_tax_calculation(order)
         end
+
+        # persist the tax calculation in the order for future use
+        # we will need this to create tax transaction
+        order.stripe_tax_calculation_id = tax_calculation.id
+        order.save!
+
+        tax_calculation
       rescue => e
         Rails.error.report(e, context: { order_id: order.id }, source: 'spree_stripe')
         nil

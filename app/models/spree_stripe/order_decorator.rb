@@ -2,6 +2,8 @@ module SpreeStripe
   module OrderDecorator
     def self.prepended(base)
       base.has_many :payment_intents, class_name: 'SpreeStripe::PaymentIntent', dependent: :destroy
+
+      base.store_accessor :private_metadata, :stripe_tax_calculation_id
     end
 
     def update_payment_intents

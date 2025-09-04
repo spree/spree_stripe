@@ -74,7 +74,7 @@ module SpreeStripe
         expect(customer_details[:address_source]).to eq('shipping')
         expect(customer_details[:address][:line1]).to eq(tax_address.address1)
         expect(customer_details[:address][:city]).to eq(tax_address.city)
-        expect(customer_details[:address][:state]).to eq(tax_address.state)
+        expect(customer_details[:address][:state]).to eq(tax_address.state_text)
         expect(customer_details[:address][:postal_code]).to eq(tax_address.zipcode)
         expect(customer_details[:address][:country]).to eq(tax_address.country_iso)
       end

@@ -272,10 +272,12 @@ module SpreeStripe
     end
 
     def create_tax_calculation(order)
-      send_request do
-        Stripe::Tax::Calculation.create(
-          SpreeStripe::TaxPresenter.new(order: order).call
-        )
+      protect_from_error do
+        send_request do
+          Stripe::Tax::Calculation.create(
+            SpreeStripe::TaxPresenter.new(order: order).call
+          )
+        end
       end
     end
 

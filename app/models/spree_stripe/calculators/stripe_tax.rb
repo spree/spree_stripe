@@ -56,7 +56,7 @@ module SpreeStripe
           stripe_gateway.create_tax_calculation(order)
         end
       rescue => e
-        Rails.logger.error "Stripe Tax calculation failed: #{e.message}"
+        Rails.error.report(e, context: { order_id: order.id }, source: 'spree_stripe')
         nil
       end
 

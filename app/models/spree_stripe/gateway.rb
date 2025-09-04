@@ -271,6 +271,26 @@ module SpreeStripe
       end
     end
 
+    def create_tax_calculation(order)
+      send_request do
+        Stripe::Tax::Calculation.create(
+          SpreeStripe::TaxPresenter.new(order: order).call
+        )
+      end
+    end
+
+    def create_tax_transaction(payment_intent_id, tax_calculation_id)
+      protect_from_error do
+        payload = {
+          calculation: tax_calculation_id,
+          reference: payment_intent_id,
+          expand: ['line_items']
+        }
+
+        send_request { Stripe::Tax::Transaction.create_from_calculation(payload) }
+      end
+    end
+
     def apple_domain_association_file_content
       @apple_domain_association_file_content ||= apple_developer_merchantid_domain_association&.download
     end

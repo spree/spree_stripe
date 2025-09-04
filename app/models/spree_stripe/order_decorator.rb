@@ -23,6 +23,10 @@ module SpreeStripe
 
       payment_intents.update_all(customer_id: customer_id) if customer_id.present?
     end
+
+    def stripe_payment_intent
+      @stripe_payment_intent ||= payment_intents.last.stripe_payment_intent
+    end
   end
 end
 

@@ -33,17 +33,12 @@ module SpreeStripe
 
     def build_line_items_attributes(line_items, tax_exclusive)
       line_items.map do |line_item|
-        attributes = {
+        {
           reference: line_item.id,
           tax_behavior: tax_exclusive.present? ? 'exclusive' : 'inclusive',
           amount: line_item.display_amount.cents,
           quantity: line_item.quantity
         }
-
-        tax_code = line_item.product.stripe_tax_code
-
-        attributes.merge!(tax_code: tax_code) if tax_code.present?
-        attributes
       end
     end
 

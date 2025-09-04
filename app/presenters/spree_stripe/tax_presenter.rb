@@ -1,25 +1,25 @@
 module SpreeStripe
   class TaxPresenter
     SHIPPING_TAX_CODE = 'txcd_92010001'.freeze
+    TAX_BEHAVIOR = 'exclusive'.freeze
 
-    def initialize(order:, tax_exclusive: true)
+    def initialize(order:)
       @order = order
-      @tax_exclusive = tax_exclusive
     end
 
-    attr_reader :order, :tax_exclusive
+    attr_reader :order
 
     def call
       {
         currency: order.currency.downcase,
-        line_items: build_line_items_attributes(order.line_items, tax_exclusive),
+        line_items: build_line_items_attributes(order.line_items),
         customer_details: {
           address: build_address_attributes(order.tax_address),
           address_source: 'shipping',
         },
         shipping_cost: {
           amount: calculate_shipping_cost(order.shipments),
-          tax_behavior: tax_exclusive.present? ? 'exclusive' : 'inclusive',
+          tax_behavior: TAX_BEHAVIOR,
           tax_code: SHIPPING_TAX_CODE
         },
         expand: [
@@ -31,11 +31,11 @@ module SpreeStripe
 
     private
 
-    def build_line_items_attributes(line_items, tax_exclusive)
+    def build_line_items_attributes(line_items)
       line_items.map do |line_item|
         {
           reference: line_item.id,
-          tax_behavior: tax_exclusive.present? ? 'exclusive' : 'inclusive',
+          tax_behavior: TAX_BEHAVIOR,
           amount: line_item.display_amount.cents,
           quantity: line_item.quantity
         }
@@ -55,7 +55,7 @@ module SpreeStripe
     end
 
     def calculate_shipping_cost(shipments)
-      zero_money = Spree::Money.new(0, currency: shipments.first&.currency)
+      zero_money = Spree::Money.new(0, currency: order.currency)
       shipment_money = shipments.sum(zero_money, &:display_cost)
       shipment_money.cents
     end

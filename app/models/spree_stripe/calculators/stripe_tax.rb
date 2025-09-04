@@ -52,7 +52,7 @@ module SpreeStripe
       def get_or_create_tax_calculation(order)
         stripe_gateway = order.store.stripe_gateway
 
-        Rails.cache.fetch("stripe_tax_calculation_#{order.item_total}_#{order.shipment_total}_#{order.item_count}", expires_in: 1.hour) do
+        Rails.cache.fetch("stripe_tax_calculation_#{order.total}", expires_in: 1.hour) do
           stripe_gateway.create_tax_calculation(order)
         end
       rescue => e

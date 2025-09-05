@@ -59,6 +59,11 @@ module SpreeStripe
                      confirm_payment_intent(stripe_payment_intent.id)
                    end
 
+        # create a tax transaction if the order has a tax calculation
+        if order.stripe_tax_calculation_id.present?
+          create_tax_transaction(stripe_payment_intent.id, order.stripe_tax_calculation_id)
+        end
+
         success(response.id, response)
       end
     end

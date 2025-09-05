@@ -13,14 +13,20 @@ module SpreeStripe
         return 0.to_d unless tax_calculation_data.present?
 
         # Find the tax line for this specific line item
-        stripe_line_item = tax_calculation_data.line_items.data.find do |line|
-          line.reference.to_s == line_item.id.to_s
+        line_items = tax_calculation_data.dig('line_items', 'data') || []
+        stripe_line_item = line_items.find do |line|
+          line['reference'].to_s == line_item.id.to_s
         end
 
-        return 0.to_d unless stripe_line_item.present?
+        # Debug logging
+        if stripe_line_item.nil?
+          Rails.logger.debug "Stripe Tax: No line item found for reference #{line_item.id}. Available references: #{line_items.map { |li| li['reference'] }.join(', ')}"
+          return 0.to_d
+        end
 
-        # Get the tax amount for this line item
-        amount_in_cents = stripe_line_item.tax_breakdown.sum(&:amount)
+        # Get the tax amount for this line item from amount_tax field
+        amount_in_cents = stripe_line_item['amount_tax'] || 0
+        Rails.logger.debug "Stripe Tax: Line item #{line_item.id} tax amount: #{amount_in_cents} cents"
         amount_money = Spree::Money.from_cents(amount_in_cents, { currency: order.currency })
         amount_money.to_d
       end
@@ -33,11 +39,11 @@ module SpreeStripe
         return 0.to_d unless tax_calculation_data.present?
 
         # Get the shipping cost tax breakdown
-        shipping_cost = tax_calculation_data.shipping_cost
+        shipping_cost = tax_calculation_data['shipping_cost']
         return 0.to_d unless shipping_cost.present?
 
         # Get the tax amount for shipping
-        amount_in_cents = shipping_cost.amount_tax
+        amount_in_cents = shipping_cost['amount_tax'] || 0
         amount_money = Spree::Money.from_cents(amount_in_cents, { currency: order.currency })
         amount_money.to_d
       end
@@ -52,13 +58,26 @@ module SpreeStripe
       def get_or_create_tax_calculation(order)
         stripe_gateway = order.store.stripe_gateway
 
-        tax_calculation = Rails.cache.fetch("stripe_tax_calculation_#{order.cache_key_with_version}", expires_in: 1.hour) do
-          stripe_gateway.create_tax_calculation(order)
+        cache_key = [
+          order.number,
+          order.item_total,
+          order.item_count,
+          order.shipments.map { |s| [s.shipping_method&.id, s.cost].compact }.flatten.join('_'),
+          order.ship_address&.cache_key_with_version,
+        ].compact.join('_')
+
+        tax_calculation = Rails.cache.fetch("stripe_tax_calculation_#{cache_key}", expires_in: 1.hour) do
+           stripe_gateway.create_tax_calculation(order).to_hash.deep_stringify_keys
+        rescue => e
+          Rails.error.report(e, context: { order_id: order.id }, source: 'spree_stripe')
+          {}
         end
+
+        return nil unless tax_calculation.present?
 
         # persist the tax calculation in the order for future use
         # we will need this to create tax transaction
-        order.stripe_tax_calculation_id = tax_calculation.id
+        order.stripe_tax_calculation_id = tax_calculation['id']
         order.save!
 
         tax_calculation
@@ -67,12 +86,6 @@ module SpreeStripe
         nil
       end
 
-      def find_stripe_tax_line(stripe_tax_lines, line_item_id)
-        # Find the tax line that matches the specific line item by reference (line item ID)
-        stripe_tax_lines.find do |stripe_tax_line|
-          stripe_tax_line.reference.to_s == line_item_id.to_s
-        end
-      end
     end
   end
 end

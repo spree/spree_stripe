@@ -56,7 +56,8 @@ module SpreeStripe
       end
 
       def get_or_create_tax_calculation(order)
-        return unless order.ship_address.present?
+        return unless order.tax_address.present?
+        return if order.state.in?(%w[cart address])
 
         stripe_gateway = order.store.stripe_gateway
 
@@ -64,8 +65,9 @@ module SpreeStripe
           order.number,
           order.item_total,
           order.item_count,
+          order.line_items.map { |li| [li.id, li.quantity].compact }.flatten.join('_'),
           order.shipments.map { |s| [s.shipping_method&.id, s.cost].compact }.flatten.join('_'),
-          order.ship_address&.cache_key_with_version,
+          order.tax_address&.cache_key_with_version,
         ].compact.join('_')
 
         tax_calculation = Rails.cache.fetch("stripe_tax_calculation_#{cache_key}", expires_in: 1.hour) do

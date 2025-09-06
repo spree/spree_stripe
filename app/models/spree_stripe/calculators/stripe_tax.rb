@@ -56,6 +56,8 @@ module SpreeStripe
       end
 
       def get_or_create_tax_calculation(order)
+        return unless order.ship_address.present?
+
         stripe_gateway = order.store.stripe_gateway
 
         cache_key = [

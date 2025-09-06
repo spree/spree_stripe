@@ -36,7 +36,7 @@ module SpreeStripe
         {
           reference: line_item.id,
           tax_behavior: TAX_BEHAVIOR,
-          amount: line_item.display_amount.cents,
+          amount: Spree::Money.new(line_item.taxable_amount, currency: order.currency).cents,
           quantity: line_item.quantity
         }
       end

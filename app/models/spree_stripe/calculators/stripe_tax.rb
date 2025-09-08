@@ -63,6 +63,7 @@ module SpreeStripe
 
         cache_key = [
           order.number,
+          order.currency,
           order.item_total,
           order.item_count,
           order.line_items.map { |li| [li.id, li.quantity].compact }.flatten.join('_'),

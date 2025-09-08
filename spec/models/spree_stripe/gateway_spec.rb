@@ -564,4 +564,106 @@ RSpec.describe SpreeStripe::Gateway do
       end
     end
   end
+
+  describe '#create_tax_calculation' do
+    subject { gateway.create_tax_calculation(order) }
+
+    let(:order) { create(:order_with_line_items, line_items_count: 3, shipment_cost: 10, ship_address: ship_address) }
+
+    let(:ship_address) do
+      create(
+        :address,
+        city: 'Lancaster',
+        address1: '3201 North Dallas Avenue',
+        postal_code: '75134',
+        state: texas_state,
+        country: usa_country
+      )
+    end
+
+    let(:usa_country) { Spree::Country.find_by(iso: 'US') || create(:usa_country) }
+    let(:texas_state) { create(:state, name: 'Texas', abbr: 'TX', country: usa_country) }
+
+    before do
+      order.line_items[0].update_column(:price, 10)
+      order.line_items[1].update_column(:price, 20)
+      order.line_items[2].update_column(:price, 30)
+    end
+
+    it 'creates a tax calculation' do
+      VCR.use_cassette('create_tax_calculation_us_tx') do
+        subject
+
+        expect(subject.object).to eq('tax.calculation')
+        expect(subject.currency).to eq('usd')
+
+        customer_address = subject.customer_details.address
+        expect(customer_address.city).to eq('Lancaster')
+        expect(customer_address.country).to eq('US')
+        expect(customer_address.line1).to eq('3201 North Dallas Avenue')
+        expect(customer_address.postal_code).to eq('75134')
+        expect(customer_address.state).to eq('TX')
+
+        tax_breakdown = subject.tax_breakdown.first
+        expect(tax_breakdown.taxable_amount).to eq(7000) # line items total is 6000, shipping is 1000
+        expect(tax_breakdown.amount).to eq(560)
+        expect(tax_breakdown.tax_rate_details.tax_type).to eq('sales_tax')
+        expect(tax_breakdown.tax_rate_details.percentage_decimal).to eq('8.0')
+        expect(tax_breakdown.tax_rate_details.state).to eq('TX')
+        expect(tax_breakdown.tax_rate_details.country).to eq('US')
+
+        tax_line_item_1 = subject.line_items.data.find { |item| item.reference == order.line_items[0].id.to_s }
+        expect(tax_line_item_1.amount).to eq(1000)
+        expect(tax_line_item_1.amount_tax).to eq(80)
+        expect(tax_line_item_1.tax_code).to eq('txcd_10000000')
+
+        tax_line_item_2 = subject.line_items.data.find { |item| item.reference == order.line_items[1].id.to_s }
+        expect(tax_line_item_2.amount).to eq(2000)
+        expect(tax_line_item_2.amount_tax).to eq(160)
+        expect(tax_line_item_2.tax_code).to eq('txcd_10000000')
+
+        tax_line_item_3 = subject.line_items.data.find { |item| item.reference == order.line_items[2].id.to_s }
+        expect(tax_line_item_3.amount).to eq(3000)
+        expect(tax_line_item_3.amount_tax).to eq(240)
+        expect(tax_line_item_3.tax_code).to eq('txcd_10000000')
+
+        shipping_cost = subject.shipping_cost
+        expect(shipping_cost.amount).to eq(1000)
+        expect(shipping_cost.amount_tax).to eq(80)
+        expect(shipping_cost.tax_code).to eq('txcd_92010001')
+      end
+    end
+  end
+
+  describe '#create_tax_transaction' do
+    subject { gateway.create_tax_transaction(payment_intent_id, tax_calculation_id) }
+
+    let(:payment_intent_id) { 'pi_1234567890' }
+    let(:tax_calculation_id) { 'taxcalc_1S52FRFmGsiQWfE6hVIABQtT' }
+
+    it 'creates a tax transaction' do
+      VCR.use_cassette('create_tax_transaction_us_tx') do
+        subject
+
+        expect(subject.object).to eq('tax.transaction')
+
+        customer_address = subject.customer_details.address
+        expect(customer_address.city).to eq('Lancaster')
+        expect(customer_address.country).to eq('US')
+        expect(customer_address.line1).to eq('3201 North Dallas Avenue')
+        expect(customer_address.postal_code).to eq('75134')
+        expect(customer_address.state).to eq('TX')
+
+        line_items = subject.line_items.data
+        expect(line_items.map(&:amount)).to eq([1000, 2000, 3000])
+        expect(line_items.map(&:amount_tax)).to eq([80, 160, 240])
+        expect(line_items.map(&:tax_code)).to eq(['txcd_10000000', 'txcd_10000000', 'txcd_10000000'])
+
+        shipping_cost = subject.shipping_cost
+        expect(shipping_cost.amount).to eq(1000)
+        expect(shipping_cost.amount_tax).to eq(80)
+        expect(shipping_cost.tax_code).to eq('txcd_92010001')
+      end
+    end
+  end
 end

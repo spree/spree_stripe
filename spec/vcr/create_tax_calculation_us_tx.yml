@@ -1,0 +1,372 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.stripe.com/v1/tax/calculations
+    body:
+      encoding: UTF-8
+      string: currency=usd&line_items[0][reference]=1&line_items[0][tax_behavior]=exclusive&line_items[0][amount]=1000&line_items[0][quantity]=1&line_items[1][reference]=2&line_items[1][tax_behavior]=exclusive&line_items[1][amount]=2000&line_items[1][quantity]=1&line_items[2][reference]=3&line_items[2][tax_behavior]=exclusive&line_items[2][amount]=3000&line_items[2][quantity]=1&customer_details[address][line1]=3201+North+Dallas+Avenue&customer_details[address][city]=Lancaster&customer_details[address][state]=TX&customer_details[address][postal_code]=75134&customer_details[address][country]=US&customer_details[address_source]=shipping&shipping_cost[amount]=1000&shipping_cost[tax_behavior]=exclusive&shipping_cost[tax_code]=txcd_92010001&expand[0]=line_items.data.tax_breakdown&expand[1]=shipping_cost.tax_breakdown
+    headers:
+      User-Agent:
+      - Stripe/v1 RubyBindings/10.1.0 Spree Stripe/5.2.0.alpha (https://spreecommerce.org)
+      Authorization:
+      - Bearer <STRIPE_SECRET_KEY>
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Stripe-Version:
+      - '2023-10-16'
+      X-Stripe-Client-User-Agent:
+      - "<FILTERED>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Mon, 08 Sep 2025 10:24:33 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '8105'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Methods:
+      - GET, HEAD, PUT, PATCH, POST, DELETE
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required,
+        X-Stripe-Privileged-Session-Required
+      Access-Control-Max-Age:
+      - '300'
+      Cache-Control:
+      - no-cache, no-store
+      Content-Security-Policy:
+      - base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none';
+        img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src
+        'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=ksg7I_WdUvrhs7ALnSHZTfjDYxc3KYmJtysT0_vZo3f4OtFTbhxWm0HYWFBrggWbq5XPx7OLExe0q1VV
+      Idempotency-Key:
+      - 3ec9b2c3-28a5-4c73-bbb1-700674b0a8ac
+      Original-Request:
+      - req_CIgnN1hnI5qNM6
+      Request-Id:
+      - req_CIgnN1hnI5qNM6
+      Stripe-Should-Retry:
+      - 'false'
+      Stripe-Version:
+      - '2023-10-16'
+      Vary:
+      - Origin
+      X-Stripe-Priority-Routing-Enabled:
+      - 'true'
+      X-Stripe-Routing-Context-Priority-Tier:
+      - api-testmode
+      X-Wc:
+      - ABGHIJ
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id": "taxcalc_1S52FRFmGsiQWfE6hVIABQtT",
+          "object": "tax.calculation",
+          "amount_total": 7560,
+          "currency": "usd",
+          "customer": null,
+          "customer_details": {
+            "address": {
+              "city": "Lancaster",
+              "country": "US",
+              "line1": "3201 North Dallas Avenue",
+              "line2": null,
+              "postal_code": "75134",
+              "state": "TX"
+            },
+            "address_source": "shipping",
+            "ip_address": null,
+            "tax_ids": [],
+            "taxability_override": "none"
+          },
+          "expires_at": 1765103073,
+          "line_items": {
+            "object": "list",
+            "data": [
+              {
+                "id": "tax_li_T14O56Y3GVUiqz",
+                "object": "tax.calculation_line_item",
+                "amount": 1000,
+                "amount_tax": 80,
+                "livemode": false,
+                "metadata": {},
+                "product": null,
+                "quantity": 1,
+                "reference": "1",
+                "tax_behavior": "exclusive",
+                "tax_breakdown": [
+                  {
+                    "amount": 80,
+                    "jurisdiction": {
+                      "country": "US",
+                      "display_name": "Texas",
+                      "level": "state",
+                      "state": "TX"
+                    },
+                    "sourcing": "destination",
+                    "tax_rate_details": {
+                      "display_name": "Sales Tax",
+                      "percentage_decimal": "8.0",
+                      "tax_type": "sales_tax"
+                    },
+                    "taxability_reason": "standard_rated",
+                    "taxable_amount": 1000
+                  },
+                  {
+                    "amount": 0,
+                    "jurisdiction": {
+                      "country": "US",
+                      "display_name": "Dallas",
+                      "level": "county",
+                      "state": "TX"
+                    },
+                    "sourcing": "destination",
+                    "tax_rate_details": null,
+                    "taxability_reason": "not_subject_to_tax",
+                    "taxable_amount": 0
+                  },
+                  {
+                    "amount": 0,
+                    "jurisdiction": {
+                      "country": "US",
+                      "display_name": "Lancaster",
+                      "level": "city",
+                      "state": "TX"
+                    },
+                    "sourcing": "destination",
+                    "tax_rate_details": {
+                      "display_name": "Sales Tax",
+                      "percentage_decimal": "0.0",
+                      "tax_type": "sales_tax"
+                    },
+                    "taxability_reason": "standard_rated",
+                    "taxable_amount": 1000
+                  }
+                ],
+                "tax_code": "txcd_10000000"
+              },
+              {
+                "id": "tax_li_T14ODmh64rrozT",
+                "object": "tax.calculation_line_item",
+                "amount": 2000,
+                "amount_tax": 160,
+                "livemode": false,
+                "metadata": {},
+                "product": null,
+                "quantity": 1,
+                "reference": "2",
+                "tax_behavior": "exclusive",
+                "tax_breakdown": [
+                  {
+                    "amount": 160,
+                    "jurisdiction": {
+                      "country": "US",
+                      "display_name": "Texas",
+                      "level": "state",
+                      "state": "TX"
+                    },
+                    "sourcing": "destination",
+                    "tax_rate_details": {
+                      "display_name": "Sales Tax",
+                      "percentage_decimal": "8.0",
+                      "tax_type": "sales_tax"
+                    },
+                    "taxability_reason": "standard_rated",
+                    "taxable_amount": 2000
+                  },
+                  {
+                    "amount": 0,
+                    "jurisdiction": {
+                      "country": "US",
+                      "display_name": "Dallas",
+                      "level": "county",
+                      "state": "TX"
+                    },
+                    "sourcing": "destination",
+                    "tax_rate_details": null,
+                    "taxability_reason": "not_subject_to_tax",
+                    "taxable_amount": 0
+                  },
+                  {
+                    "amount": 0,
+                    "jurisdiction": {
+                      "country": "US",
+                      "display_name": "Lancaster",
+                      "level": "city",
+                      "state": "TX"
+                    },
+                    "sourcing": "destination",
+                    "tax_rate_details": {
+                      "display_name": "Sales Tax",
+                      "percentage_decimal": "0.0",
+                      "tax_type": "sales_tax"
+                    },
+                    "taxability_reason": "standard_rated",
+                    "taxable_amount": 2000
+                  }
+                ],
+                "tax_code": "txcd_10000000"
+              },
+              {
+                "id": "tax_li_T14ODOeNvSfoKB",
+                "object": "tax.calculation_line_item",
+                "amount": 3000,
+                "amount_tax": 240,
+                "livemode": false,
+                "metadata": {},
+                "product": null,
+                "quantity": 1,
+                "reference": "3",
+                "tax_behavior": "exclusive",
+                "tax_breakdown": [
+                  {
+                    "amount": 240,
+                    "jurisdiction": {
+                      "country": "US",
+                      "display_name": "Texas",
+                      "level": "state",
+                      "state": "TX"
+                    },
+                    "sourcing": "destination",
+                    "tax_rate_details": {
+                      "display_name": "Sales Tax",
+                      "percentage_decimal": "8.0",
+                      "tax_type": "sales_tax"
+                    },
+                    "taxability_reason": "standard_rated",
+                    "taxable_amount": 3000
+                  },
+                  {
+                    "amount": 0,
+                    "jurisdiction": {
+                      "country": "US",
+                      "display_name": "Dallas",
+                      "level": "county",
+                      "state": "TX"
+                    },
+                    "sourcing": "destination",
+                    "tax_rate_details": null,
+                    "taxability_reason": "not_subject_to_tax",
+                    "taxable_amount": 0
+                  },
+                  {
+                    "amount": 0,
+                    "jurisdiction": {
+                      "country": "US",
+                      "display_name": "Lancaster",
+                      "level": "city",
+                      "state": "TX"
+                    },
+                    "sourcing": "destination",
+                    "tax_rate_details": {
+                      "display_name": "Sales Tax",
+                      "percentage_decimal": "0.0",
+                      "tax_type": "sales_tax"
+                    },
+                    "taxability_reason": "standard_rated",
+                    "taxable_amount": 3000
+                  }
+                ],
+                "tax_code": "txcd_10000000"
+              }
+            ],
+            "has_more": false,
+            "total_count": 3,
+            "url": "/v1/tax/calculations/taxcalc_1S52FRFmGsiQWfE6hVIABQtT/line_items"
+          },
+          "livemode": false,
+          "ship_from_details": null,
+          "shipping_cost": {
+            "amount": 1000,
+            "amount_tax": 80,
+            "tax_behavior": "exclusive",
+            "tax_breakdown": [
+              {
+                "amount": 80,
+                "jurisdiction": {
+                  "country": "US",
+                  "display_name": "Texas",
+                  "level": "state",
+                  "state": "TX"
+                },
+                "sourcing": "destination",
+                "tax_rate_details": {
+                  "display_name": "Sales Tax",
+                  "percentage_decimal": "8.0",
+                  "tax_type": "sales_tax"
+                },
+                "taxability_reason": "standard_rated",
+                "taxable_amount": 1000
+              },
+              {
+                "amount": 0,
+                "jurisdiction": {
+                  "country": "US",
+                  "display_name": "Dallas",
+                  "level": "county",
+                  "state": "TX"
+                },
+                "sourcing": "destination",
+                "tax_rate_details": null,
+                "taxability_reason": "not_subject_to_tax",
+                "taxable_amount": 0
+              },
+              {
+                "amount": 0,
+                "jurisdiction": {
+                  "country": "US",
+                  "display_name": "Lancaster",
+                  "level": "city",
+                  "state": "TX"
+                },
+                "sourcing": "destination",
+                "tax_rate_details": {
+                  "display_name": "Sales Tax",
+                  "percentage_decimal": "0.0",
+                  "tax_type": "sales_tax"
+                },
+                "taxability_reason": "standard_rated",
+                "taxable_amount": 1000
+              }
+            ],
+            "tax_code": "txcd_92010001"
+          },
+          "tax_amount_exclusive": 560,
+          "tax_amount_inclusive": 0,
+          "tax_breakdown": [
+            {
+              "amount": 560,
+              "inclusive": false,
+              "tax_rate_details": {
+                "country": "US",
+                "flat_amount": null,
+                "percentage_decimal": "8.0",
+                "rate_type": "percentage",
+                "state": "TX",
+                "tax_type": "sales_tax"
+              },
+              "taxability_reason": "standard_rated",
+              "taxable_amount": 7000
+            }
+          ],
+          "tax_date": 1757327073
+        }
+  recorded_at: Mon, 08 Sep 2025 10:24:33 GMT
+recorded_with: VCR 6.3.1

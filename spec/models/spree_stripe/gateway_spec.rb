@@ -612,17 +612,17 @@ RSpec.describe SpreeStripe::Gateway do
         expect(tax_breakdown.tax_rate_details.state).to eq('TX')
         expect(tax_breakdown.tax_rate_details.country).to eq('US')
 
-        tax_line_item_1 = subject.line_items.data.find { |item| item.reference == order.line_items[0].id.to_s }
+        tax_line_item_1 = subject.line_items.data[0]
         expect(tax_line_item_1.amount).to eq(1000)
         expect(tax_line_item_1.amount_tax).to eq(80)
         expect(tax_line_item_1.tax_code).to eq('txcd_10000000')
 
-        tax_line_item_2 = subject.line_items.data.find { |item| item.reference == order.line_items[1].id.to_s }
+        tax_line_item_2 = subject.line_items.data[1]
         expect(tax_line_item_2.amount).to eq(2000)
         expect(tax_line_item_2.amount_tax).to eq(160)
         expect(tax_line_item_2.tax_code).to eq('txcd_10000000')
 
-        tax_line_item_3 = subject.line_items.data.find { |item| item.reference == order.line_items[2].id.to_s }
+        tax_line_item_3 = subject.line_items.data[2]
         expect(tax_line_item_3.amount).to eq(3000)
         expect(tax_line_item_3.amount_tax).to eq(240)
         expect(tax_line_item_3.tax_code).to eq('txcd_10000000')

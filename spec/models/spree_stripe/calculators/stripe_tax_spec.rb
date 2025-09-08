@@ -34,30 +34,41 @@ RSpec.describe SpreeStripe::Calculators::StripeTax do
     let(:line_item) { order.line_items[1] }
 
     context 'when order is in state for tax calculation' do
-      before { order.update(state: 'payment') }
+      let(:tax_calculation) do
+        Stripe::Tax::Calculation.construct_from(
+          id: 'taxcalc_1234567890',
+          line_items: {
+            data: [
+              {
+                id: 'tax_li_1234567890',
+                amount: 2000,
+                amount_tax: 160,
+                reference: order.line_items[1].id.to_s,
+              }
+            ]
+          }
+        )
+      end
+
+      before do
+        order.update(state: 'payment')
+        allow_any_instance_of(SpreeStripe::Gateway).to receive(:create_tax_calculation).and_return(tax_calculation)
+      end
 
       it 'returns the tax amount for the line item' do
-        VCR.use_cassette('create_tax_calculation_us_tx') do
-          expect(subject).to eq(1.6.to_d) # 8% TX sales tax for 20 line item amount
-        end
+        expect(subject).to eq(1.6.to_d)
       end
 
       it 'persists the tax calculation id in the order' do
-        VCR.use_cassette('create_tax_calculation_us_tx') do
-          subject
-
-          # The tax calculation id is recorded in the VCR cassette
-          expect(order.reload.stripe_tax_calculation_id).to eq('taxcalc_1S52FRFmGsiQWfE6hVIABQtT')
-        end
+        subject
+        expect(order.reload.stripe_tax_calculation_id).to eq('taxcalc_1234567890')
       end
 
       context 'when the line item is not found in the tax calculation' do
-        before { order.line_items[1].update(id: 100) }
+        let(:line_item) { order.line_items[0] }
 
         it 'returns 0' do
-          VCR.use_cassette('create_tax_calculation_us_tx') do
-            expect(subject).to eq(0.to_d)
-          end
+          expect(subject).to eq(0.to_d)
         end
       end
     end
@@ -87,12 +98,23 @@ RSpec.describe SpreeStripe::Calculators::StripeTax do
     let(:shipment) { order.shipments.first }
 
     context 'when order is in state for tax calculation' do
-      before { order.update(state: 'payment') }
+      let(:tax_calculation) do
+        Stripe::Tax::Calculation.construct_from(
+          id: 'taxcalc_1234567890',
+          shipping_cost: {
+            amount: 1000,
+            amount_tax: 80
+          }
+        )
+      end
+
+      before do
+        order.update(state: 'payment')
+        allow_any_instance_of(SpreeStripe::Gateway).to receive(:create_tax_calculation).and_return(tax_calculation)
+      end
 
       it 'returns the tax amount for the shipment' do
-        VCR.use_cassette('create_tax_calculation_us_tx') do
-          expect(subject).to eq(0.8.to_d) # 8% TX sales tax for 10 shipment amount
-        end
+        expect(subject).to eq(0.8.to_d)
       end
     end
 

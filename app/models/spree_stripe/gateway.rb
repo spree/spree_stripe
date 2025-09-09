@@ -59,6 +59,11 @@ module SpreeStripe
                      confirm_payment_intent(stripe_payment_intent.id)
                    end
 
+        # create a tax transaction if the order has a tax calculation
+        if order.stripe_tax_calculation_id.present?
+          create_tax_transaction(stripe_payment_intent.id, order.stripe_tax_calculation_id)
+        end
+
         success(response.id, response)
       end
     end
@@ -268,6 +273,28 @@ module SpreeStripe
         response = send_request { Stripe::SetupIntent.create({ customer: customer_id, automatic_payment_methods: { enabled: true } }) }
 
         success(response.client_secret, response)
+      end
+    end
+
+    def create_tax_calculation(order)
+      protect_from_error do
+        send_request do
+          Stripe::Tax::Calculation.create(
+            SpreeStripe::TaxPresenter.new(order: order).call
+          )
+        end
+      end
+    end
+
+    def create_tax_transaction(payment_intent_id, tax_calculation_id)
+      protect_from_error do
+        payload = {
+          calculation: tax_calculation_id,
+          reference: payment_intent_id,
+          expand: ['line_items']
+        }
+
+        send_request { Stripe::Tax::Transaction.create_from_calculation(payload) }
       end
     end
 

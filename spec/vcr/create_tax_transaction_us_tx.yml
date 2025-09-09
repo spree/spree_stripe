@@ -1,0 +1,168 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.stripe.com/v1/tax/transactions/create_from_calculation
+    body:
+      encoding: UTF-8
+      string: calculation=taxcalc_1S52FRFmGsiQWfE6hVIABQtT&reference=pi_1234567890&expand[0]=line_items
+    headers:
+      User-Agent:
+      - Stripe/v1 RubyBindings/10.1.0 Spree Stripe/5.2.0.alpha (https://spreecommerce.org)
+      Authorization:
+      - Bearer <STRIPE_SECRET_KEY>
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Stripe-Version:
+      - '2023-10-16'
+      X-Stripe-Client-User-Agent:
+      - "<FILTERED>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Mon, 08 Sep 2025 10:57:20 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '2208'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Methods:
+      - GET, HEAD, PUT, PATCH, POST, DELETE
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required,
+        X-Stripe-Privileged-Session-Required
+      Access-Control-Max-Age:
+      - '300'
+      Cache-Control:
+      - no-cache, no-store
+      Content-Security-Policy:
+      - base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none';
+        img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src
+        'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=6rHcwlUtyuPE-ug3n_jWOP0xf8nacAyXMRuLQkBIkaMufBfTdDPZtvu8Qa8DnOlTsilhrU4zCr7rVl6F
+      Idempotency-Key:
+      - 4d511be8-6f85-4b46-b008-93c01b8a4154
+      Original-Request:
+      - req_kklABvRBwuX2rr
+      Request-Id:
+      - req_kklABvRBwuX2rr
+      Stripe-Should-Retry:
+      - 'false'
+      Stripe-Version:
+      - '2023-10-16'
+      Vary:
+      - Origin
+      X-Stripe-Priority-Routing-Enabled:
+      - 'true'
+      X-Stripe-Routing-Context-Priority-Tier:
+      - api-testmode
+      X-Wc:
+      - ABGHIJ
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id": "tax_1S52FRFmGsiQWfE6b3UAUgEk",
+          "object": "tax.transaction",
+          "created": 1757329040,
+          "currency": "usd",
+          "customer": null,
+          "customer_details": {
+            "address": {
+              "city": "Lancaster",
+              "country": "US",
+              "line1": "3201 North Dallas Avenue",
+              "line2": null,
+              "postal_code": "75134",
+              "state": "TX"
+            },
+            "address_source": "shipping",
+            "ip_address": null,
+            "tax_ids": [],
+            "taxability_override": "none"
+          },
+          "line_items": {
+            "object": "list",
+            "data": [
+              {
+                "id": "tax_li_T14O56Y3GVUiqz",
+                "object": "tax.transaction_line_item",
+                "amount": 1000,
+                "amount_tax": 80,
+                "livemode": false,
+                "metadata": {},
+                "product": null,
+                "quantity": 1,
+                "reference": "1",
+                "reversal": null,
+                "tax_behavior": "exclusive",
+                "tax_code": "txcd_10000000",
+                "type": "transaction"
+              },
+              {
+                "id": "tax_li_T14ODmh64rrozT",
+                "object": "tax.transaction_line_item",
+                "amount": 2000,
+                "amount_tax": 160,
+                "livemode": false,
+                "metadata": {},
+                "product": null,
+                "quantity": 1,
+                "reference": "2",
+                "reversal": null,
+                "tax_behavior": "exclusive",
+                "tax_code": "txcd_10000000",
+                "type": "transaction"
+              },
+              {
+                "id": "tax_li_T14ODOeNvSfoKB",
+                "object": "tax.transaction_line_item",
+                "amount": 3000,
+                "amount_tax": 240,
+                "livemode": false,
+                "metadata": {},
+                "product": null,
+                "quantity": 1,
+                "reference": "3",
+                "reversal": null,
+                "tax_behavior": "exclusive",
+                "tax_code": "txcd_10000000",
+                "type": "transaction"
+              }
+            ],
+            "has_more": false,
+            "total_count": 3,
+            "url": "/v1/tax/transactions/tax_1S52FRFmGsiQWfE6b3UAUgEk/line_items"
+          },
+          "livemode": false,
+          "metadata": {},
+          "posted_at": 1757329040,
+          "reference": "pi_1234567890",
+          "reversal": null,
+          "ship_from_details": null,
+          "shipping_cost": {
+            "amount": 1000,
+            "amount_tax": 80,
+            "tax_behavior": "exclusive",
+            "tax_code": "txcd_92010001"
+          },
+          "tax_date": 1757327073,
+          "type": "transaction"
+        }
+  recorded_at: Mon, 08 Sep 2025 10:57:20 GMT
+recorded_with: VCR 6.3.1

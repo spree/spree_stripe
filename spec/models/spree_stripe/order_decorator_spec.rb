@@ -16,7 +16,7 @@ RSpec.describe SpreeStripe::OrderDecorator do
 
   it "updates the payment intent when the order is updated" do
     # order updater runs twice during recalculate
-    expect(Stripe::PaymentIntent).to receive(:update).twice.and_return(double(id: payment_intent.stripe_id))
+    expect(Stripe::PaymentIntent).to receive(:update).and_return(double(id: payment_intent.stripe_id))
     expect { Spree::Cart::SetQuantity.call(order: order, line_item: order.line_items.first, quantity: 2) }.to change { payment_intent.reload.amount }
   end
 

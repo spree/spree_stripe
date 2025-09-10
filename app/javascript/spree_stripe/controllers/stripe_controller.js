@@ -13,7 +13,8 @@ export default class extends Controller {
     colorText: String,
     paymentIntentPath: String,
     checkoutPath: String,
-    checkoutValidateOrderForPaymentPath: String
+    checkoutValidateOrderForPaymentPath: String,
+    paymentElementAdditionalOptions: Object
   }
 
   static targets = [
@@ -96,7 +97,8 @@ export default class extends Controller {
               postalCode: 'never'
             }
           }
-        }
+        },
+        ...this.paymentElementAdditionalOptionsValue
       })
       paymentElement.mount(this.paymentElementTarget)
       paymentElement.on('change', (event) => {

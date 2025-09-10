@@ -7,9 +7,18 @@ module SpreeStripe
       return nil if amount.zero?
 
       # lookup in database for existing payment intent
-      payment_intent = SpreeStripe::PaymentIntent.find_by(order: order, payment_method: gateway)
+      payment_intent = SpreeStripe::PaymentIntent.where(order: order, payment_method: gateway).last
 
-      return payment_intent if payment_intent.present?
+      # We need to check if the payment intent is synchronized with our database payment
+      needs_new_payment_intent = false
+
+      if payment_intent.present?
+        stripe_payment_intent_status = payment_intent.stripe_payment_intent&.status
+
+        needs_new_payment_intent = true if SpreeStripe::PaymentIntent::BLOCKED_STATES.include?(stripe_payment_intent_status)
+      end
+
+      return payment_intent if payment_intent.present? && !needs_new_payment_intent
 
       # response is an ActiveMerchant::Billing::Response object
       # https://github.com/activemerchant/active_merchant/blob/master/lib/active_merchant/billing/response.rb

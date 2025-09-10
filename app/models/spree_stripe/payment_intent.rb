@@ -26,6 +26,8 @@ module SpreeStripe
     delegate :api_options, to: :payment_method
     delegate :store, :currency, to: :order
 
+    BLOCKED_STATES = %w[succeeded canceled processing].freeze
+
     def stripe_payment_intent
       @stripe_payment_intent ||= payment_method.retrieve_payment_intent(stripe_id)
     end

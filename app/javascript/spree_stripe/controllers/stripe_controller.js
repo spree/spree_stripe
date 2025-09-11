@@ -14,7 +14,7 @@ export default class extends Controller {
     paymentIntentPath: String,
     checkoutPath: String,
     checkoutValidateOrderForPaymentPath: String,
-    paymentElementAdditionalOptions: Object
+    paymentElementAdditionalOptions: { type: Object, default: {} }
   }
 
   static targets = [

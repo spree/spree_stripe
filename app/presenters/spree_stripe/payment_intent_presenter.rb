@@ -2,6 +2,7 @@ module SpreeStripe
   class PaymentIntentPresenter
     SETUP_FUTURE_USAGE = 'off_session'
     STATEMENT_DESCRIPTOR_MAX_CHARACTERS = 22
+    STATEMENT_DESCRIPTOR_NOT_ALLOWED_CHARACTERS = %w[< > \ ' " *].freeze
 
     def initialize(amount:, order:, customer: nil, payment_method_id: nil, off_session: false)
       @amount = amount
@@ -68,7 +69,7 @@ module SpreeStripe
 
     def statement_descriptor
       billing_name = order.store.billing_name
-      descriptor = "#{order.number} #{billing_name}".strip
+      descriptor = I18n.transliterate("#{order.number} #{billing_name}".strip)
 
       if descriptor.length > STATEMENT_DESCRIPTOR_MAX_CHARACTERS
         additional_char_count = descriptor.length - STATEMENT_DESCRIPTOR_MAX_CHARACTERS + 1

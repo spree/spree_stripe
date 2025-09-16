@@ -1,5 +1,5 @@
 module SpreeStripe
-  class CreateTaxTransactionJob < ApplicationJob
+  class CreateTaxTransactionJob < BaseJob
     def perform(store_id, payment_intent_id, tax_calculation_id)
       store = Spree::Store.find(store_id)
       gateway = store.stripe_gateway

@@ -185,14 +185,18 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
   end
 
   describe 'statement descriptor' do
+    subject(:statement_descriptor_suffix) { presenter.call[:statement_descriptor_suffix] }
+
     context 'for a descriptor of 22 characters' do
       let(:store_name) { 'ABCDE Store' }
-      it { is_expected.to include(statement_descriptor_suffix: "#{order.number} ABCDE Store") }
+      it { is_expected.to eq("#{order.number} ABCDE Store") }
     end
 
     context 'for a long store name' do
       let(:store_name) { 'Very Long Store Name' }
-      it { is_expected.to include(statement_descriptor_suffix: "#{order.number} Very Long") }
+
+      it { is_expected.to eq("#{order.number} Very Long S") }
+      it { is_expected.to have_attributes(length: 22) }
     end
   end
 end

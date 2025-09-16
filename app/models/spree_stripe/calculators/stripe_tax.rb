@@ -66,13 +66,13 @@ module SpreeStripe
           order.currency,
           order.item_total,
           order.item_count,
-          order.line_items.map { |li| [li.id, li.quantity].compact }.flatten.join('_'),
+          order.line_items.reload.map { |li| [li.id, li.quantity, li.taxable_amount].compact }.flatten.join('_'),
           order.shipments.map { |s| [s.shipping_method&.id, s.cost].compact }.flatten.join('_'),
           order.tax_address&.cache_key_with_version,
         ].compact.join('_')
 
         tax_calculation = Rails.cache.fetch("stripe_tax_calculation_#{cache_key}", expires_in: 1.hour) do
-           stripe_gateway.create_tax_calculation(order).to_hash.deep_stringify_keys
+          stripe_gateway.create_tax_calculation(order).to_hash.deep_stringify_keys
         rescue => e
           Rails.error.report(e, context: { order_id: order.id }, source: 'spree_stripe')
           {}

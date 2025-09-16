@@ -9,7 +9,7 @@ module SpreeStripe
     end
 
     def call
-      descriptor[0...STATEMENT_DESCRIPTOR_MAX_CHARS].strip
+      descriptor[0...STATEMENT_DESCRIPTOR_MAX_CHARS].strip.upcase
     end
 
     private

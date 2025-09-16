@@ -189,13 +189,13 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
 
     context 'for a descriptor of 22 characters' do
       let(:store_name) { 'ABCDE Store' }
-      it { is_expected.to eq("#{order.number} ABCDE Store") }
+      it { is_expected.to eq("#{order.number} ABCDE STORE") }
     end
 
     context 'for a long store name' do
       let(:store_name) { 'Very Long Store Name' }
 
-      it { is_expected.to eq("#{order.number} Very Long S") }
+      it { is_expected.to eq("#{order.number} VERY LONG S") }
       it { is_expected.to have_attributes(length: 22) }
     end
   end

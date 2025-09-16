@@ -8,7 +8,7 @@ RSpec.describe SpreeStripe::StatementDescriptorPresenter do
 
   context 'when the descriptor is within the max length' do
     it 'returns the order number and store billing name' do
-      expect(subject).to eq("R123456789 #{store_billing_name}")
+      expect(subject).to eq("R123456789 TEST STORE")
     end
   end
 
@@ -32,7 +32,7 @@ RSpec.describe SpreeStripe::StatementDescriptorPresenter do
     let(:store_billing_name) { "store <x> 'T' *" }
 
     it 'removes not allowed characters' do
-      expect(subject).to eq("R123456789 store x T")
+      expect(subject).to eq("R123456789 STORE X T")
     end
   end
 
@@ -40,7 +40,7 @@ RSpec.describe SpreeStripe::StatementDescriptorPresenter do
     let(:store_billing_name) { 'Tëst Štørę' }
 
     it 'transliterates unicode characters' do
-      expect(subject).to eq("R123456789 Test Store")
+      expect(subject).to eq("R123456789 TEST STORE")
     end
   end
 
@@ -48,7 +48,7 @@ RSpec.describe SpreeStripe::StatementDescriptorPresenter do
     let(:store_billing_name) { '  My Store  ' }
 
     it 'strips the spaces before building the descriptor' do
-      expect(subject).to eq("R123456789 My Store")
+      expect(subject).to eq("R123456789 MY STORE")
     end
   end
 end

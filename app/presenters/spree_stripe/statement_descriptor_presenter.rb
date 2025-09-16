@@ -9,7 +9,7 @@ module SpreeStripe
     end
 
     def call
-      descriptor[0...STATEMENT_DESCRIPTOR_MAX_CHARS]
+      descriptor[0...STATEMENT_DESCRIPTOR_MAX_CHARS].strip
     end
 
     private
@@ -18,7 +18,7 @@ module SpreeStripe
 
     def descriptor
       I18n.transliterate("#{order_number} #{store_billing_name.strip}")
-          .gsub(STATEMENT_DESCRIPTOR_NOT_ALLOWED_CHARS, '-')
+          .gsub(STATEMENT_DESCRIPTOR_NOT_ALLOWED_CHARS, '')
     end
   end
 end

@@ -8,7 +8,7 @@ RSpec.describe SpreeStripe::StatementDescriptorPresenter do
 
   context 'when the descriptor is within the max length' do
     it 'returns the order number and store billing name' do
-      expect(subject).to eq("#{order_number} #{store_billing_name}")
+      expect(subject).to eq("R123456789 #{store_billing_name}")
     end
   end
 
@@ -20,17 +20,19 @@ RSpec.describe SpreeStripe::StatementDescriptorPresenter do
     end
   end
 
-  context 'when the store billing name contains not allowed characters' do
-    let(:store_billing_name) { "Store <Name> 'Test' *" }
+  context 'with leading and trailing spaces after parsing' do
+    let(:store_billing_name) { 'AAAAA                B' }
 
-    it 'replaces not allowed characters with dashes' do
-      expect(subject).to include('-')
-      expect(subject).not_to include('<')
-      expect(subject).not_to include('>')
-      expect(subject).not_to include("'")
-      expect(subject).not_to include('*')
-      expect(subject).not_to include('"')
-      expect(subject).not_to include("\\")
+    it 'strips the spaces' do
+      expect(subject).to eq("R123456789 AAAAA")
+    end
+  end
+
+  context 'when the store billing name contains not allowed characters' do
+    let(:store_billing_name) { "store <x> 'T' *" }
+
+    it 'removes not allowed characters' do
+      expect(subject).to eq("R123456789 store x T")
     end
   end
 
@@ -38,7 +40,7 @@ RSpec.describe SpreeStripe::StatementDescriptorPresenter do
     let(:store_billing_name) { 'Tëst Štørę' }
 
     it 'transliterates unicode characters' do
-      expect(subject).to eq("#{order_number} Test Store")
+      expect(subject).to eq("R123456789 Test Store")
     end
   end
 
@@ -46,7 +48,7 @@ RSpec.describe SpreeStripe::StatementDescriptorPresenter do
     let(:store_billing_name) { '  My Store  ' }
 
     it 'strips the spaces before building the descriptor' do
-      expect(subject).to eq("#{order_number} My Store")
+      expect(subject).to eq("R123456789 My Store")
     end
   end
 end

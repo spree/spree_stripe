@@ -70,7 +70,7 @@ module SpreeStripe
     def statement_descriptor
       SpreeStripe::StatementDescriptorPresenter.new(
         order_number: order.number,
-        store_billing_name: order.store.name
+        store_billing_name: order.store.billing_name
       ).call
     end
 

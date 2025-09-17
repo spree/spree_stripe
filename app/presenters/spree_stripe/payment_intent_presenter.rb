@@ -1,7 +1,6 @@
 module SpreeStripe
   class PaymentIntentPresenter
     SETUP_FUTURE_USAGE = 'off_session'
-    STATEMENT_DESCRIPTOR_MAX_CHARACTERS = 22
 
     def initialize(amount:, order:, customer: nil, payment_method_id: nil, off_session: false)
       @amount = amount
@@ -50,12 +49,14 @@ module SpreeStripe
 
     private
 
+    attr_reader :order, :amount, :customer, :ship_address, :payment_method_id
+
     def basic_payload
       {
         amount: amount,
         customer: customer,
         currency: order.currency,
-        statement_descriptor_suffix: statement_descriptor,
+        statement_descriptor_suffix: statement_descriptor_suffix,
         automatic_payment_methods: {
           enabled: true
         },
@@ -66,18 +67,8 @@ module SpreeStripe
       }
     end
 
-    def statement_descriptor
-      billing_name = order.store.billing_name
-      descriptor = "#{order.number} #{billing_name}".strip
-
-      if descriptor.length > STATEMENT_DESCRIPTOR_MAX_CHARACTERS
-        additional_char_count = descriptor.length - STATEMENT_DESCRIPTOR_MAX_CHARACTERS + 1
-        short_billing_name = billing_name[0...-additional_char_count]
-
-        descriptor = "#{order.number} #{short_billing_name}".strip
-      end
-
-      descriptor
+    def statement_descriptor_suffix
+      SpreeStripe::StatementDescriptorSuffixPresenter.new(order_description: order.number).call
     end
 
     def new_payment_method_payload
@@ -97,7 +88,5 @@ module SpreeStripe
         confirm: @off_session # confirm is required for off_session payments
       }
     end
-
-    attr_reader :order, :amount, :customer, :ship_address, :payment_method_id
   end
 end

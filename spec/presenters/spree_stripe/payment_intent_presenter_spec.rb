@@ -11,8 +11,9 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
       payment_method_id: payment_method_id
     )
   end
+  let(:order_number) { 'R123456789' }
 
-  let(:order) { create(:order) }
+  let(:order) { create(:order, number: order_number) }
   let(:customer) { 'cus_123' }
   let(:amount) { 100 }
   let(:payment_method_id) { nil }
@@ -20,10 +21,12 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
 
   let(:store) { Spree::Store.default }
 
+  let(:statement_descriptor_stub) { double(SpreeStripe::StatementDescriptorSuffixPresenter, call: statement_descriptor_prefix) }
   let(:store_name) { 'Test Store' }
-  let(:statement_descriptor) { "#{order.number} #{store_name}" }
+  let(:statement_descriptor_prefix) { 'ORDER123' }
 
   before do
+    allow(SpreeStripe::StatementDescriptorSuffixPresenter).to receive(:new).with(order_description: order.number).and_return(statement_descriptor_stub)
     Spree::Config[:geocode_addresses] = false
     store.update!(name: store_name)
   end
@@ -41,7 +44,7 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
           amount: amount,
           customer: customer,
           currency: order.currency,
-          statement_descriptor_suffix: statement_descriptor,
+          statement_descriptor_suffix: statement_descriptor_prefix,
           automatic_payment_methods: {
             enabled: true
           },
@@ -73,7 +76,7 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
             amount: amount,
             customer: customer,
             currency: order.currency,
-            statement_descriptor_suffix: statement_descriptor,
+            statement_descriptor_suffix: statement_descriptor_prefix,
             automatic_payment_methods: {
               enabled: true
             },
@@ -97,7 +100,7 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
           amount: amount,
           customer: customer,
           currency: order.currency,
-          statement_descriptor_suffix: statement_descriptor,
+          statement_descriptor_suffix: statement_descriptor_prefix,
           automatic_payment_methods: {
             enabled: true
           },
@@ -116,7 +119,7 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
   end
 
   context 'order without a user' do
-    let(:order) { create(:order, user: nil, email: 'john@snow.org') }
+    let(:order) { create(:order, user: nil, email: 'john@snow.org', number: order_number) }
 
     it 'returns a payload with new payment method' do
       expect(subject).to eq(
@@ -124,7 +127,7 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
           amount: amount,
           customer: customer,
           currency: order.currency,
-          statement_descriptor_suffix: statement_descriptor,
+          statement_descriptor_suffix: statement_descriptor_prefix,
           automatic_payment_methods: {
             enabled: true
           },
@@ -155,7 +158,7 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
           amount: amount,
           customer: customer,
           currency: order.currency,
-          statement_descriptor_suffix: statement_descriptor,
+          statement_descriptor_suffix: statement_descriptor_prefix,
           automatic_payment_methods: {
             enabled: true
           },
@@ -181,18 +184,6 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
           }
         }
       )
-    end
-  end
-
-  describe 'statement descriptor' do
-    context 'for a descriptor of 22 characters' do
-      let(:store_name) { 'ABCDE Store' }
-      it { is_expected.to include(statement_descriptor_suffix: "#{order.number} ABCDE Store") }
-    end
-
-    context 'for a long store name' do
-      let(:store_name) { 'Very Long Store Name' }
-      it { is_expected.to include(statement_descriptor_suffix: "#{order.number} Very Long") }
     end
   end
 end

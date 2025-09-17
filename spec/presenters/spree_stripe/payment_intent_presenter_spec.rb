@@ -21,10 +21,12 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
 
   let(:store) { Spree::Store.default }
 
+  let(:statement_descriptor_stub) { double(SpreeStripe::StatementDescriptorSuffixPresenter, call: statement_descriptor_prefix) }
   let(:store_name) { 'Test Store' }
-  let(:statement_descriptor) { order_number }
+  let(:statement_descriptor_prefix) { 'ORDER123' }
 
   before do
+    allow(SpreeStripe::StatementDescriptorSuffixPresenter).to receive(:new).with(order_description: order.number).and_return(statement_descriptor_stub)
     Spree::Config[:geocode_addresses] = false
     store.update!(name: store_name)
   end
@@ -42,7 +44,7 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
           amount: amount,
           customer: customer,
           currency: order.currency,
-          statement_descriptor_suffix: statement_descriptor,
+          statement_descriptor_suffix: statement_descriptor_prefix,
           automatic_payment_methods: {
             enabled: true
           },
@@ -74,7 +76,7 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
             amount: amount,
             customer: customer,
             currency: order.currency,
-            statement_descriptor_suffix: statement_descriptor,
+            statement_descriptor_suffix: statement_descriptor_prefix,
             automatic_payment_methods: {
               enabled: true
             },
@@ -98,7 +100,7 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
           amount: amount,
           customer: customer,
           currency: order.currency,
-          statement_descriptor_suffix: statement_descriptor,
+          statement_descriptor_suffix: statement_descriptor_prefix,
           automatic_payment_methods: {
             enabled: true
           },
@@ -125,7 +127,7 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
           amount: amount,
           customer: customer,
           currency: order.currency,
-          statement_descriptor_suffix: statement_descriptor,
+          statement_descriptor_suffix: statement_descriptor_prefix,
           automatic_payment_methods: {
             enabled: true
           },
@@ -156,7 +158,7 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
           amount: amount,
           customer: customer,
           currency: order.currency,
-          statement_descriptor_suffix: statement_descriptor,
+          statement_descriptor_suffix: statement_descriptor_prefix,
           automatic_payment_methods: {
             enabled: true
           },
@@ -189,12 +191,7 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
     subject(:statement_descriptor_suffix) { presenter.call[:statement_descriptor_suffix] }
 
     context 'with stubbed statement descriptor presenter' do
-      let(:statement_descriptor) { SpreeStripe::StatementDescriptorSuffixPresenter }
-      let(:statement_descriptor_stub) { double(statement_descriptor, call: true) }
 
-      before do
-        allow(statement_descriptor).to receive(:new).with(order_description: order.number).and_return(statement_descriptor_stub)
-      end
 
       it 'calls the statement descriptor presenter with valid params' do
         expect(statement_descriptor_stub).to receive(:call)

@@ -11,8 +11,9 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
       payment_method_id: payment_method_id
     )
   end
+  let(:order_number) { 'R123456789' }
 
-  let(:order) { create(:order) }
+  let(:order) { create(:order, number: order_number) }
   let(:customer) { 'cus_123' }
   let(:amount) { 100 }
   let(:payment_method_id) { nil }
@@ -21,7 +22,7 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
   let(:store) { Spree::Store.default }
 
   let(:store_name) { 'Test Store' }
-  let(:statement_descriptor) { "#{order.number} TEST STORE" }
+  let(:statement_descriptor) { "R123456789 TEST STORE" }
 
   before do
     Spree::Config[:geocode_addresses] = false
@@ -116,7 +117,7 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
   end
 
   context 'order without a user' do
-    let(:order) { create(:order, user: nil, email: 'john@snow.org') }
+    let(:order) { create(:order, user: nil, email: 'john@snow.org', number: order_number) }
 
     it 'returns a payload with new payment method' do
       expect(subject).to eq(
@@ -187,16 +188,31 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
   describe 'statement descriptor' do
     subject(:statement_descriptor_suffix) { presenter.call[:statement_descriptor_suffix] }
 
+    context 'with stubbed statement descriptor presenter' do
+      let(:statement_descriptor) { SpreeStripe::StatementDescriptorPresenter }
+      let(:statement_descriptor_stub) { double('StatementDescriptorPresenter', call: true) }
+
+      before do
+        allow(SpreeStripe::StatementDescriptorPresenter).to receive(:new).with(order_number: order.number, store_billing_name: store.billing_name).and_return(statement_descriptor_stub)
+      end
+
+      it 'calls the statement descriptor presenter with valid params' do
+        expect(statement_descriptor_stub).to receive(:call)
+
+        subject
+      end
+    end
+
     context 'for a descriptor of 22 characters' do
       let(:store_name) { 'ABCDE Store' }
-      it { is_expected.to eq("#{order.number} ABCDE STORE") }
+      it { is_expected.to eq("R123456789 ABCDE STORE") }
     end
 
     context 'for a long store name' do
       let(:store_name) { 'Very Long Store Name' }
 
-      it { is_expected.to eq("#{order.number} VERY LONG S") }
-      it { is_expected.to have_attributes(length: 22) }
+      it { is_expected.to eq("R123456789 VERY LONG S") }
+      it { is_expected.to have_attributes(length: SpreeStripe::StatementDescriptorPresenter::STATEMENT_DESCRIPTOR_MAX_CHARS) }
     end
   end
 end

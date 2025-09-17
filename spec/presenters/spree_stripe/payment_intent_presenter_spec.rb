@@ -21,7 +21,7 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
   let(:store) { Spree::Store.default }
 
   let(:store_name) { 'Test Store' }
-  let(:statement_descriptor) { "#{order.number} #{store_name}" }
+  let(:statement_descriptor) { "#{order.number} TEST STORE" }
 
   before do
     Spree::Config[:geocode_addresses] = false

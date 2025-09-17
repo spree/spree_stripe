@@ -22,7 +22,7 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
   let(:store) { Spree::Store.default }
 
   let(:store_name) { 'Test Store' }
-  let(:statement_descriptor) { "R123456789 TEST STORE" }
+  let(:statement_descriptor) { order_number }
 
   before do
     Spree::Config[:geocode_addresses] = false
@@ -189,11 +189,11 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
     subject(:statement_descriptor_suffix) { presenter.call[:statement_descriptor_suffix] }
 
     context 'with stubbed statement descriptor presenter' do
-      let(:statement_descriptor) { SpreeStripe::StatementDescriptorPresenter }
-      let(:statement_descriptor_stub) { double('StatementDescriptorPresenter', call: true) }
+      let(:statement_descriptor) { SpreeStripe::StatementDescriptorSuffixPresenter }
+      let(:statement_descriptor_stub) { double(statement_descriptor, call: true) }
 
       before do
-        allow(SpreeStripe::StatementDescriptorPresenter).to receive(:new).with(order_number: order.number, store_billing_name: store.billing_name).and_return(statement_descriptor_stub)
+        allow(statement_descriptor).to receive(:new).with(order_description: order.number).and_return(statement_descriptor_stub)
       end
 
       it 'calls the statement descriptor presenter with valid params' do
@@ -201,18 +201,6 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
 
         subject
       end
-    end
-
-    context 'for a descriptor of 22 characters' do
-      let(:store_name) { 'ABCDE Store' }
-      it { is_expected.to eq("R123456789 ABCDE STORE") }
-    end
-
-    context 'for a long store name' do
-      let(:store_name) { 'Very Long Store Name' }
-
-      it { is_expected.to eq("R123456789 VERY LONG S") }
-      it { is_expected.to have_attributes(length: SpreeStripe::StatementDescriptorPresenter::STATEMENT_DESCRIPTOR_MAX_CHARS) }
     end
   end
 end

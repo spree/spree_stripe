@@ -56,7 +56,7 @@ module SpreeStripe
         amount: amount,
         customer: customer,
         currency: order.currency,
-        statement_descriptor_suffix: statement_descriptor,
+        statement_descriptor_suffix: statement_descriptor_suffix,
         automatic_payment_methods: {
           enabled: true
         },
@@ -67,11 +67,8 @@ module SpreeStripe
       }
     end
 
-    def statement_descriptor
-      SpreeStripe::StatementDescriptorPresenter.new(
-        order_number: order.number,
-        store_billing_name: order.store.billing_name
-      ).call
+    def statement_descriptor_suffix
+      SpreeStripe::StatementDescriptorSuffixPresenter.new(order_description: order.number).call
     end
 
     def new_payment_method_payload

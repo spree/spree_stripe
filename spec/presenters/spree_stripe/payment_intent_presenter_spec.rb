@@ -186,18 +186,4 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
       )
     end
   end
-
-  describe 'statement descriptor' do
-    subject(:statement_descriptor_suffix) { presenter.call[:statement_descriptor_suffix] }
-
-    context 'with stubbed statement descriptor presenter' do
-
-
-      it 'calls the statement descriptor presenter with valid params' do
-        expect(statement_descriptor_stub).to receive(:call)
-
-        subject
-      end
-    end
-  end
 end

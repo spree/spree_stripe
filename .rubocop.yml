@@ -9,7 +9,7 @@ AllCops:
     - 'spec/dummy/**/*'
     - 'lib/generators/**/*'
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 150
 
 # DISABLED

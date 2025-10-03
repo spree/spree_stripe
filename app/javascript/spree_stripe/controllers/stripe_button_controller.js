@@ -104,6 +104,7 @@ export default class extends Controller {
 
       event.resolve({
         emailRequired: true,
+        phoneNumberRequired: this.phoneRequiredValue,
         shippingAddressRequired: this.shippingRequiredValue,
         allowedShippingCountries: this.availableCountriesValue,
         // If we want to collect shipping address then we need to provide at least one shipping option, it will be updated to the real ones in the `shippingaddresschange` event

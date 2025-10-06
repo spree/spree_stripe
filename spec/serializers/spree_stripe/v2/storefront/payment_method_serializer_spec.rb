@@ -24,6 +24,11 @@ describe Spree::V2::Storefront::PaymentMethodSerializer do
             preferences: {},
             public_metadata: {},
           },
+          relationships: {
+            metafields: {
+              data: []
+            },
+          }
         }
       }
     )

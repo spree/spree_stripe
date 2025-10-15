@@ -33,9 +33,13 @@ module SpreeStripe
       return if stripe_gateway.blank?
 
       customer = stripe_gateway.fetch_or_create_customer(order: self, user: user)
-      return if customer.blank?
 
-      user.default_credit_card.update(gateway_customer_profile_id: customer.profile_id, gateway_customer_id: customer.id)
+      default_card = user.default_credit_card
+      
+      return if customer.blank? || default_card.blank?
+
+      stripe_gateway.attach_customer_to_payment_method(default_card.gateway_payment_profile_id, customer.profile_id)
+      default_card.update(gateway_customer_profile_id: customer.profile_id, gateway_customer_id: customer.id)
 
       return if payment_intents.empty?
 

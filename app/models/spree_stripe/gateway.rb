@@ -293,6 +293,12 @@ module SpreeStripe
       end
     end
 
+    def attach_customer_to_payment_method(payment_method_id, customer_id)
+      protect_from_error do
+        send_request { Stripe::PaymentMethod.attach(payment_method_id, { customer: customer_id }) }
+      end
+    end
+
     def apple_domain_association_file_content
       @apple_domain_association_file_content ||= apple_developer_merchantid_domain_association&.download
     end

@@ -28,22 +28,10 @@ module SpreeStripe
 
     def persist_user_credit_card
       super
-
       stripe_gateway = store.stripe_gateway
       return if stripe_gateway.blank?
 
-      customer = stripe_gateway.fetch_or_create_customer(order: self, user: user)
-
-      default_card = user.default_credit_card
-      
-      return if customer.blank? || default_card.blank?
-
-      stripe_gateway.attach_customer_to_payment_method(default_card.gateway_payment_profile_id, customer.profile_id)
-      default_card.update(gateway_customer_profile_id: customer.profile_id, gateway_customer_id: customer.id)
-
-      return if payment_intents.empty?
-
-      payment_intents.update_all(customer_id: customer.profile_id)
+      stripe_gateway.attach_customer_to_credit_card(user)
     end
 
     def stripe_payment_intent

@@ -26,13 +26,20 @@ module SpreeStripe
       payment_intents.update_all(customer_id: customer_id) if customer_id.present?
     end
 
-    def create_payment_customer
-      return if user.blank?
+    def persist_user_credit_card
+      super
 
       stripe_gateway = store.stripe_gateway
       return if stripe_gateway.blank?
 
-      stripe_gateway.fetch_or_create_customer(order: self)
+      customer = stripe_gateway.fetch_or_create_customer(order: self, user: user)
+      return if customer.blank?
+
+      user.default_credit_card.update(gateway_customer_profile_id: customer.profile_id, gateway_customer_id: customer.id)
+
+      return if payment_intents.empty?
+
+      payment_intents.update_all(customer_id: customer.profile_id)
     end
 
     def stripe_payment_intent

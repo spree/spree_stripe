@@ -666,4 +666,75 @@ RSpec.describe SpreeStripe::Gateway do
       end
     end
   end
+
+  describe '#attach_customer_to_credit_card' do
+    subject(:attach_customer) { gateway.attach_customer_to_credit_card(user) }
+
+    context 'when no payment method is provided' do
+      context 'and user is nil' do
+        let(:user) { nil }
+
+        it 'does not create a new gateway customer' do
+          expect { attach_customer }.not_to change(Spree::GatewayCustomer, :count)
+        end
+        
+        it 'returns nil' do
+          expect(attach_customer).to be_nil
+        end
+      end
+
+      context 'and user has no default credit card' do
+        let(:user) { create(:user) }
+
+        it 'does not create a new gateway customer' do
+          expect { attach_customer }.not_to change(Spree::GatewayCustomer, :count)
+        end
+        
+        it 'returns nil' do
+          expect(attach_customer).to be_nil
+        end
+      end
+
+      context 'and credit card has no payment method id' do
+        let(:user) { create(:user) }
+        let!(:credit_card) { create(:credit_card, user: user, default: true) }
+
+        it 'does not create a new gateway customer' do
+          expect { attach_customer }.not_to change(Spree::GatewayCustomer, :count)
+        end
+        
+        it 'returns nil' do
+          expect(attach_customer).to be_nil
+        end
+      end
+    end
+
+    context 'when credit card has a payment method id' do
+      let(:user) { create(:user) }
+
+      context 'and credit card has no gateway customer profile id' do
+        let!(:credit_card) { create(:credit_card, user: user, default: true, gateway_payment_profile_id: 'pm_1SGLXEIhR0gIegIeYbkKLGkF') }
+
+        it 'attaches the customer to the credit card' do        
+          VCR.use_cassette('attach_customer_to_credit_card') do
+            expect { attach_customer }.to change(Spree::GatewayCustomer, :count).by(1)
+            expect(user.reload.default_credit_card.gateway_customer_profile_id).to eq('cus_TFeSJ7nmvElKTT')
+            expect(user.reload.default_credit_card.gateway_customer_id).to eq(Spree::GatewayCustomer.last.id)
+          end
+        end
+      end
+
+      context 'and credit card has a gateway customer profile id' do
+        let!(:credit_card) { create(:credit_card, user: user, default: true, gateway_payment_profile_id: 'pm_1SGLXEIhR0gIegIeYbkKLGkF', gateway_customer_profile_id: 'cus_TFeSJ7nmvElKTT') }
+
+        it 'does not create a new gateway customer' do
+          expect { attach_customer }.not_to change(Spree::GatewayCustomer, :count)
+        end
+
+        it 'returns nil' do
+          expect(attach_customer).to be_nil
+        end
+      end
+    end
+  end
 end

@@ -1,0 +1,189 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.stripe.com/v1/customers
+    body:
+      encoding: UTF-8
+      string: email=carola%40walterpfannerstill.com&name=Piedad+Reilly
+    headers:
+      User-Agent:
+      - Stripe/v1 RubyBindings/10.1.0 Spree Stripe/5.2.0.alpha2 (https://spreecommerce.org)
+      Authorization:
+      - Bearer <STRIPE_SECRET_KEY>
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Stripe-Version:
+      - '2023-10-16'
+      X-Stripe-Client-User-Agent:
+      - "<FILTERED>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Fri, 17 Oct 2025 08:36:59 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '652'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Methods:
+      - GET, HEAD, PUT, PATCH, POST, DELETE
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required,
+        X-Stripe-Privileged-Session-Required
+      Access-Control-Max-Age:
+      - '300'
+      Cache-Control:
+      - no-cache, no-store
+      Content-Security-Policy:
+      - base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none';
+        img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src
+        'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=6wzenlDXIgGwqg5PFFLcxOeamj0NxGhMzX38jdMqLsv2WhklIrH6zU3PXhxszUrbeugqAGnFuBRqQpCj
+      Idempotency-Key:
+      - f2ab581d-110e-44d2-8e3c-6df7a20b549a
+      Original-Request:
+      - req_E0LgLn1DHAziMI
+      Request-Id:
+      - req_E0LgLn1DHAziMI
+      Stripe-Should-Retry:
+      - 'false'
+      Stripe-Version:
+      - '2023-10-16'
+      Vary:
+      - Origin
+      X-Stripe-Priority-Routing-Enabled:
+      - 'true'
+      X-Stripe-Routing-Context-Priority-Tier:
+      - api-testmode
+      X-Wc:
+      - ABGHIJ
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id": "cus_TFeSJ7nmvElKTT",
+          "object": "customer",
+          "address": null,
+          "balance": 0,
+          "created": 1760690219,
+          "currency": null,
+          "default_source": null,
+          "delinquent": false,
+          "description": null,
+          "discount": null,
+          "email": "carola@walterpfannerstill.com",
+          "invoice_prefix": "RNQVX2S0",
+          "invoice_settings": {
+            "custom_fields": null,
+            "default_payment_method": null,
+            "footer": null,
+            "rendering_options": null
+          },
+          "livemode": false,
+          "metadata": {},
+          "name": "Piedad Reilly",
+          "next_invoice_sequence": 1,
+          "phone": null,
+          "preferred_locales": [],
+          "shipping": null,
+          "tax_exempt": "none",
+          "test_clock": null
+        }
+  recorded_at: Fri, 17 Oct 2025 08:36:59 GMT
+- request:
+    method: post
+    uri: https://api.stripe.com/v1/payment_methods/pm_1SGLXEIhR0gIegIeYbkKLGkF/attach
+    body:
+      encoding: UTF-8
+      string: customer=cus_TFeSJ7nmvElKTT
+    headers:
+      User-Agent:
+      - Stripe/v1 RubyBindings/10.1.0 Spree Stripe/5.2.0.alpha2 (https://spreecommerce.org)
+      Authorization:
+      - Bearer <STRIPE_SECRET_KEY>
+      Content-Type:
+      - application/x-www-form-urlencoded
+      X-Stripe-Client-Telemetry:
+      - '{"last_request_metrics":{"request_id":"req_E0LgLn1DHAziMI","request_duration_ms":504}}'
+      Stripe-Version:
+      - '2023-10-16'
+      X-Stripe-Client-User-Agent:
+      - "<FILTERED>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Fri, 17 Oct 2025 08:36:59 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1287'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Methods:
+      - GET, HEAD, PUT, PATCH, POST, DELETE
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required,
+        X-Stripe-Privileged-Session-Required
+      Access-Control-Max-Age:
+      - '300'
+      Cache-Control:
+      - no-cache, no-store
+      Content-Security-Policy:
+      - base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none';
+        img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src
+        'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=YFitJJasA9qgsAxOFnS3GuHVuXOkbdE97bRLeaBJJVxcuaQrHBxZN2bFMGUGpbPSxiP4Wd9iDpmWDEIu
+      Idempotency-Key:
+      - 6cd85089-8109-4882-b00c-37581f7d80ba
+      Original-Request:
+      - req_XjVC65nesVPKjz
+      Request-Id:
+      - req_XjVC65nesVPKjz
+      Stripe-Should-Retry:
+      - 'false'
+      Stripe-Version:
+      - '2023-10-16'
+      Vary:
+      - Origin
+      X-Stripe-Priority-Routing-Enabled:
+      - 'true'
+      X-Stripe-Routing-Context-Priority-Tier:
+      - api-testmode
+      X-Wc:
+      - ABGHIJ
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        ewogICJpZCI6ICJwbV8xU0dMWEVJaFIwZ0llZ0llWWJrS0xHa0YiLAogICJvYmplY3QiOiAicGF5bWVudF9tZXRob2QiLAogICJhbGxvd19yZWRpc3BsYXkiOiAidW5zcGVjaWZpZWQiLAogICJiaWxsaW5nX2RldGFpbHMiOiB7CiAgICAiYWRkcmVzcyI6IHsKICAgICAgImNpdHkiOiAiV2Fyc3phd2EiLAogICAgICAiY291bnRyeSI6ICJQTCIsCiAgICAgICJsaW5lMSI6ICJLYXppbWllcnpvd3NrYSA3NiIsCiAgICAgICJsaW5lMiI6ICIiLAogICAgICAicG9zdGFsX2NvZGUiOiAiMDItNTE4IiwKICAgICAgInN0YXRlIjogIiIKICAgIH0sCiAgICAiZW1haWwiOiAibXIuYnJvemVrQGljbG91ZC5jb20iLAogICAgIm5hbWUiOiAiTWljaGHFgiBCcm/FvGVrIiwKICAgICJwaG9uZSI6IG51bGwsCiAgICAidGF4X2lkIjogbnVsbAogIH0sCiAgImNhcmQiOiB7CiAgICAiYnJhbmQiOiAibWFzdGVyY2FyZCIsCiAgICAiY2hlY2tzIjogewogICAgICAiYWRkcmVzc19saW5lMV9jaGVjayI6ICJ1bmNoZWNrZWQiLAogICAgICAiYWRkcmVzc19wb3N0YWxfY29kZV9jaGVjayI6ICJ1bmNoZWNrZWQiLAogICAgICAiY3ZjX2NoZWNrIjogbnVsbAogICAgfSwKICAgICJjb3VudHJ5IjogIlBMIiwKICAgICJkaXNwbGF5X2JyYW5kIjogIm1hc3RlcmNhcmQiLAogICAgImV4cF9tb250aCI6IDQsCiAgICAiZXhwX3llYXIiOiAyMDI2LAogICAgImZpbmdlcnByaW50IjogIk11MWUzTmVmcERlRWRER0kiLAogICAgImZ1bmRpbmciOiAiZGViaXQiLAogICAgImdlbmVyYXRlZF9mcm9tIjogbnVsbCwKICAgICJsYXN0NCI6ICIxNTE5IiwKICAgICJuZXR3b3JrcyI6IHsKICAgICAgImF2YWlsYWJsZSI6IFsKICAgICAgICAibWFzdGVyY2FyZCIKICAgICAgXSwKICAgICAgInByZWZlcnJlZCI6IG51bGwKICAgIH0sCiAgICAicmVndWxhdGVkX3N0YXR1cyI6ICJ1bnJlZ3VsYXRlZCIsCiAgICAidGhyZWVfZF9zZWN1cmVfdXNhZ2UiOiB7CiAgICAgICJzdXBwb3J0ZWQiOiB0cnVlCiAgICB9LAogICAgIndhbGxldCI6IHsKICAgICAgImFwcGxlX3BheSI6IHsKICAgICAgICAidHlwZSI6ICJhcHBsZV9wYXkiCiAgICAgIH0sCiAgICAgICJkeW5hbWljX2xhc3Q0IjogIjYzOTYiLAogICAgICAidHlwZSI6ICJhcHBsZV9wYXkiCiAgICB9CiAgfSwKICAiY3JlYXRlZCI6IDE3NjAwMjI4MjAsCiAgImN1c3RvbWVyIjogImN1c19URmVTSjdubXZFbEtUVCIsCiAgImxpdmVtb2RlIjogZmFsc2UsCiAgIm1ldGFkYXRhIjoge30sCiAgInJhZGFyX29wdGlvbnMiOiB7fSwKICAidHlwZSI6ICJjYXJkIgp9
+  recorded_at: Fri, 17 Oct 2025 08:36:59 GMT
+recorded_with: VCR 6.3.1

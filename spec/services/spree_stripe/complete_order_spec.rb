@@ -43,6 +43,12 @@ RSpec.describe SpreeStripe::CompleteOrder, :vcr do
         expect { subject }.to change { order.reload.state }.to('complete')
         expect(order.completed_at).to be_present
       end
+
+      it 'attaches the customer to the credit card' do
+        subject
+        expect(user.reload.default_credit_card.gateway_customer_profile_id).to eq('cus_T6h6dN295VBqyK')
+        expect(user.reload.default_credit_card.gateway_customer_id).to eq(stripe_customer.id)
+      end
     end
   end
 end

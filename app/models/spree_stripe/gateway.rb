@@ -295,7 +295,7 @@ module SpreeStripe
 
     def attach_customer_to_credit_card(user)
       payment_method_id = user&.default_credit_card&.gateway_payment_profile_id
-      return if payment_method_id.blank?
+      return if payment_method_id.blank? || user&.default_credit_card&.gateway_customer_profile_id.present?
 
       protect_from_error do
         customer = fetch_or_create_customer(user: user)

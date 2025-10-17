@@ -23,6 +23,7 @@ describe Spree::V2::Storefront::PaymentMethodSerializer do
             publishable_key: resource.preferred_publishable_key,
             preferences: {},
             public_metadata: {},
+
           },
           relationships: {
             metafields: {

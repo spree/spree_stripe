@@ -722,6 +722,21 @@ RSpec.describe SpreeStripe::Gateway do
             expect(user.reload.default_credit_card.gateway_customer_id).to eq(Spree::GatewayCustomer.last.id)
           end
         end
+
+        context 'and Stripe API returns an error' do
+          let!(:credit_card) { create(:credit_card, user: user, default: true, gateway_payment_profile_id: 'pm_1SGLXEIhR0gIegIeYbkKLGkF') }
+
+          it 'does not update default credit card' do
+            allow(Rails.error).to receive(:report)
+            
+            VCR.use_cassette('attach_customer_to_credit_card_error') do
+              expect(attach_customer).to eq(nil)
+              expect(user.reload.default_credit_card.gateway_customer_profile_id).to eq(nil)
+              expect(user.reload.default_credit_card.gateway_customer_id).to eq(nil)
+              expect(Rails.error).to have_received(:report).with(instance_of(Stripe::InvalidRequestError), context: { user_id: user.id }, source: 'spree_stripe')
+            end
+          end
+        end
       end
 
       context 'and credit card has a gateway customer profile id' do

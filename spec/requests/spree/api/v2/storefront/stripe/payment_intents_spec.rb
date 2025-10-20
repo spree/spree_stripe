@@ -218,6 +218,7 @@ RSpec.describe Spree::Api::V2::Storefront::Stripe::PaymentIntentsController, typ
 
       before do
         allow(Stripe::Charge).to receive(:retrieve).and_return(stripe_charge)
+        allow(Stripe::PaymentMethod).to receive(:attach).and_return(true)
         subject
       end
 

@@ -293,6 +293,21 @@ module SpreeStripe
       end
     end
 
+    def attach_customer_to_credit_card(user)
+      payment_method_id = user&.default_credit_card&.gateway_payment_profile_id
+      return if payment_method_id.blank? || user&.default_credit_card&.gateway_customer_profile_id.present?
+
+      customer = fetch_or_create_customer(user: user)
+      return if customer.blank?
+
+      send_request { Stripe::PaymentMethod.attach(payment_method_id, { customer: customer.profile_id }) }
+
+      user.default_credit_card.update(gateway_customer_profile_id: customer.profile_id, gateway_customer_id: customer.id)
+    rescue Stripe::StripeError => e
+      Rails.error.report(e, context: { payment_method_id: id, user_id: user.id }, source: 'spree_stripe')
+      nil
+    end
+
     def apple_domain_association_file_content
       @apple_domain_association_file_content ||= apple_developer_merchantid_domain_association&.download
     end

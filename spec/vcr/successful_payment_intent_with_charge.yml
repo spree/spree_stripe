@@ -2,13 +2,13 @@
 http_interactions:
 - request:
     method: get
-    uri: https://api.stripe.com/v1/payment_intents/pi_3Qd7ay2ESifGlJez0iSw49k1
+    uri: https://api.stripe.com/v1/payment_intents/pi_3SATi7IhR0gIegIe1HSm8pUl
     body:
       encoding: US-ASCII
       string: ''
     headers:
       User-Agent:
-      - Stripe/v1 RubyBindings/10.1.0 Spree Stripe/1.0.0 (https://spreecommerce.org)
+      - Stripe/v1 RubyBindings/10.1.0 Spree Stripe/5.2.0.alpha2 (https://spreecommerce.org)
       Authorization:
       - Bearer <STRIPE_SECRET_KEY>
       Content-Type:
@@ -29,11 +29,11 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Fri, 03 Jan 2025 10:04:31 GMT
+      - Thu, 16 Oct 2025 14:45:59 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '2108'
+      - '2143'
       Connection:
       - keep-alive
       Access-Control-Allow-Credentials:
@@ -51,42 +51,34 @@ http_interactions:
       - no-cache, no-store
       Content-Security-Policy:
       - base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none';
-        img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; upgrade-insecure-requests;
-        report-uri /csp-violation https://q.stripe.com/csp-violation?q=HlX8pAX1HdG5ReI4746Zt1eGqAb8S347LmX4rz0q08mfOxfKp-v9jMag5Q-d4LEtEyG2bysXSg%3D%3D
-      Cross-Origin-Opener-Policy-Report-Only:
-      - same-origin; report-to="coop"
-      Report-To:
-      - '{"group":"coop","max_age":8640,"endpoints":[{"url":"https://q.stripe.com/coop-report"}],"include_subdomains":true}'
-      Reporting-Endpoints:
-      - coop="https://q.stripe.com/coop-report"
+        img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src
+        'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=QK0kCAEy_N879POtolscDwkiGPzk1TLx0eMn28XZ0QIfdabY20dK2iNOeulzTu9K_oUG2lo2k07v_UVt
       Request-Id:
-      - req_qb299KFHulkcON
+      - req_YY5YIO0OdtLoSN
       Stripe-Version:
       - '2023-10-16'
       Vary:
       - Origin
-      X-Content-Type-Options:
-      - nosniff
       X-Stripe-Priority-Routing-Enabled:
       - 'true'
       X-Stripe-Routing-Context-Priority-Tier:
       - api-testmode
       X-Wc:
-      - AB
+      - ABGHIJ
       Strict-Transport-Security:
       - max-age=63072000; includeSubDomains; preload
     body:
       encoding: UTF-8
       string: |-
         {
-          "id": "pi_3Qd7ay2ESifGlJez0iSw49k1",
+          "id": "pi_3SATi7IhR0gIegIe1HSm8pUl",
           "object": "payment_intent",
-          "amount": 4500,
+          "amount": 1999,
           "amount_capturable": 0,
           "amount_details": {
             "tip": {}
           },
-          "amount_received": 4500,
+          "amount_received": 1999,
           "application": null,
           "application_fee_amount": null,
           "automatic_payment_methods": {
@@ -96,24 +88,25 @@ http_interactions:
           "canceled_at": null,
           "cancellation_reason": null,
           "capture_method": "automatic",
-          "client_secret": "pi_3Qd7ay2ESifGlJez0iSw49k1_secret_gqmeUMdUCpTEfYfnrAY4sQmKx",
+          "client_secret": "pi_3SATi7IhR0gIegIe1HSm8pUl_secret_iYNSQaY2Ok3Wnm4RwFd9z7Gut",
           "confirmation_method": "automatic",
-          "created": 1735898108,
+          "created": 1758624279,
           "currency": "usd",
-          "customer": null,
+          "customer": "cus_T6h6dN295VBqyK",
           "description": null,
+          "excluded_payment_method_types": null,
           "invoice": null,
           "last_payment_error": null,
-          "latest_charge": "ch_3Qd7ay2ESifGlJez0nHOMyky",
+          "latest_charge": "ch_3SATi7IhR0gIegIe15Tl8Rm3",
           "livemode": false,
           "metadata": {
-            "spree_order_id": "8015bcbe-4b15-4c03-be7f-01fc68e4515c"
+            "spree_order_id": "164"
           },
           "next_action": null,
           "on_behalf_of": null,
-          "payment_method": "pm_1Qd7gw2ESifGlJezAFFb1XOr",
+          "payment_method": "pm_1SATicIhR0gIegIed5wlgYNQ",
           "payment_method_configuration_details": {
-            "id": "pmc_1QVa9x2ESifGlJezRC5fgLVg",
+            "id": "pmc_1Lsn39IhR0gIegIePcnLvSxO",
             "parent": null
           },
           "payment_method_options": {
@@ -127,6 +120,7 @@ http_interactions:
               "request_three_d_secure": "automatic",
               "setup_future_usage": "off_session"
             },
+            "cashapp": {},
             "klarna": {
               "preferred_locale": null
             },
@@ -138,7 +132,8 @@ http_interactions:
             "card",
             "afterpay_clearpay",
             "klarna",
-            "link"
+            "link",
+            "cashapp"
           ],
           "processing": null,
           "receipt_email": null,
@@ -146,41 +141,41 @@ http_interactions:
           "setup_future_usage": null,
           "shipping": {
             "address": {
-              "city": "San Francisco",
+              "city": "Atlanta",
               "country": "US",
-              "line1": "100 California Street",
+              "line1": "4250 South Fulton Parkway",
               "line2": null,
-              "postal_code": "94111",
-              "state": "CA"
+              "postal_code": "30349",
+              "state": "GA"
             },
             "carrier": null,
-            "name": "John Doe",
+            "name": "a a",
             "phone": null,
             "tracking_number": null
           },
           "source": null,
           "statement_descriptor": null,
-          "statement_descriptor_suffix": "R194145369 John Doe",
+          "statement_descriptor_suffix": "4 Cut",
           "status": "succeeded",
           "transfer_data": null,
-          "transfer_group": "R194145369"
+          "transfer_group": "73098869"
         }
-  recorded_at: Fri, 03 Jan 2025 10:04:31 GMT
+  recorded_at: Thu, 16 Oct 2025 14:45:59 GMT
 - request:
     method: get
-    uri: https://api.stripe.com/v1/charges/ch_3Qd7ay2ESifGlJez0nHOMyky
+    uri: https://api.stripe.com/v1/charges/ch_3SATi7IhR0gIegIe15Tl8Rm3
     body:
       encoding: US-ASCII
       string: ''
     headers:
       User-Agent:
-      - Stripe/v1 RubyBindings/10.1.0 Spree Stripe/1.0.0 (https://spreecommerce.org)
+      - Stripe/v1 RubyBindings/10.1.0 Spree Stripe/5.2.0.alpha2 (https://spreecommerce.org)
       Authorization:
       - Bearer <STRIPE_SECRET_KEY>
       Content-Type:
       - application/x-www-form-urlencoded
       X-Stripe-Client-Telemetry:
-      - '{"last_request_metrics":{"request_id":"req_qb299KFHulkcON","request_duration_ms":382}}'
+      - '{"last_request_metrics":{"request_id":"req_YY5YIO0OdtLoSN","request_duration_ms":498}}'
       Stripe-Version:
       - '2023-10-16'
       X-Stripe-Client-User-Agent:
@@ -197,11 +192,11 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Fri, 03 Jan 2025 10:04:31 GMT
+      - Thu, 16 Oct 2025 14:46:00 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '3371'
+      - '3335'
       Connection:
       - keep-alive
       Access-Control-Allow-Credentials:
@@ -219,61 +214,54 @@ http_interactions:
       - no-cache, no-store
       Content-Security-Policy:
       - base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none';
-        img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; upgrade-insecure-requests;
-        report-uri /csp-violation https://q.stripe.com/csp-violation?q=hup8qlUsux3wyfdad5HDwR2oyL_sF3w32ijHNr-0D_P0T_lNYe0YLMuKauvdySrcPDiK2FGQ_g%3D%3D
-      Cross-Origin-Opener-Policy-Report-Only:
-      - same-origin; report-to="coop"
-      Report-To:
-      - '{"group":"coop","max_age":8640,"endpoints":[{"url":"https://q.stripe.com/coop-report"}],"include_subdomains":true}'
-      Reporting-Endpoints:
-      - coop="https://q.stripe.com/coop-report"
+        img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src
+        'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=PxqooUjh9gduT9KQyHZmdNwQthoBilslfzEOoUkHlG_yu0f_0SEqoCcuT4fhV3ubSFNU4faU0Bf4l-ft
       Request-Id:
-      - req_2x2bT2KrqmxVkz
+      - req_cxabAGrkVUfcLb
       Stripe-Version:
       - '2023-10-16'
       Vary:
       - Origin
-      X-Content-Type-Options:
-      - nosniff
       X-Stripe-Priority-Routing-Enabled:
       - 'true'
       X-Stripe-Routing-Context-Priority-Tier:
       - api-testmode
       X-Wc:
-      - AB
+      - ABGHIJ
       Strict-Transport-Security:
       - max-age=63072000; includeSubDomains; preload
     body:
       encoding: UTF-8
       string: |-
         {
-          "id": "ch_3Qd7ay2ESifGlJez0nHOMyky",
+          "id": "ch_3SATi7IhR0gIegIe15Tl8Rm3",
           "object": "charge",
-          "amount": 4500,
-          "amount_captured": 4500,
+          "amount": 1999,
+          "amount_captured": 1999,
           "amount_refunded": 0,
           "application": null,
           "application_fee": null,
           "application_fee_amount": null,
-          "balance_transaction": "txn_3Qd7ay2ESifGlJez0F1yjnPN",
+          "balance_transaction": "txn_3SATi7IhR0gIegIe1VBbBpSu",
           "billing_details": {
             "address": {
-              "city": "San Francisco",
+              "city": "Atlanta",
               "country": "US",
-              "line1": "100 California Street",
+              "line1": "4250 South Fulton Parkway",
               "line2": null,
-              "postal_code": "94111",
-              "state": "CA"
+              "postal_code": "30349",
+              "state": "GA"
             },
-            "email": "john.doe+ah12gdsdf4@gmail.com",
-            "name": "John Doe",
-            "phone": null
+            "email": "random982h89dn@niepodam.pl",
+            "name": "a a",
+            "phone": null,
+            "tax_id": null
           },
-          "calculated_statement_descriptor": "ABCDEF ABC* R194145369",
+          "calculated_statement_descriptor": "VENDO* 4 CUT",
           "captured": true,
-          "created": 1735898479,
+          "created": 1758624311,
           "currency": "usd",
-          "customer": null,
+          "customer": "cus_T6h6dN295VBqyK",
           "description": null,
           "destination": null,
           "dispute": null,
@@ -285,7 +273,7 @@ http_interactions:
           "invoice": null,
           "livemode": false,
           "metadata": {
-            "spree_order_id": "8015bcbe-4b15-4c03-be7f-01fc68e4515c"
+            "spree_order_id": "164"
           },
           "on_behalf_of": null,
           "order": null,
@@ -296,17 +284,17 @@ http_interactions:
             "network_status": "approved_by_network",
             "reason": null,
             "risk_level": "normal",
-            "risk_score": 1,
+            "risk_score": 13,
             "seller_message": "Payment complete.",
             "type": "authorized"
           },
           "paid": true,
-          "payment_intent": "pi_3Qd7ay2ESifGlJez0iSw49k1",
-          "payment_method": "pm_1Qd7gw2ESifGlJezAFFb1XOr",
+          "payment_intent": "pi_3SATi7IhR0gIegIe1HSm8pUl",
+          "payment_method": "pm_1SATicIhR0gIegIed5wlgYNQ",
           "payment_method_details": {
             "card": {
-              "amount_authorized": 4500,
-              "authorization_code": null,
+              "amount_authorized": 1999,
+              "authorization_code": "605526",
               "brand": "visa",
               "checks": {
                 "address_line1_check": "pass",
@@ -314,18 +302,18 @@ http_interactions:
                 "cvc_check": "pass"
               },
               "country": "US",
-              "exp_month": 2,
-              "exp_year": 2028,
+              "exp_month": 3,
+              "exp_year": 2033,
               "extended_authorization": {
                 "status": "disabled"
               },
-              "fingerprint": "taGjeBd4Wh4btmTn",
-              "funding": "credit",
+              "fingerprint": "M6vkpQQdgpsZZvYj",
+              "funding": "debit",
               "incremental_authorization": {
                 "status": "unavailable"
               },
               "installments": null,
-              "last4": "4242",
+              "last4": "5556",
               "mandate": null,
               "multicapture": {
                 "status": "unavailable"
@@ -334,9 +322,9 @@ http_interactions:
               "network_token": {
                 "used": false
               },
-              "network_transaction_id": "116977110610166",
+              "network_transaction_id": "775411810711281",
               "overcapture": {
-                "maximum_amount_capturable": 4500,
+                "maximum_amount_capturable": 1999,
                 "status": "unavailable"
               },
               "regulated_status": "unregulated",
@@ -348,41 +336,41 @@ http_interactions:
           "radar_options": {},
           "receipt_email": null,
           "receipt_number": null,
-          "receipt_url": "https://pay.stripe.com/receipts/payment/CAcaFwoVYWNjdF8xUVZhOWsyRVNpZkdsSmV6KK_s3rsGMgYtrlYKPA86LBb9V5BVhdRFNy9-e9oyNZXv8qbVsxZoIQ_v4CI6bR6q34mN2vhm1hxcXLVG",
+          "receipt_url": "https://pay.stripe.com/receipts/payment/CAcaFwoVYWNjdF8xTGtSb1lJaFIwZ0llZ0llKKiKxMcGMgYjRlwbrSE6LBbM2XqKNqkr5ra4x-znqjcICP07q8su9vyWLNOpUYyHi59hXjMa305uRy9s",
           "refunded": false,
           "review": null,
           "shipping": {
             "address": {
-              "city": "San Francisco",
+              "city": "Atlanta",
               "country": "US",
-              "line1": "100 California Street",
+              "line1": "4250 South Fulton Parkway",
               "line2": null,
-              "postal_code": "94111",
-              "state": "CA"
+              "postal_code": "30349",
+              "state": "GA"
             },
             "carrier": null,
-            "name": "John Doe",
+            "name": "a a",
             "phone": null,
             "tracking_number": null
           },
           "source": null,
           "source_transfer": null,
           "statement_descriptor": null,
-          "statement_descriptor_suffix": "R194145369 John Doe",
+          "statement_descriptor_suffix": "4 Cut",
           "status": "succeeded",
           "transfer_data": null,
-          "transfer_group": "R194145369"
+          "transfer_group": "73098869"
         }
-  recorded_at: Fri, 03 Jan 2025 10:04:32 GMT
+  recorded_at: Thu, 16 Oct 2025 14:46:00 GMT
 - request:
     method: get
-    uri: https://api.stripe.com/v1/payment_intents/pi_3Qd7ay2ESifGlJez0iSw49k1
+    uri: https://api.stripe.com/v1/payment_intents/pi_3SATi7IhR0gIegIe1HSm8pUl
     body:
       encoding: US-ASCII
       string: ''
     headers:
       User-Agent:
-      - Stripe/v1 RubyBindings/10.1.0 Spree Stripe/1.0.0 (https://spreecommerce.org)
+      - Stripe/v1 RubyBindings/10.1.0 Spree Stripe/5.2.0.alpha2 (https://spreecommerce.org)
       Authorization:
       - Bearer <STRIPE_SECRET_KEY>
       Content-Type:
@@ -403,11 +391,11 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Fri, 03 Jan 2025 10:04:32 GMT
+      - Thu, 16 Oct 2025 14:46:00 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '2108'
+      - '2143'
       Connection:
       - keep-alive
       Access-Control-Allow-Credentials:
@@ -425,42 +413,34 @@ http_interactions:
       - no-cache, no-store
       Content-Security-Policy:
       - base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none';
-        img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; upgrade-insecure-requests;
-        report-uri /csp-violation https://q.stripe.com/csp-violation?q=HlX8pAX1HdG5ReI4746Zt1eGqAb8S347LmX4rz0q08mfOxfKp-v9jMag5Q-d4LEtEyG2bysXSg%3D%3D
-      Cross-Origin-Opener-Policy-Report-Only:
-      - same-origin; report-to="coop"
-      Report-To:
-      - '{"group":"coop","max_age":8640,"endpoints":[{"url":"https://q.stripe.com/coop-report"}],"include_subdomains":true}'
-      Reporting-Endpoints:
-      - coop="https://q.stripe.com/coop-report"
+        img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src
+        'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=QK0kCAEy_N879POtolscDwkiGPzk1TLx0eMn28XZ0QIfdabY20dK2iNOeulzTu9K_oUG2lo2k07v_UVt
       Request-Id:
-      - req_FFx62fcfLM0LJi
+      - req_n5RKu4zVFJ7HAJ
       Stripe-Version:
       - '2023-10-16'
       Vary:
       - Origin
-      X-Content-Type-Options:
-      - nosniff
       X-Stripe-Priority-Routing-Enabled:
       - 'true'
       X-Stripe-Routing-Context-Priority-Tier:
       - api-testmode
       X-Wc:
-      - AB
+      - ABGHIJ
       Strict-Transport-Security:
       - max-age=63072000; includeSubDomains; preload
     body:
       encoding: UTF-8
       string: |-
         {
-          "id": "pi_3Qd7ay2ESifGlJez0iSw49k1",
+          "id": "pi_3SATi7IhR0gIegIe1HSm8pUl",
           "object": "payment_intent",
-          "amount": 4500,
+          "amount": 1999,
           "amount_capturable": 0,
           "amount_details": {
             "tip": {}
           },
-          "amount_received": 4500,
+          "amount_received": 1999,
           "application": null,
           "application_fee_amount": null,
           "automatic_payment_methods": {
@@ -470,24 +450,25 @@ http_interactions:
           "canceled_at": null,
           "cancellation_reason": null,
           "capture_method": "automatic",
-          "client_secret": "pi_3Qd7ay2ESifGlJez0iSw49k1_secret_gqmeUMdUCpTEfYfnrAY4sQmKx",
+          "client_secret": "pi_3SATi7IhR0gIegIe1HSm8pUl_secret_iYNSQaY2Ok3Wnm4RwFd9z7Gut",
           "confirmation_method": "automatic",
-          "created": 1735898108,
+          "created": 1758624279,
           "currency": "usd",
-          "customer": null,
+          "customer": "cus_T6h6dN295VBqyK",
           "description": null,
+          "excluded_payment_method_types": null,
           "invoice": null,
           "last_payment_error": null,
-          "latest_charge": "ch_3Qd7ay2ESifGlJez0nHOMyky",
+          "latest_charge": "ch_3SATi7IhR0gIegIe15Tl8Rm3",
           "livemode": false,
           "metadata": {
-            "spree_order_id": "8015bcbe-4b15-4c03-be7f-01fc68e4515c"
+            "spree_order_id": "164"
           },
           "next_action": null,
           "on_behalf_of": null,
-          "payment_method": "pm_1Qd7gw2ESifGlJezAFFb1XOr",
+          "payment_method": "pm_1SATicIhR0gIegIed5wlgYNQ",
           "payment_method_configuration_details": {
-            "id": "pmc_1QVa9x2ESifGlJezRC5fgLVg",
+            "id": "pmc_1Lsn39IhR0gIegIePcnLvSxO",
             "parent": null
           },
           "payment_method_options": {
@@ -501,6 +482,7 @@ http_interactions:
               "request_three_d_secure": "automatic",
               "setup_future_usage": "off_session"
             },
+            "cashapp": {},
             "klarna": {
               "preferred_locale": null
             },
@@ -512,7 +494,8 @@ http_interactions:
             "card",
             "afterpay_clearpay",
             "klarna",
-            "link"
+            "link",
+            "cashapp"
           ],
           "processing": null,
           "receipt_email": null,
@@ -520,24 +503,152 @@ http_interactions:
           "setup_future_usage": null,
           "shipping": {
             "address": {
-              "city": "San Francisco",
+              "city": "Atlanta",
               "country": "US",
-              "line1": "100 California Street",
+              "line1": "4250 South Fulton Parkway",
               "line2": null,
-              "postal_code": "94111",
-              "state": "CA"
+              "postal_code": "30349",
+              "state": "GA"
             },
             "carrier": null,
-            "name": "John Doe",
+            "name": "a a",
             "phone": null,
             "tracking_number": null
           },
           "source": null,
           "statement_descriptor": null,
-          "statement_descriptor_suffix": "R194145369 John Doe",
+          "statement_descriptor_suffix": "4 Cut",
           "status": "succeeded",
           "transfer_data": null,
-          "transfer_group": "R194145369"
+          "transfer_group": "73098869"
         }
-  recorded_at: Fri, 03 Jan 2025 10:04:32 GMT
-recorded_with: VCR 6.2.0
+  recorded_at: Thu, 16 Oct 2025 14:46:00 GMT
+- request:
+    method: post
+    uri: https://api.stripe.com/v1/payment_methods/pm_1SATicIhR0gIegIed5wlgYNQ/attach
+    body:
+      encoding: UTF-8
+      string: customer=cus_T6h6dN295VBqyK
+    headers:
+      User-Agent:
+      - Stripe/v1 RubyBindings/10.1.0 Spree Stripe/5.2.0.alpha2 (https://spreecommerce.org)
+      Authorization:
+      - Bearer <STRIPE_SECRET_KEY>
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Stripe-Version:
+      - '2023-10-16'
+      X-Stripe-Client-User-Agent:
+      - "<FILTERED>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Thu, 16 Oct 2025 14:46:01 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1124'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Methods:
+      - GET, HEAD, PUT, PATCH, POST, DELETE
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required,
+        X-Stripe-Privileged-Session-Required
+      Access-Control-Max-Age:
+      - '300'
+      Cache-Control:
+      - no-cache, no-store
+      Content-Security-Policy:
+      - base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none';
+        img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src
+        'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=QK0kCAEy_N879POtolscDwkiGPzk1TLx0eMn28XZ0QIfdabY20dK2iNOeulzTu9K_oUG2lo2k07v_UVt
+      Idempotency-Key:
+      - 88c1e389-9af6-45bd-96e3-7b43f3415fa6
+      Original-Request:
+      - req_w6a0znxT6sSNIV
+      Request-Id:
+      - req_w6a0znxT6sSNIV
+      Stripe-Should-Retry:
+      - 'false'
+      Stripe-Version:
+      - '2023-10-16'
+      Vary:
+      - Origin
+      X-Stripe-Priority-Routing-Enabled:
+      - 'true'
+      X-Stripe-Routing-Context-Priority-Tier:
+      - api-testmode
+      X-Wc:
+      - ABGHIJ
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id": "pm_1SATicIhR0gIegIed5wlgYNQ",
+          "object": "payment_method",
+          "allow_redisplay": "unspecified",
+          "billing_details": {
+            "address": {
+              "city": "Atlanta",
+              "country": "US",
+              "line1": "4250 South Fulton Parkway",
+              "line2": null,
+              "postal_code": "30349",
+              "state": "GA"
+            },
+            "email": "random982h89dn@niepodam.pl",
+            "name": "a a",
+            "phone": null,
+            "tax_id": null
+          },
+          "card": {
+            "brand": "visa",
+            "checks": {
+              "address_line1_check": "pass",
+              "address_postal_code_check": "pass",
+              "cvc_check": "pass"
+            },
+            "country": "US",
+            "display_brand": "visa",
+            "exp_month": 3,
+            "exp_year": 2033,
+            "fingerprint": "M6vkpQQdgpsZZvYj",
+            "funding": "debit",
+            "generated_from": null,
+            "last4": "5556",
+            "networks": {
+              "available": [
+                "visa"
+              ],
+              "preferred": null
+            },
+            "regulated_status": "unregulated",
+            "three_d_secure_usage": {
+              "supported": true
+            },
+            "wallet": null
+          },
+          "created": 1758624310,
+          "customer": "cus_T6h6dN295VBqyK",
+          "livemode": false,
+          "metadata": {},
+          "type": "card"
+        }
+  recorded_at: Thu, 16 Oct 2025 14:46:01 GMT
+recorded_with: VCR 6.3.1

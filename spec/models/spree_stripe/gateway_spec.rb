@@ -724,7 +724,7 @@ RSpec.describe SpreeStripe::Gateway do
         end
 
         context 'and Stripe API returns an error' do
-          let!(:credit_card) { create(:credit_card, user: user, default: true, gateway_payment_profile_id: 'pm_1SGLXEIhR0gIegIeYbkKLGkF') }
+          let!(:credit_card) { create(:credit_card, user: user, default: true, gateway_payment_profile_id: 'pm_1SGLXEIhR0gIegIeYbkKLGkF', payment_method: gateway) }
 
           it 'does not update default credit card' do
             allow(Rails.error).to receive(:report)
@@ -733,7 +733,7 @@ RSpec.describe SpreeStripe::Gateway do
               expect(attach_customer).to eq(nil)
               expect(user.reload.default_credit_card.gateway_customer_profile_id).to eq(nil)
               expect(user.reload.default_credit_card.gateway_customer_id).to eq(nil)
-              expect(Rails.error).to have_received(:report).with(instance_of(Stripe::InvalidRequestError), context: { user_id: user.id }, source: 'spree_stripe')
+              expect(Rails.error).to have_received(:report).with(instance_of(Stripe::InvalidRequestError), context: { payment_method_id: gateway.id, user_id: user.id }, source: 'spree_stripe')
             end
           end
         end

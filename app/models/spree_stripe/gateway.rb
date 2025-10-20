@@ -304,7 +304,7 @@ module SpreeStripe
 
       user.default_credit_card.update(gateway_customer_profile_id: customer.profile_id, gateway_customer_id: customer.id)
     rescue Stripe::StripeError => e
-      Rails.error.report(e, context: { user_id: user.id }, source: 'spree_stripe')
+      Rails.error.report(e, context: { payment_method_id: id, user_id: user.id }, source: 'spree_stripe')
       nil
     end
 

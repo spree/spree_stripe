@@ -16,7 +16,7 @@ If you like what you see, consider giving this repo a GitHub star :star:
 Thank you for supporting Spree open-source :heart:
 
 > [!IMPORTANT]
-> This Stripe integration for Spree is free to use for private projects but requires a [Commercial License](https://spreecommerce.org/why-consider-a-commercial-license-for-your-multi-tenant-or-saas-spree-based-project/) if you're planning to use it for your [SaaS](https://spreecommerce.org/multi-tenant-white-label-ecommerce/) or a [multi-tenant eCommerce](https://spreecommerce.org/multi-tenant-white-label-ecommerce/) or a [B2B eCommerce](https://spreecommerce.org/use-cases/headless-b2b-ecommerce/) website. 
+> This Stripe integration for Spree is free to use for private projects but requires a [Commercial License](https://spreecommerce.org/why-consider-a-commercial-license-for-your-multi-tenant-or-saas-spree-based-project/) if you're planning to use it for your [SaaS](https://spreecommerce.org/multi-tenant-white-label-ecommerce/) or a [multi-tenant eCommerce](https://spreecommerce.org/multi-tenant-white-label-ecommerce/) website. 
 > Feel free to [reach out](https://spreecommerce.org/get-started/) to learn more.
 
 > [!TIP]

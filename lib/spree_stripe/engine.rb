@@ -14,9 +14,11 @@ module SpreeStripe
     end
 
     initializer 'spree_stripe.assets' do |app|
-      app.config.assets.paths << root.join('app/javascript')
-      app.config.assets.paths << root.join('vendor/javascript')
-      app.config.assets.precompile += %w[spree_stripe_manifest]
+      if app.config.respond_to?(:assets)
+        app.config.assets.paths << root.join('app/javascript')
+        app.config.assets.paths << root.join('vendor/javascript')
+        app.config.assets.precompile += %w[spree_stripe_manifest]
+      end
     end
 
     initializer 'spree_stripe.importmap', before: 'importmap' do |app|

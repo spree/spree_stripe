@@ -1,6 +1,6 @@
 module SpreeStripe
   module PaymentMethodDecorator
-    STRIPE_TYPE = 'SpreeStripe::Gateway'.freeze
+    STRIPE_TYPE = 'SpreeStripe::Gateway'.freeze unless defined?(STRIPE_TYPE)
 
     def self.prepended(base)
       base.has_many :payment_methods_webhook_keys, class_name: 'SpreeStripe::PaymentMethodsWebhookKey'

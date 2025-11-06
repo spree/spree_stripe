@@ -14,13 +14,13 @@ module SpreeStripe
         'pass' => 'P',
         'unchecked' => 'I'
       }
-    }.freeze
+    }.freeze unless defined?(AVS_CODES)
 
     CVV_CODES = {
       'pass' => 'M',
       'fail' => 'N',
       'unchecked' => 'P'
-    }.freeze
+    }.freeze unless defined?(CVV_CODES)
 
     def self.prepended(base)
       base.store_accessor :private_metadata, :stripe_charge_id

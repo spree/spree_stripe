@@ -92,8 +92,11 @@ module SpreeStripe
       end
     end
 
-    def void(response_code, source, gateway_options)
-      raise NotImplementedError
+    def void(response_code, _source, _gateway_options)
+      return failure('Response code is blank') if response_code.blank?
+
+      payment = Spree::Payment.find_by(response_code: response_code)
+      cancel(response_code, payment)
     end
 
     def cancel(payment_intent_id, payment = nil)

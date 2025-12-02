@@ -752,4 +752,50 @@ RSpec.describe SpreeStripe::Gateway do
       end
     end
   end
+
+  describe '#void' do
+    subject(:void) { gateway.void(payment_intent_id, nil, nil) }
+
+    let!(:payment) { create(:payment, response_code: payment_intent_id) }
+    let(:payment_intent_id) { 'pi_3QY1o72ESifGlJez06ZbKHjy' }
+
+    context 'when payment exists' do
+      context 'when payment is completed' do
+        before do
+          payment.update_column(:state, 'completed')
+        end
+
+        it 'cancels the payment intent and creates a refund' do
+          VCR.use_cassette('cancel_payment_intent') do
+            expect { void }.to change(Spree::Refund, :count).by(1)
+
+            expect(void.success?).to be(true)
+            expect(void.authorization).to eq(payment_intent_id)
+          end
+        end
+      end
+
+      context 'when payment is not completed' do
+        it 'cancels the payment intent and does not create a refund' do
+          VCR.use_cassette('cancel_payment_intent') do
+            expect { void }.not_to change(Spree::Refund, :count)
+
+            expect(void.success?).to be(true)
+            expect(void.authorization).to eq(payment_intent_id)
+          end
+        end
+      end
+    end
+
+    context 'when payment does not exist' do
+      it 'cancels the payment intent and does not create a refund' do
+        VCR.use_cassette('cancel_payment_intent') do
+          expect { void }.not_to change(Spree::Refund, :count)
+
+          expect(void.success?).to be(true)
+          expect(void.authorization).to eq(payment_intent_id)
+        end
+      end
+    end
+  end
 end

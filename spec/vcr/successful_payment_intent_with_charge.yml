@@ -651,4 +651,77 @@ http_interactions:
           "type": "card"
         }
   recorded_at: Thu, 16 Oct 2025 14:46:01 GMT
+- request:
+    method: post
+    uri: https://api.stripe.com/v1/payment_intents/pi_3SATi7IhR0gIegIe1HSm8pUl
+    body:
+      encoding: UTF-8
+      string: amount=1999&currency=USD&shipping[address][city]=Herndon&shipping[address][country]=US&shipping[address][line1]=2+Lovely+Street&shipping[address][line2]=Northwest&shipping[address][postal_code]=35005&shipping[address][state]=STATE_ABBR_2&shipping[name]=John+Doe&customer=cus_T6h6dN295VBqyK
+    headers:
+      User-Agent:
+      - Stripe/v1 RubyBindings/10.1.0 Spree Stripe/5.2.0.alpha2 (https://spreecommerce.org)
+      Authorization:
+      - Bearer sk_test_1234567890
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Stripe-Version:
+      - '2023-10-16'
+      X-Stripe-Client-User-Agent:
+      - "<FILTERED>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Tue, 02 Dec 2025 16:05:16 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '120'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Methods:
+      - GET, HEAD, PUT, PATCH, POST, DELETE
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Request-Id, Stripe-Manage-Version, Stripe-Should-Retry, X-Stripe-External-Auth-Required,
+        X-Stripe-Privileged-Session-Required
+      Access-Control-Max-Age:
+      - '300'
+      Cache-Control:
+      - no-cache, no-store
+      Content-Security-Policy:
+      - base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none';
+        img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src
+        'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=JAXGEqdX4EWtlZpNZc938POb25Xp3qIxbKU3XxdJzPkO-9jJuXIst9Gwq7LSdTjlDzfPCRCzzrpzDHI-
+      Vary:
+      - Origin
+      Www-Authenticate:
+      - Bearer realm="Stripe"
+      X-Robots-Tag:
+      - none
+      X-Wc:
+      - ABHIJ
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |
+        {
+          "error": {
+            "message": "Invalid API Key provided: sk_test_******7890",
+            "type": "invalid_request_error"
+          }
+        }
+  recorded_at: Tue, 02 Dec 2025 16:05:16 GMT
 recorded_with: VCR 6.3.1

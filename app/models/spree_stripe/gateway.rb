@@ -95,8 +95,10 @@ module SpreeStripe
     def void(response_code, _source, _gateway_options)
       return failure('Response code is blank') if response_code.blank?
 
-      response = cancel_payment_intent(response_code)
-      success(response.id, response)
+      protect_from_error do
+        response = cancel_payment_intent(response_code)
+        success(response.id, response)
+      end
     end
 
     def cancel(payment_intent_id, payment = nil)

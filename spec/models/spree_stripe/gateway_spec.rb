@@ -756,10 +756,11 @@ RSpec.describe SpreeStripe::Gateway do
   describe '#void' do
     subject(:void) { gateway.void(payment_intent_id, nil, nil) }
 
-    let!(:payment) { create(:payment, response_code: payment_intent_id) }
     let(:payment_intent_id) { 'pi_3QY1o72ESifGlJez06ZbKHjy' }
 
     context 'when payment exists' do
+      let!(:payment) { create(:payment, response_code: payment_intent_id) }
+
       context 'when payment is completed' do
         before do
           payment.update_column(:state, 'completed')

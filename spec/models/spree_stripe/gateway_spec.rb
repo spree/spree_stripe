@@ -752,4 +752,26 @@ RSpec.describe SpreeStripe::Gateway do
       end
     end
   end
+
+  describe '#void' do
+    subject(:void) { gateway.void(payment_intent_id, nil, nil) }
+
+    let(:payment_intent_id) { 'pi_3QY1o72ESifGlJez06ZbKHjy' }
+
+    it 'voids the payment intent' do
+      VCR.use_cassette('cancel_payment_intent') do
+        expect(void.success?).to be(true)
+        expect(void.authorization).to eq(payment_intent_id)
+      end
+    end
+
+    context 'when no response code is provided' do
+      let(:payment_intent_id) { nil }
+
+      it 'returns a failure' do
+        expect(void.success?).to be(false)
+        expect(void.message).to eq('Response code is blank')
+      end
+    end
+  end
 end

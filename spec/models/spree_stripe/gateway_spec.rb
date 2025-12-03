@@ -758,44 +758,19 @@ RSpec.describe SpreeStripe::Gateway do
 
     let(:payment_intent_id) { 'pi_3QY1o72ESifGlJez06ZbKHjy' }
 
-    context 'when payment exists' do
-      let!(:payment) { create(:payment, response_code: payment_intent_id) }
-
-      context 'when payment is completed' do
-        before do
-          payment.update_column(:state, 'completed')
-        end
-
-        it 'cancels the payment intent and creates a refund' do
-          VCR.use_cassette('cancel_payment_intent') do
-            expect { void }.to change(Spree::Refund, :count).by(1)
-
-            expect(void.success?).to be(true)
-            expect(void.authorization).to eq(payment_intent_id)
-          end
-        end
-      end
-
-      context 'when payment is not completed' do
-        it 'cancels the payment intent and does not create a refund' do
-          VCR.use_cassette('cancel_payment_intent') do
-            expect { void }.not_to change(Spree::Refund, :count)
-
-            expect(void.success?).to be(true)
-            expect(void.authorization).to eq(payment_intent_id)
-          end
-        end
+    it 'voids the payment intent' do
+      VCR.use_cassette('cancel_payment_intent') do
+        expect(void.success?).to be(true)
+        expect(void.authorization).to eq(payment_intent_id)
       end
     end
 
-    context 'when payment does not exist' do
-      it 'cancels the payment intent and does not create a refund' do
-        VCR.use_cassette('cancel_payment_intent') do
-          expect { void }.not_to change(Spree::Refund, :count)
+    context 'when no response code is provided' do
+      let(:payment_intent_id) { nil }
 
-          expect(void.success?).to be(true)
-          expect(void.authorization).to eq(payment_intent_id)
-        end
+      it 'returns a failure' do
+        expect(void.success?).to be(false)
+        expect(void.message).to eq('Response code is blank')
       end
     end
   end

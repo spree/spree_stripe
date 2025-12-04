@@ -76,6 +76,9 @@ module SpreeStripe
         payment_method_options: {
           card: {
             setup_future_usage: SETUP_FUTURE_USAGE
+          },
+          sepa_debit: {
+            setup_future_usage: SETUP_FUTURE_USAGE
           }
         }
       }

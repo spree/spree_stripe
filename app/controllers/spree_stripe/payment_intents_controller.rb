@@ -26,7 +26,7 @@ module SpreeStripe
       elsif @order.completed?
         redirect_to spree.checkout_complete_path(@order.token), status: :see_other
       # if the payment intent is successful, we need to process the payment and complete the order
-      elsif @stripe_payment_intent.status == 'succeeded'
+      elsif @payment_intent_record.accepted?
         @order = SpreeStripe::CompleteOrder.new(payment_intent: @payment_intent_record).call
 
         # set the session flag to indicate that the order was placed now

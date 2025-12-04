@@ -8,6 +8,10 @@ module SpreeStripe
       def self.display_name
         'SEPA Debit'
       end
+
+      def name
+        'SEPA Debit'
+      end
     end
   end
 end

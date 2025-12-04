@@ -26,6 +26,14 @@ module SpreeStripe
     delegate :api_options, to: :payment_method
     delegate :store, :currency, to: :order
 
+    def accepted?
+      payment_method.payment_intent_accepted?(stripe_payment_intent)
+    end
+
+    def successful?
+      stripe_payment_intent.status == 'succeeded'
+    end
+
     def stripe_payment_intent
       @stripe_payment_intent ||= payment_method.retrieve_payment_intent(stripe_id)
     end

@@ -30,6 +30,9 @@ module SpreeStripe
     end
 
     def payment_intent_delayed_notification?(payment_intent)
+      payment_method = payment_intent.payment_method
+      return false unless payment_method.respond_to?(:type)
+
       payment_intent.payment_method.type.in?(DELAYED_NOTIFICATION_PAYMENT_METHOD_TYPES)
     end
 

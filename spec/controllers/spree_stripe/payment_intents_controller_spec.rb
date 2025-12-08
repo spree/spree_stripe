@@ -17,9 +17,13 @@ RSpec.describe SpreeStripe::PaymentIntentsController, type: :controller do
       amount: 1999,
       currency: 'usd',
       customer: customer_id,
-      charge: 'ch_3QXRgr2ESifGlJez02SSg61f'
+      charge: 'ch_3QXRgr2ESifGlJez02SSg61f',
+      payment_method: {
+        type: payment_method_type
+      }
     )
   }
+  let(:payment_method_type) { 'card' }
 
   before do
     allow(SpreeStripe::PaymentIntent).to receive(:find).with(payment_intent_record.id.to_s).and_return(payment_intent_record)
@@ -81,6 +85,9 @@ RSpec.describe SpreeStripe::PaymentIntentsController, type: :controller do
           last_payment_error: {
             code: 'payment_failed',
             message: 'Payment failed'
+          },
+          payment_method: {
+            type: payment_method_type
           }
         )
       }

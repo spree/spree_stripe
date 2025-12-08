@@ -2,13 +2,13 @@
 http_interactions:
 - request:
     method: get
-    uri: https://api.stripe.com/v1/payment_intents/pi_3QY76s2ESifGlJez04sj0cMb
+    uri: https://api.stripe.com/v1/payment_intents/pi_3QY76s2ESifGlJez04sj0cMb?expand%5B%5D=payment_method
     body:
       encoding: US-ASCII
       string: ''
     headers:
       User-Agent:
-      - Stripe/v1 RubyBindings/10.1.0 Spree Stripe/1.0.0 (https://spreecommerce.org)
+      - Stripe/v1 RubyBindings/10.1.0 Spree Stripe/5.1.1 (https://spreecommerce.org)
       Authorization:
       - Bearer <STRIPE_SECRET_KEY>
       Content-Type:
@@ -29,11 +29,11 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Fri, 20 Dec 2024 16:23:28 GMT
+      - Fri, 05 Dec 2025 16:31:17 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '1966'
+      - '3221'
       Connection:
       - keep-alive
       Access-Control-Allow-Credentials:
@@ -51,28 +51,20 @@ http_interactions:
       - no-cache, no-store
       Content-Security-Policy:
       - base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none';
-        img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; upgrade-insecure-requests;
-        report-uri /csp-violation https://q.stripe.com/csp-violation?q=dzf7qfnpfnq5Cleq7rOULXj2_eOFMnCHP6n3jWpZYdUmLA9Eh2vK2JQN_48bvHoHPYp9q1OyzA%3D%3D
-      Cross-Origin-Opener-Policy-Report-Only:
-      - same-origin; report-to="coop"
-      Report-To:
-      - '{"group":"coop","max_age":8640,"endpoints":[{"url":"https://q.stripe.com/coop-report"}],"include_subdomains":true}'
-      Reporting-Endpoints:
-      - coop="https://q.stripe.com/coop-report"
+        img-src 'self'; script-src 'self' 'report-sample'; style-src 'self'; worker-src
+        'none'; upgrade-insecure-requests; report-uri https://q.stripe.com/csp-violation?q=4UucLKNTIMVxMe-YjJansRHnaPXLj12r1NXQ8jmSejFhkXQkN2LLy5DDsviLbbJQathEQsCEJJpk-3gn
       Request-Id:
-      - req_gcBRJiIZVsKrn7
+      - req_JwHgSrAnkHXnmn
       Stripe-Version:
       - '2023-10-16'
       Vary:
       - Origin
-      X-Content-Type-Options:
-      - nosniff
       X-Stripe-Priority-Routing-Enabled:
       - 'true'
       X-Stripe-Routing-Context-Priority-Tier:
       - api-testmode
       X-Wc:
-      - AB
+      - ABGHIJ
       Strict-Transport-Security:
       - max-age=63072000; includeSubDomains; preload
     body:
@@ -102,6 +94,7 @@ http_interactions:
           "currency": "usd",
           "customer": "cus_RQdclxFVLH4oau",
           "description": null,
+          "excluded_payment_method_types": null,
           "invoice": null,
           "last_payment_error": null,
           "latest_charge": "ch_3QY76s2ESifGlJez0gG0FoF1",
@@ -111,7 +104,57 @@ http_interactions:
           },
           "next_action": null,
           "on_behalf_of": null,
-          "payment_method": "pm_1QY4zO2ESifGlJezkHIvUraY",
+          "payment_method": {
+            "id": "pm_1QY4zO2ESifGlJezkHIvUraY",
+            "object": "payment_method",
+            "allow_redisplay": "unspecified",
+            "billing_details": {
+              "address": {
+                "city": "Santa Cruz",
+                "country": "US",
+                "line1": "200 California Street",
+                "line2": null,
+                "postal_code": "95060",
+                "state": "CA"
+              },
+              "email": "lukas.adamczyk+stripe@getvendo.com",
+              "name": "Janek Kowalsky",
+              "phone": null,
+              "tax_id": null
+            },
+            "card": {
+              "brand": "visa",
+              "checks": {
+                "address_line1_check": "pass",
+                "address_postal_code_check": "pass",
+                "cvc_check": "pass"
+              },
+              "country": "US",
+              "display_brand": "visa",
+              "exp_month": 2,
+              "exp_year": 2027,
+              "fingerprint": "taGjeBd4Wh4btmTn",
+              "funding": "credit",
+              "generated_from": null,
+              "last4": "4242",
+              "networks": {
+                "available": [
+                  "visa"
+                ],
+                "preferred": null
+              },
+              "regulated_status": "unregulated",
+              "three_d_secure_usage": {
+                "supported": true
+              },
+              "wallet": null
+            },
+            "created": 1734696451,
+            "customer": "cus_RQdclxFVLH4oau",
+            "livemode": false,
+            "metadata": {},
+            "type": "card"
+          },
           "payment_method_configuration_details": {
             "id": "pmc_1QVa9x2ESifGlJezRC5fgLVg",
             "parent": null
@@ -157,7 +200,7 @@ http_interactions:
           "transfer_data": null,
           "transfer_group": "R808743511"
         }
-  recorded_at: Fri, 20 Dec 2024 16:23:28 GMT
+  recorded_at: Fri, 05 Dec 2025 16:31:17 GMT
 - request:
     method: get
     uri: https://api.stripe.com/v1/charges/ch_3QY76s2ESifGlJez0gG0FoF1
@@ -366,4 +409,4 @@ http_interactions:
           "transfer_group": "R808743511"
         }
   recorded_at: Fri, 20 Dec 2024 16:23:28 GMT
-recorded_with: VCR 6.2.0
+recorded_with: VCR 6.3.1

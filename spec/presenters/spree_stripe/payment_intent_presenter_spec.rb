@@ -111,6 +111,9 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
           payment_method_options: {
             card: {
               setup_future_usage: 'off_session'
+            },
+            sepa_debit: {
+              setup_future_usage: 'off_session'
             }
           },
         }
@@ -137,6 +140,9 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
           },
           payment_method_options: {
             card: {
+              setup_future_usage: 'off_session'
+            },
+            sepa_debit: {
               setup_future_usage: 'off_session'
             }
           },
@@ -168,6 +174,9 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
           },
           payment_method_options: {
             card: {
+              setup_future_usage: 'off_session'
+            },
+            sepa_debit: {
               setup_future_usage: 'off_session'
             }
           },

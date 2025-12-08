@@ -56,7 +56,7 @@ module Spree
                 render_error_payload(Spree.t('order_already_completed'))
               elsif order != spree_current_order
                 raise ActiveRecord::RecordNotFound
-              elsif stripe_payment_intent.status == 'succeeded'
+              elsif @payment_intent.accepted?
                 spree_authorize! :update, spree_current_order, order_token
 
                 SpreeStripe::CompleteOrder.new(payment_intent: @payment_intent).call

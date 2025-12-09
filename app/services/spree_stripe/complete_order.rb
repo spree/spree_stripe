@@ -38,6 +38,8 @@ module SpreeStripe
 
     # we need to perform this for quick checkout orders which do not have these fields filled
     def add_customer_information(order, charge)
+      return order if charge.blank?
+
       billing_details = charge.billing_details
       address = billing_details.address
 

@@ -2,7 +2,8 @@ module SpreeStripe
   class Gateway < ::Spree::Gateway
     include SpreeStripe::Gateway::Tax if defined?(SpreeStripe::Gateway::Tax)
 
-    DELAYED_NOTIFICATION_PAYMENT_METHOD_TYPES = %w[sepa_debit].freeze
+    DELAYED_NOTIFICATION_PAYMENT_METHOD_TYPES = %w[sepa_debit us_bank_account].freeze
+    BANK_PAYMENT_METHOD_TYPES = %w[customer_balance us_bank_account].freeze
 
     preference :publishable_key, :password
     preference :secret_key, :password
@@ -34,6 +35,13 @@ module SpreeStripe
       return false unless payment_method.respond_to?(:type)
 
       payment_intent.payment_method.type.in?(DELAYED_NOTIFICATION_PAYMENT_METHOD_TYPES)
+    end
+
+    def payment_intent_bank_payment_method?(payment_intent)
+      payment_method = payment_intent.payment_method
+      return false unless payment_method.respond_to?(:type)
+
+      payment_intent.payment_method.type.in?(BANK_PAYMENT_METHOD_TYPES)
     end
 
     # @param amount_in_cents [Integer] the amount in cents to capture
@@ -441,6 +449,7 @@ module SpreeStripe
     def payment_intent_accepted_statuses(payment_intent)
       statuses = %w[succeeded]
       statuses << 'processing' if payment_intent_delayed_notification?(payment_intent)
+      statuses << 'requires_action' if payment_intent_bank_payment_method?(payment_intent)
       statuses
     end
   end

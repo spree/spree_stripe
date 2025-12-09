@@ -33,6 +33,12 @@ RSpec.describe SpreeStripe::Gateway do
         it { is_expected.to be(false) }
       end
 
+      context 'when the payment intent status is requires_action' do
+        let(:payment_intent_status) { 'requires_action' }
+
+        it { is_expected.to be(false) }
+      end
+
       context 'when the payment intent is failed' do
         let(:payment_intent_status) { 'failed' }
 
@@ -51,6 +57,68 @@ RSpec.describe SpreeStripe::Gateway do
 
       context 'when the payment intent is processing' do
         let(:payment_intent_status) { 'processing' }
+
+        it { is_expected.to be(true) }
+      end
+
+      context 'when the payment intent status is requires_action' do
+        let(:payment_intent_status) { 'requires_action' }
+
+        it { is_expected.to be(false) }
+      end
+
+      context 'when the payment intent is failed' do
+        let(:payment_intent_status) { 'failed' }
+
+        it { is_expected.to be(false) }
+      end
+    end
+
+    context 'for a bank transfer payment method' do
+      let(:payment_method_type) { 'customer_balance' }
+
+      context 'when the payment intent is succeeded' do
+        let(:payment_intent_status) { 'succeeded' }
+
+        it { is_expected.to be(true) }
+      end
+
+      context 'when the payment intent is processing' do
+        let(:payment_intent_status) { 'processing' }
+
+        it { is_expected.to be(false) }
+      end
+
+      context 'when the payment intent status is requires_action' do
+        let(:payment_intent_status) { 'requires_action' }
+
+        it { is_expected.to be(true) }
+      end
+
+      context 'when the payment intent is failed' do
+        let(:payment_intent_status) { 'failed' }
+
+        it { is_expected.to be(false) }
+      end
+    end
+
+    context 'for a us bank account payment method' do
+      let(:payment_method_type) { 'us_bank_account' }
+
+      context 'when the payment intent is succeeded' do
+        let(:payment_intent_status) { 'succeeded' }
+
+        it { is_expected.to be(true) }
+      end
+
+      context 'when the payment intent is processing' do
+        let(:payment_intent_status) { 'processing' }
+
+        it { is_expected.to be(true) }
+      end
+
+      context 'when the payment intent status is requires_action' do
+        let(:payment_intent_status) { 'requires_action' }
 
         it { is_expected.to be(true) }
       end
@@ -86,6 +154,52 @@ RSpec.describe SpreeStripe::Gateway do
 
     context 'for a sepa debit payment method' do
       let(:payment_method_type) { 'sepa_debit' }
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when the payment method is not expanded' do
+      let(:stripe_payment_method) { 'pm_1234567890' }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when the payment method type is not provided' do
+      let(:stripe_payment_method) { nil }
+
+      it { is_expected.to be(false) }
+    end
+  end
+
+  describe '#payment_intent_bank_payment_method?' do
+    subject { gateway.payment_intent_bank_payment_method?(stripe_payment_intent) }
+
+    let(:stripe_payment_intent) do
+      Stripe::StripeObject.construct_from(
+        id: 'pi_123',
+        status: 'succeeded',
+        payment_method: stripe_payment_method
+      )
+    end
+
+    let(:stripe_payment_method) do
+      { type: payment_method_type }
+    end
+
+    context 'for a card payment method' do
+      let(:payment_method_type) { 'card' }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'for a customer_balance payment method' do
+      let(:payment_method_type) { 'customer_balance' }
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'for a us_bank_account payment method' do
+      let(:payment_method_type) { 'us_bank_account' }
 
       it { is_expected.to be(true) }
     end

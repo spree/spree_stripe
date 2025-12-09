@@ -19,6 +19,15 @@ module SpreeStripe
           stripe_billing_details: stripe_charge.billing_details,
           gateway: gateway
         ).call
+      elsif payment_intent.bank_transfer?
+        stripe_payment_intent = payment_intent.stripe_payment_intent
+        source = SpreeStripe::CreateSource.new(
+          order: order,
+          stripe_payment_method_details: stripe_payment_intent.payment_method,
+          stripe_payment_method_id: stripe_payment_intent.payment_method.id,
+          stripe_billing_details: nil,
+          gateway: gateway
+        ).call
       end
 
       # sometimes a job is re-tried and creates a double payment record so we need to avoid it!

@@ -34,12 +34,19 @@ module SpreeStripe
       stripe_payment_intent.status == 'succeeded'
     end
 
+    def bank_transfer?
+      payment_method.payment_intent_bank_payment_method?(stripe_payment_intent)
+    end
+
     def stripe_payment_intent
       @stripe_payment_intent ||= payment_method.retrieve_payment_intent(stripe_id)
     end
 
     def stripe_charge
-      @stripe_charge ||= payment_method.retrieve_charge(stripe_payment_intent.latest_charge)
+      @stripe_charge ||= begin
+        latest_charge = stripe_payment_intent.latest_charge
+        latest_charge.present? ? payment_method.retrieve_charge(latest_charge) : nil
+      end
     end
 
     # here we create a payment if it doesn't exist

@@ -75,4 +75,31 @@ RSpec.describe SpreeStripe::CreatePayment do
       expect { subject }.not_to change { order.payments.count }
     end
   end
+
+  context 'when the payment intent is a bank transfer' do
+    let(:payment_intent_id) { 'pi_3ScPMjFmGsiQWfE61qMaWSFF' }
+    let(:charge_id) { nil }
+    let(:customer_id) { 'cus_TZFk4Fxe9gABNI' }
+    let(:payment_method_id) { 'pm_1ScPNbFmGsiQWfE6IQ5cXwYc' }
+
+    before do
+      allow(gateway).to receive(:create_payment_intent)
+    end
+
+    it 'creates a payment with passed data' do
+      VCR.use_cassette('retrieve_payment_intent_bank_transfer') do
+        expect { subject }.to change { order.payments.count }.by(1)
+      end
+
+      expect(subject).to be_a Spree::Payment
+      expect(gateway).not_to have_received(:create_payment_intent)
+
+      expect(payment.payment_method).to eq(gateway)
+      expect(payment.amount).to eq(order.total)
+      expect(payment.response_code).to eq(payment_intent_id)
+
+      expect(payment.source).to be_a SpreeStripe::PaymentSources::BankTransfer
+      expect(payment.source.gateway_payment_profile_id).to eq(payment_method_id)
+    end
+  end
 end

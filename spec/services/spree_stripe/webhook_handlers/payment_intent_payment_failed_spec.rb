@@ -14,11 +14,7 @@ RSpec.describe SpreeStripe::WebhookHandlers::PaymentIntentPaymentFailed do
         data: double(
           object: double(
             id: payment_intent.stripe_id,
-            last_payment_error: double(
-              payment_method: double(
-                type: 'affirm'
-              )
-            )
+            object: 'payment_intent'
           )
         )
       )
@@ -28,7 +24,7 @@ RSpec.describe SpreeStripe::WebhookHandlers::PaymentIntentPaymentFailed do
       expect { subject }.to change { order.reload.state }.from('complete').to('canceled')
 
       expect(order.reload.payment_state).to eq('void')
-      expect(order.reload.completed_at).to be_present
+      expect(order.completed_at).to be_present
     end
   end
 end

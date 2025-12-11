@@ -5,6 +5,246 @@ RSpec.describe SpreeStripe::Gateway do
   let(:gateway) { create(:stripe_gateway, stores: [store]) }
   let(:amount) { 100 }
 
+  describe '#payment_intent_accepted?' do
+    subject { gateway.payment_intent_accepted?(stripe_payment_intent) }
+
+    let(:stripe_payment_intent) {
+      Stripe::StripeObject.construct_from(
+        id: 'pi_123',
+        status: payment_intent_status,
+        payment_method: {
+          type: payment_method_type
+        }
+      )
+    }
+
+    context 'for a card payment method' do
+      let(:payment_method_type) { 'card' }
+
+      context 'when the payment intent is succeeded' do
+        let(:payment_intent_status) { 'succeeded' }
+
+        it { is_expected.to be(true) }
+      end
+
+      context 'when the payment intent is processing' do
+        let(:payment_intent_status) { 'processing' }
+
+        it { is_expected.to be(false) }
+      end
+
+      context 'when the payment intent status is requires_action' do
+        let(:payment_intent_status) { 'requires_action' }
+
+        it { is_expected.to be(false) }
+      end
+
+      context 'when the payment intent is failed' do
+        let(:payment_intent_status) { 'failed' }
+
+        it { is_expected.to be(false) }
+      end
+    end
+
+    context 'for a sepa debit payment method' do
+      let(:payment_method_type) { 'sepa_debit' }
+
+      context 'when the payment intent is succeeded' do
+        let(:payment_intent_status) { 'succeeded' }
+
+        it { is_expected.to be(true) }
+      end
+
+      context 'when the payment intent is processing' do
+        let(:payment_intent_status) { 'processing' }
+
+        it { is_expected.to be(true) }
+      end
+
+      context 'when the payment intent status is requires_action' do
+        let(:payment_intent_status) { 'requires_action' }
+
+        it { is_expected.to be(false) }
+      end
+
+      context 'when the payment intent is failed' do
+        let(:payment_intent_status) { 'failed' }
+
+        it { is_expected.to be(false) }
+      end
+    end
+
+    context 'for a bank transfer payment method' do
+      let(:payment_method_type) { 'customer_balance' }
+
+      context 'when the payment intent is succeeded' do
+        let(:payment_intent_status) { 'succeeded' }
+
+        it { is_expected.to be(true) }
+      end
+
+      context 'when the payment intent is processing' do
+        let(:payment_intent_status) { 'processing' }
+
+        it { is_expected.to be(false) }
+      end
+
+      context 'when the payment intent status is requires_action' do
+        let(:payment_intent_status) { 'requires_action' }
+
+        it { is_expected.to be(true) }
+      end
+
+      context 'when the payment intent is failed' do
+        let(:payment_intent_status) { 'failed' }
+
+        it { is_expected.to be(false) }
+      end
+    end
+
+    context 'for a us bank account payment method' do
+      let(:payment_method_type) { 'us_bank_account' }
+
+      context 'when the payment intent is succeeded' do
+        let(:payment_intent_status) { 'succeeded' }
+
+        it { is_expected.to be(true) }
+      end
+
+      context 'when the payment intent is processing' do
+        let(:payment_intent_status) { 'processing' }
+
+        it { is_expected.to be(true) }
+      end
+
+      context 'when the payment intent status is requires_action' do
+        let(:payment_intent_status) { 'requires_action' }
+
+        it { is_expected.to be(true) }
+      end
+
+      context 'when the payment intent is failed' do
+        let(:payment_intent_status) { 'failed' }
+
+        it { is_expected.to be(false) }
+      end
+    end
+  end
+
+  describe '#payment_intent_delayed_notification?' do
+    subject { gateway.payment_intent_delayed_notification?(stripe_payment_intent) }
+
+    let(:stripe_payment_intent) {
+      Stripe::StripeObject.construct_from(
+        id: 'pi_123',
+        status: 'succeeded',
+        payment_method: stripe_payment_method
+      )
+    }
+
+    let(:stripe_payment_method) do
+      { type: payment_method_type }
+    end
+
+    context 'for a card payment method' do
+      let(:payment_method_type) { 'card' }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'for a sepa debit payment method' do
+      let(:payment_method_type) { 'sepa_debit' }
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when the payment method is not expanded' do
+      let(:stripe_payment_method) { 'pm_1234567890' }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when the payment method type is not provided' do
+      let(:stripe_payment_method) { nil }
+
+      it { is_expected.to be(false) }
+    end
+  end
+
+  describe '#payment_intent_charge_not_required?' do
+    subject { gateway.payment_intent_charge_not_required?(stripe_payment_intent) }
+
+    let(:stripe_payment_intent) do
+      Stripe::StripeObject.construct_from(
+        id: 'pi_123',
+        status: 'succeeded',
+        payment_method: stripe_payment_method
+      )
+    end
+
+    let(:stripe_payment_method) do
+      { type: payment_method_type }
+    end
+
+    context 'for a card payment method' do
+      let(:payment_method_type) { 'card' }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'for a customer_balance payment method' do
+      let(:payment_method_type) { 'customer_balance' }
+
+      it { is_expected.to be(true) }
+    end
+  end
+
+  describe '#payment_intent_bank_payment_method?' do
+    subject { gateway.payment_intent_bank_payment_method?(stripe_payment_intent) }
+
+    let(:stripe_payment_intent) do
+      Stripe::StripeObject.construct_from(
+        id: 'pi_123',
+        status: 'succeeded',
+        payment_method: stripe_payment_method
+      )
+    end
+
+    let(:stripe_payment_method) do
+      { type: payment_method_type }
+    end
+
+    context 'for a card payment method' do
+      let(:payment_method_type) { 'card' }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'for a customer_balance payment method' do
+      let(:payment_method_type) { 'customer_balance' }
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'for a us_bank_account payment method' do
+      let(:payment_method_type) { 'us_bank_account' }
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when the payment method is not expanded' do
+      let(:stripe_payment_method) { 'pm_1234567890' }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when the payment method type is not provided' do
+      let(:stripe_payment_method) { nil }
+
+      it { is_expected.to be(false) }
+    end
+  end
+
   describe '#webhook_url' do
     subject { gateway.webhook_url }
 
@@ -330,9 +570,14 @@ RSpec.describe SpreeStripe::Gateway do
         expect(subject.authorization).to eq(payment_intent_id)
         expect(subject.params['status']).to eq('succeeded')
         expect(subject.params['amount']).to eq(amount_in_cents)
-        expect(subject.params['payment_method']).to eq(payment_method_id)
         expect(subject.params['customer']).to eq(customer_id)
         expect(subject.params['transfer_group']).to eq(order.number)
+
+        expect(subject.params['payment_method']).to include(
+          'object' => 'payment_method',
+          'id' => payment_method_id,
+          'type' => 'card'
+        )
 
         expect(payment.reload.response_code).to eq(payment_intent_id)
         expect(payment.state).to eq('checkout')
@@ -677,7 +922,7 @@ RSpec.describe SpreeStripe::Gateway do
         it 'does not create a new gateway customer' do
           expect { attach_customer }.not_to change(Spree::GatewayCustomer, :count)
         end
-        
+
         it 'returns nil' do
           expect(attach_customer).to be_nil
         end
@@ -689,7 +934,7 @@ RSpec.describe SpreeStripe::Gateway do
         it 'does not create a new gateway customer' do
           expect { attach_customer }.not_to change(Spree::GatewayCustomer, :count)
         end
-        
+
         it 'returns nil' do
           expect(attach_customer).to be_nil
         end
@@ -702,7 +947,7 @@ RSpec.describe SpreeStripe::Gateway do
         it 'does not create a new gateway customer' do
           expect { attach_customer }.not_to change(Spree::GatewayCustomer, :count)
         end
-        
+
         it 'returns nil' do
           expect(attach_customer).to be_nil
         end
@@ -715,7 +960,7 @@ RSpec.describe SpreeStripe::Gateway do
       context 'and credit card has no gateway customer profile id' do
         let!(:credit_card) { create(:credit_card, user: user, default: true, gateway_payment_profile_id: 'pm_1SGLXEIhR0gIegIeYbkKLGkF') }
 
-        it 'attaches the customer to the credit card' do        
+        it 'attaches the customer to the credit card' do
           VCR.use_cassette('attach_customer_to_credit_card') do
             expect { attach_customer }.to change(Spree::GatewayCustomer, :count).by(1)
             expect(user.reload.default_credit_card.gateway_customer_profile_id).to eq('cus_TFeSJ7nmvElKTT')
@@ -728,7 +973,7 @@ RSpec.describe SpreeStripe::Gateway do
 
           it 'does not update default credit card' do
             allow(Rails.error).to receive(:report)
-            
+
             VCR.use_cassette('attach_customer_to_credit_card_error') do
               expect(attach_customer).to eq(nil)
               expect(user.reload.default_credit_card.gateway_customer_profile_id).to eq(nil)

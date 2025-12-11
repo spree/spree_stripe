@@ -1,6 +1,7 @@
 ---
 en:
   spree:
+    bank_transfer: Bank Transfer
     stripe:
       payment_intent_errors:
         canceled: Payment intent canceled

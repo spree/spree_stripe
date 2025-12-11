@@ -9,7 +9,7 @@ module SpreeStripe
     def call
       order = payment_intent.order
 
-      return order if order.completed? || order.canceled?
+      return order if (order.completed? && order.paid?) || order.canceled?
 
       charge = payment_intent.stripe_charge
 
@@ -21,10 +21,14 @@ module SpreeStripe
         payment = payment_intent.find_or_create_payment!
 
         # process the payment
-        payment.process!
+        if payment_intent.successful?
+          payment.process!
+        else
+          payment.authorize!
+        end
 
         # complete the order
-        Spree::Dependencies.checkout_complete_service.constantize.call(order: order)
+        Spree::Dependencies.checkout_complete_service.constantize.call(order: order) unless order.completed?
       end
 
       order.reload
@@ -34,6 +38,8 @@ module SpreeStripe
 
     # we need to perform this for quick checkout orders which do not have these fields filled
     def add_customer_information(order, charge)
+      return order if charge.blank?
+
       billing_details = charge.billing_details
       address = billing_details.address
 

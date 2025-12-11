@@ -135,6 +135,22 @@ RSpec.describe SpreeStripe::CreateSource do
       end
     end
 
+    context 'when source is customer_balance' do
+      let(:payment_method_details) { Stripe::StripeObject.construct_from(type: 'customer_balance') }
+
+      it 'create a BankTransfer source' do
+        expect(subject).to be_a(SpreeStripe::PaymentSources::BankTransfer)
+      end
+    end
+
+    context 'when source is us_bank_account' do
+      let(:payment_method_details) { Stripe::StripeObject.construct_from(type: 'us_bank_account') }
+
+      it 'create a BankTransfer source' do
+        expect(subject).to be_a(SpreeStripe::PaymentSources::BankTransfer)
+      end
+    end
+
     context 'if source is p24' do
       let(:payment_method_details) do
         Stripe::StripeObject.construct_from(

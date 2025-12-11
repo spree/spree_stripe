@@ -117,7 +117,8 @@ RSpec.describe Spree::Api::V2::Storefront::Stripe::PaymentIntentsController, typ
         status: 'requires_payment_method',
         amount: (order.total * 100).to_i,
         currency: 'usd',
-        client_secret: client_secret
+        client_secret: client_secret,
+        payment_method: 'pm_1234567890'
       )
     end
 
@@ -160,16 +161,19 @@ RSpec.describe Spree::Api::V2::Storefront::Stripe::PaymentIntentsController, typ
       end
     end
 
-    context 'when payment intent status is succeeded' do
+    context 'when payment intent succeeded' do
       let(:stripe_payment_intent) do
         Stripe::StripeObject.construct_from(
           id: payment_intent_id,
-          status: 'succeeded',
+          status: payment_intent_status,
           amount: (order.total * 100).to_i,
           currency: 'usd',
           customer: user.gateway_customers.last.profile_id,
           latest_charge: 'ch_3QXRgr2ESifGlJez02SSg61f',
-          client_secret: client_secret
+          client_secret: client_secret,
+          payment_method: Stripe::StripeObject.construct_from(
+            type: payment_method_type
+          )
         )
       end
 
@@ -216,6 +220,9 @@ RSpec.describe Spree::Api::V2::Storefront::Stripe::PaymentIntentsController, typ
         )
       end
 
+      let(:payment_intent_status) { 'succeeded' }
+      let(:payment_method_type) { 'card' }
+
       before do
         allow(Stripe::Charge).to receive(:retrieve).and_return(stripe_charge)
         allow(Stripe::PaymentMethod).to receive(:attach).and_return(true)
@@ -227,6 +234,22 @@ RSpec.describe Spree::Api::V2::Storefront::Stripe::PaymentIntentsController, typ
         expect(json_response['data']['type']).to eq('payment_intent')
 
         expect(order.reload.completed?).to be(true)
+        expect(order.payment_state).to eq('paid')
+        expect(order.payments.last.state).to eq('completed')
+      end
+
+      context 'for a sepa debit payment intent in processing state' do
+        let(:payment_intent_status) { 'processing' }
+        let(:payment_method_type) { 'sepa_debit' }
+
+        it 'completes the order' do
+          expect(response.status).to eq(200)
+          expect(json_response['data']['type']).to eq('payment_intent')
+
+          expect(order.reload.completed?).to be(true)
+          expect(order.payment_state).to eq('balance_due')
+          expect(order.payments.last.state).to eq('pending')
+        end
       end
     end
 
@@ -249,7 +272,8 @@ RSpec.describe Spree::Api::V2::Storefront::Stripe::PaymentIntentsController, typ
           amount: (order.total * 100).to_i,
           currency: 'usd',
           charge: 'ch_3QXRgr2ESifGlJez02SSg61f',
-          client_secret: client_secret
+          client_secret: client_secret,
+          payment_method: 'pm_1234567890'
         )
       end
 

@@ -34,6 +34,8 @@ module SpreeStripe
         SpreeStripe::PaymentSources::Link.create!(source_params)
       when 'affirm'
         SpreeStripe::PaymentSources::Affirm.create!(source_params)
+      when 'customer_balance', 'us_bank_account'
+        SpreeStripe::PaymentSources::BankTransfer.create!(source_params)
       else
         raise "[STRIPE] Unknown payment method #{stripe_payment_method_details.type}"
       end

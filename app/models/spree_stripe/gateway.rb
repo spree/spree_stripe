@@ -2,6 +2,9 @@ module SpreeStripe
   class Gateway < ::Spree::Gateway
     include SpreeStripe::Gateway::Tax if defined?(SpreeStripe::Gateway::Tax)
 
+    DELAYED_NOTIFICATION_PAYMENT_METHOD_TYPES = %w[sepa_debit us_bank_account].freeze
+    BANK_PAYMENT_METHOD_TYPES = %w[customer_balance us_bank_account].freeze
+
     preference :publishable_key, :password
     preference :secret_key, :password
 
@@ -21,6 +24,28 @@ module SpreeStripe
 
     def provider_class
       self.class
+    end
+
+    def payment_intent_accepted?(payment_intent)
+      payment_intent.status.in?(payment_intent_accepted_statuses(payment_intent))
+    end
+
+    def payment_intent_delayed_notification?(payment_intent)
+      payment_method = payment_intent.payment_method
+      return false unless payment_method.respond_to?(:type)
+
+      payment_intent.payment_method.type.in?(DELAYED_NOTIFICATION_PAYMENT_METHOD_TYPES)
+    end
+
+    def payment_intent_charge_not_required?(payment_intent)
+      payment_intent_bank_payment_method?(payment_intent)
+    end
+
+    def payment_intent_bank_payment_method?(payment_intent)
+      payment_method = payment_intent.payment_method
+      return false unless payment_method.respond_to?(:type)
+
+      payment_intent.payment_method.type.in?(BANK_PAYMENT_METHOD_TYPES)
     end
 
     # @param amount_in_cents [Integer] the amount in cents to capture
@@ -52,7 +77,7 @@ module SpreeStripe
         payment = ensure_payment_intent_exists_for_payment(payment, amount_in_cents, payment_source)
         stripe_payment_intent = retrieve_payment_intent(payment.response_code)
 
-        response = if stripe_payment_intent.status == 'succeeded'
+        response = if payment_intent_accepted?(stripe_payment_intent)
                      # payment intent is already confirmed via Stripe JS SDK
                      stripe_payment_intent
                    else
@@ -210,7 +235,7 @@ module SpreeStripe
     end
 
     def retrieve_payment_intent(payment_intent_id)
-      send_request { Stripe::PaymentIntent.retrieve(payment_intent_id) }
+      send_request { Stripe::PaymentIntent.retrieve({ id: payment_intent_id, expand: ['payment_method'] }) }
     end
 
     def confirm_payment_intent(payment_intent_id)
@@ -423,6 +448,13 @@ module SpreeStripe
       email = order&.email || user&.email
 
       SpreeStripe::CustomerPresenter.new(name: name, email: email, address: address).call
+    end
+
+    def payment_intent_accepted_statuses(payment_intent)
+      statuses = %w[succeeded]
+      statuses << 'processing' if payment_intent_delayed_notification?(payment_intent)
+      statuses << 'requires_action' if payment_intent_charge_not_required?(payment_intent)
+      statuses
     end
   end
 end

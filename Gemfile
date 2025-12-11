@@ -25,4 +25,6 @@ else
   gem 'sqlite3'
 end
 
+gem "sprockets-rails", "~> 3.5"
+
 gemspec

@@ -37,6 +37,10 @@ module SpreeStripe
       payment_intent.payment_method.type.in?(DELAYED_NOTIFICATION_PAYMENT_METHOD_TYPES)
     end
 
+    def payment_intent_charge_not_required?(payment_intent)
+      payment_intent_bank_payment_method?(payment_intent)
+    end
+
     def payment_intent_bank_payment_method?(payment_intent)
       payment_method = payment_intent.payment_method
       return false unless payment_method.respond_to?(:type)
@@ -449,7 +453,7 @@ module SpreeStripe
     def payment_intent_accepted_statuses(payment_intent)
       statuses = %w[succeeded]
       statuses << 'processing' if payment_intent_delayed_notification?(payment_intent)
-      statuses << 'requires_action' if payment_intent_bank_payment_method?(payment_intent)
+      statuses << 'requires_action' if payment_intent_charge_not_required?(payment_intent)
       statuses
     end
   end

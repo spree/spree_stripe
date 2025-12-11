@@ -19,7 +19,7 @@ module SpreeStripe
           stripe_billing_details: stripe_charge.billing_details,
           gateway: gateway
         ).call
-      elsif payment_intent.bank_transfer?
+      elsif payment_intent.charge_not_required?
         stripe_payment_intent = payment_intent.stripe_payment_intent
         source = SpreeStripe::CreateSource.new(
           order: order,

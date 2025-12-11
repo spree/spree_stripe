@@ -171,6 +171,34 @@ RSpec.describe SpreeStripe::Gateway do
     end
   end
 
+  describe '#payment_intent_charge_not_required?' do
+    subject { gateway.payment_intent_charge_not_required?(stripe_payment_intent) }
+
+    let(:stripe_payment_intent) do
+      Stripe::StripeObject.construct_from(
+        id: 'pi_123',
+        status: 'succeeded',
+        payment_method: stripe_payment_method
+      )
+    end
+
+    let(:stripe_payment_method) do
+      { type: payment_method_type }
+    end
+
+    context 'for a card payment method' do
+      let(:payment_method_type) { 'card' }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'for a customer_balance payment method' do
+      let(:payment_method_type) { 'customer_balance' }
+
+      it { is_expected.to be(true) }
+    end
+  end
+
   describe '#payment_intent_bank_payment_method?' do
     subject { gateway.payment_intent_bank_payment_method?(stripe_payment_intent) }
 

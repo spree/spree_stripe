@@ -34,8 +34,8 @@ module SpreeStripe
       stripe_payment_intent.status == 'succeeded'
     end
 
-    def bank_transfer?
-      payment_method.payment_intent_bank_payment_method?(stripe_payment_intent)
+    def charge_not_required?
+      payment_method.payment_intent_charge_not_required?(stripe_payment_intent)
     end
 
     def stripe_payment_intent

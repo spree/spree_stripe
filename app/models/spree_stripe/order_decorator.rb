@@ -31,7 +31,7 @@ module SpreeStripe
       stripe_gateway = store.stripe_gateway
       return if stripe_gateway.blank?
 
-      stripe_gateway.attach_customer_to_credit_card(user)
+      AttachCustomerToCreditCardJob.perform_later(stripe_gateway.id, user_id)
     end
 
     def stripe_payment_intent

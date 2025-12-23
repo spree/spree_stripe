@@ -13,7 +13,7 @@ RSpec.describe SpreeStripe::AttachCustomerToCreditCardJob do
   end
 
   context 'when gateway is not found' do
-    subject { described_class.new.perform(999999, user.id) }
+    subject { described_class.new.perform(nil, user.id) }
 
     it 'returns early without raising' do
       expect_any_instance_of(SpreeStripe::Gateway).not_to receive(:attach_customer_to_credit_card)
@@ -22,7 +22,7 @@ RSpec.describe SpreeStripe::AttachCustomerToCreditCardJob do
   end
 
   context 'when user is not found' do
-    subject { described_class.new.perform(gateway.id, 999999) }
+    subject { described_class.new.perform(gateway.id, nil) }
 
     it 'returns early without raising' do
       expect_any_instance_of(SpreeStripe::Gateway).not_to receive(:attach_customer_to_credit_card)

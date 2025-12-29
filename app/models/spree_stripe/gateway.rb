@@ -325,9 +325,12 @@ module SpreeStripe
 
     def attach_customer_to_credit_card(user)
       payment_method_id = user&.default_credit_card&.gateway_payment_profile_id
+      puts "PAYMENT METHOD ID: #{payment_method_id.inspect}"
+      puts "GATEWAY CUSTOMER PROFILE ID: #{user&.default_credit_card&.gateway_customer_profile_id.inspect}"
       return if payment_method_id.blank? || user&.default_credit_card&.gateway_customer_profile_id.present?
 
       customer = fetch_or_create_customer(user: user)
+      puts "CUSTOMER: #{customer.inspect}"
       return if customer.blank?
 
       send_request { Stripe::PaymentMethod.attach(payment_method_id, { customer: customer.profile_id }) }

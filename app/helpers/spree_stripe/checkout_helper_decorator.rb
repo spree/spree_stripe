@@ -12,4 +12,6 @@ module SpreeStripe
   end
 end
 
-Spree::CheckoutHelper.prepend(SpreeStripe::CheckoutHelperDecorator)
+if defined?(Spree::CheckoutHelper)
+  Spree::CheckoutHelper.prepend(SpreeStripe::CheckoutHelperDecorator)
+end

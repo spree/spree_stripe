@@ -1,5 +1,5 @@
 module SpreeStripe
-  class ApplePayDomainVerificationController < ::Spree::StoreController
+  class ApplePayDomainVerificationController < Spree::BaseController
     def show
       gateway = SpreeStripe::Gateway.last
 

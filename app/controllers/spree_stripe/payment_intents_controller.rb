@@ -1,8 +1,8 @@
 # this is the endpoint that Stripe JS SDK will redirect customer to after payment
 # it will handle the payment intent status and process the payment
 module SpreeStripe
-  class PaymentIntentsController < Spree::StoreController
-    include Spree::CheckoutAnalyticsHelper
+  class PaymentIntentsController < Spree::BaseController
+    include Spree::CheckoutAnalyticsHelper if defined?(Spree::CheckoutAnalyticsHelper)
 
     # GET /spree/payment_intents/:id
     def show

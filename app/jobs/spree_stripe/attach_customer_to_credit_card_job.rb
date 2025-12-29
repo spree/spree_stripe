@@ -8,6 +8,7 @@ module SpreeStripe
       return if gateway.blank?
 
       user = Spree.user_class.find_by(id: user_id)
+      puts "User class: #{Spree.user_class.inspect}"
       puts "USER: #{user.inspect}"
       return if user.blank?
 

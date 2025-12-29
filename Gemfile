@@ -14,7 +14,7 @@ spree_opts = if ENV['SPREE_PATH']
              end
 gem 'spree', spree_opts
 gem 'spree_admin', spree_opts
-gem 'spree_emails', spree_opts
+gem 'spree_page_builder', spree_opts.merge(glob: 'packages/page_builder/*.gemspec')
 gem 'spree_storefront', spree_opts
 
 if ENV['DB'] == 'mysql'

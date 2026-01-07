@@ -1,7 +1,7 @@
 # this is the endpoint that Stripe JS SDK will redirect customer to after payment
 # it will handle the payment intent status and process the payment
 module SpreeStripe
-  class PaymentIntentsController < Spree::BaseController
+  class PaymentIntentsController < defined?(Spree::StoreController) ? Spree::StoreController : Spree::BaseController
     include Spree::CheckoutAnalyticsHelper if defined?(Spree::CheckoutAnalyticsHelper)
 
     # GET /spree/payment_intents/:id
@@ -30,7 +30,7 @@ module SpreeStripe
         @order = SpreeStripe::CompleteOrder.new(payment_intent: @payment_intent_record).call
 
         # set the session flag to indicate that the order was placed now
-        track_checkout_completed if @order.completed?
+        track_checkout_completed if @order.completed? && defined?(track_checkout_completed)
 
         # redirect the customer to the complete checkout page
         redirect_to spree.checkout_complete_path(@order.token), status: :see_other

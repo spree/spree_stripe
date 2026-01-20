@@ -9,6 +9,12 @@ module SpreeStripe
       g.test_framework :rspec
     end
 
+    config.after_initialize do
+      Spree.subscribers.concat [
+        SpreeStripe::OrderCompletedSubscriber
+      ]
+    end
+
     initializer 'spree_stripe.environment', before: :load_config_initializers do |_app|
       SpreeStripe::Config = SpreeStripe::Configuration.new
     end

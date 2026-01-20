@@ -1,15 +1,15 @@
 module SpreeStripe
   class AttachCustomerToCreditCardJob < BaseJob
-    def perform(gateway_id, user_id)
-      return unless Spree.user_class.present?
+    def perform(order_id)
+      return if Spree.user_class.blank?
 
-      gateway = SpreeStripe::Gateway.find_by(id: gateway_id)
-      puts "GATEWAY: #{gateway.inspect}"
+      order = Spree::Order.find_by(id: order_id)
+      return if order.blank? || order.user_id.blank?
+
+      gateway = order.store.stripe_gateway
       return if gateway.blank?
 
-      user = Spree.user_class.find_by(id: user_id)
-      puts "User class: #{Spree.user_class.inspect}"
-      puts "USER: #{user.inspect}"
+      user = Spree.user_class.find_by(id: order.user_id)
       return if user.blank?
 
       gateway.attach_customer_to_credit_card(user)

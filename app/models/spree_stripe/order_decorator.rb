@@ -26,14 +26,6 @@ module SpreeStripe
       payment_intents.update_all(customer_id: customer_id) if customer_id.present?
     end
 
-    def persist_user_credit_card
-      super
-      stripe_gateway = store.stripe_gateway
-      return if stripe_gateway.blank?
-
-      SpreeStripe::AttachCustomerToCreditCardJob.perform_later(stripe_gateway.id, user_id)
-    end
-
     def stripe_payment_intent
       @stripe_payment_intent ||= payment_intents.last.stripe_payment_intent
     end

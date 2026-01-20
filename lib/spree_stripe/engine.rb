@@ -4,6 +4,9 @@ module SpreeStripe
     isolate_namespace Spree
     engine_name 'spree_stripe'
 
+    # Add app/subscribers to autoload paths
+    config.paths.add 'app/subscribers', eager_load: true
+
     # use rspec for tests
     config.generators do |g|
       g.test_framework :rspec
@@ -31,6 +34,12 @@ module SpreeStripe
       Dir.glob(File.join(File.dirname(__FILE__), '../../app/**/*_decorator*.rb')) do |c|
         Rails.configuration.cache_classes ? require(c) : load(c)
       end
+    end
+
+    config.after_initialize do
+      Spree.subscribers.concat [
+        SpreeStripe::OrderCompletedSubscriber
+      ]
     end
 
     config.to_prepare(&method(:activate).to_proc)

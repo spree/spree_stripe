@@ -450,7 +450,8 @@ RSpec.describe SpreeStripe::Gateway do
 
     context 'when the currency is different' do
       before do
-        order.update!(currency: 'PLN')
+        allow(store).to receive(:supported_currencies).and_return(['USD','PLN'])
+        allow(order).to receive(:currency).and_return('PLN')
       end
 
       it 'it updates the payment intent with a new currency' do

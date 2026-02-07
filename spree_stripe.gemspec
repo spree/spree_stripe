@@ -11,10 +11,17 @@ Gem::Specification.new do |s|
   s.summary     = "Official Spree Commerce Stripe payment gateway extension"
   s.required_ruby_version = '>= 3.0'
 
-  s.author    = 'Vendo Connect Inc.'
+  s.author    = 'Vendo Connect Inc., Vendo Sp. z o.o.'
   s.email     = 'hello@spreecommerce.org'
   s.homepage  = 'https://github.com/spree/spree_stripe'
-  s.license = 'AGPL-3.0-or-later'
+  s.license   = 'MIT'
+
+  s.metadata = {
+    'bug_tracker_uri' => 'https://github.com/spree/spree_stripe/issues',
+    'changelog_uri' => "https://github.com/spree/spree_stripe/releases/tag/v#{s.version}",
+    'documentation_uri' => 'https://docs.spreecommerce.org/',
+    'source_code_uri' => "https://github.com/spree/spree_stripe/tree/v#{s.version}"
+  }
 
   s.files        = Dir["{app,config,db,lib,vendor}/**/*", "LICENSE.md", "Rakefile", "README.md"].reject { |f| f.match(/^spec/) && !f.match(/^spec\/fixtures/) }
   s.require_path = 'lib'

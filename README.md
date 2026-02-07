@@ -15,10 +15,6 @@ If you like what you see, consider giving this repo a GitHub star :star:
 
 Thank you for supporting Spree open-source :heart:
 
-> [!IMPORTANT]
-> This Stripe integration for Spree is free to use for private projects but requires a [Commercial License](https://spreecommerce.org/why-consider-a-commercial-license-for-your-multi-tenant-or-saas-spree-based-project/) if you're planning to use it for your [SaaS](https://spreecommerce.org/multi-tenant-white-label-ecommerce/) or a [multi-tenant eCommerce](https://spreecommerce.org/multi-tenant-white-label-ecommerce/) website. 
-> Feel free to [reach out](https://spreecommerce.org/get-started/) to learn more.
-
 > [!TIP]
 > Looking for a [Stripe Connect integration](#looking-for-a-stripe-connect-integration-for-spree) for Spree? It's available with the [Enterprise Edition](https://spreecommerce.org/spree-commerce-version-comparison-community-edition-vs-enterprise-edition/).
 
@@ -114,7 +110,7 @@ If you'd like to contribute, please take a look at the
 [instructions](CONTRIBUTING.md) for installing dependencies and crafting a good
 pull request.
 
-Copyright (c) 2025 [Vendo Connect Inc.](https://getvendo.com), released under [AGPL 3.0 license](https://github.com/spree/spree_stripe/blob/main/LICENSE.md). Please refer to [this blog post](https://spreecommerce.org/why-spree-is-changing-its-open-source-license-to-agpl-3-0-and-introducing-a-commercial-license/) and [that blog post](https://spreecommerce.org/open-source-ecommerce-transparency/) to learn more about Spree licensing. 
+Copyright (c) 2026 [Vendo Connect Inc.](https://getvendo.com), released under [MIT](https://github.com/spree/spree_stripe/blob/main/LICENSE).
 
 ## Looking for a Stripe Connect integration for Spree?
 
@@ -128,16 +124,3 @@ Spree Commerce [Enterprise Edition](https://spreecommerce.org/spree-commerce-ver
 - Built-in fraud prevention tools
 
 Feel free to [reach out](https://spreecommerce.org/get-started/) to learn more.
-
-## Spree 5 Announcement & Demo
-
-[![Spree Commerce 5 version](https://vendo-production-res.cloudinary.com/image/upload/w_2000/q_auto/v1742985405/docs/github/Spree_Commerce_open-source_eCommerce_myzurl.jpg)](https://spreecommerce.org/announcing-spree-5-the-biggest-open-source-release-ever/)
-
-[Spree 5](https://spreecommerce.org/announcing-spree-5-the-biggest-open-source-release-ever/) is the most feature-packed open-source release in Spree Commerce's history — transforming the platform into an API-first, developer-friendly, enterprise-grade eCommerce solution that still adheres to its open-source roots.
-
-[View the latest Releases](https://github.com/spree/spree/releases) ·
-[View the Roadmap](https://github.com/orgs/spree/projects) ·
-[Get Enterprise Support](https://spreecommerce.org/get-started/)
-
-Check out the [Spree 5 demo](https://demo.spreecommerce.org/) for yourself, including this Stripe integration.
-

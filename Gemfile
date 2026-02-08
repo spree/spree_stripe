@@ -14,8 +14,8 @@ spree_opts = if ENV['SPREE_PATH']
              end
 gem 'spree', spree_opts
 gem 'spree_admin', spree_opts
-gem 'spree_page_builder', spree_opts
-gem 'spree_storefront', spree_opts
+gem 'spree_storefront'
+gem 'spree_page_builder'
 
 gem 'spree_legacy_api_v2'
 gem 'spree_dev_tools', '>= 0.6.0.rc1'

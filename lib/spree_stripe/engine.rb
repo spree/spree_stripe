@@ -25,9 +25,11 @@ module SpreeStripe
     end
 
     initializer 'spree_stripe.importmap', before: 'importmap' do |app|
-      app.config.importmap.paths << root.join('config/importmap.rb')
-      # https://github.com/rails/importmap-rails?tab=readme-ov-file#sweeping-the-cache-in-development-and-test
-      app.config.importmap.cache_sweepers << root.join('app/javascript')
+      if app.config.respond_to?(:importmap)
+        app.config.importmap.paths << root.join('config/importmap.rb')
+        # https://github.com/rails/importmap-rails?tab=readme-ov-file#sweeping-the-cache-in-development-and-test
+        app.config.importmap.cache_sweepers << root.join('app/javascript')
+      end
     end
 
     def self.activate

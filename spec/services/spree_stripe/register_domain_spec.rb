@@ -26,7 +26,7 @@ RSpec.describe SpreeStripe::RegisterDomain do
     end
 
     it 'register only store domain', :vcr do
-      expect(Stripe::PaymentMethodDomain).to receive(:create).once.with({ domain_name: domain }).and_call_original
+      expect(Stripe::PaymentMethodDomain).to receive(:create).once.with({ domain_name: domain }, anything).and_call_original
       register_domain
 
       expect(payment_method_domain).to be_present
@@ -56,7 +56,7 @@ RSpec.describe SpreeStripe::RegisterDomain do
       let(:domain) { tld_domain }
 
       it 'registers only custom domain', :vcr do
-        expect(Stripe::PaymentMethodDomain).to receive(:create).once.with({ domain_name: domain }).and_call_original
+        expect(Stripe::PaymentMethodDomain).to receive(:create).once.with({ domain_name: domain }, anything).and_call_original
         register_domain
 
         expect(payment_method_domain).to be_present

@@ -31,7 +31,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'spree', spree_version
   s.add_dependency 'spree_admin', spree_version
 
-  s.add_dependency 'stripe', '~> 10.1.0'
+  s.add_dependency 'stripe', '>= 10.1', '< 18.4'
   s.add_dependency 'stripe_event', '~> 2.11'
 
   s.add_development_dependency 'dotenv'

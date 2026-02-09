@@ -16,7 +16,7 @@ RSpec.describe SpreeStripe::UpdateCustomer do
 
     it 'updates the Stripe customer' do
       subject
-      expect(Stripe::Customer).to have_received(:update).with('cus_123', anything)
+      expect(Stripe::Customer).to have_received(:update).with('cus_123', anything, anything)
     end
 
     context 'when user has no Stripe gateway customers' do

@@ -18,9 +18,12 @@ RSpec.describe SpreeStripe::CreateTaxTransactionJob do
       subject
 
       expect(Stripe::Tax::Transaction).to have_received(:create_from_calculation).with(
-        calculation: tax_calculation_id,
-        reference: payment_intent_id,
-        expand: ['line_items']
+        {
+          calculation: tax_calculation_id,
+          reference: payment_intent_id,
+          expand: ['line_items']
+        },
+        { api_key: stripe_gateway.preferred_secret_key }
       )
     end
   end

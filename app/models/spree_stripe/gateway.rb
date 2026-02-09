@@ -95,7 +95,7 @@ module SpreeStripe
           payment_intent: payment_intent_id
         }
 
-        response = send_request { Stripe::Refund.create(payload) }
+        response = send_request { |opts| Stripe::Refund.create(payload, opts) }
 
         success(response.id, response)
       end
@@ -165,7 +165,7 @@ module SpreeStripe
     # @return [Stripe::Customer] the created Stripe customer
     def create_customer(order: nil, user: nil)
       payload = build_customer_payload(order: order, user: user)
-      response = send_request { Stripe::Customer.create(payload) }
+      response = send_request { |opts| Stripe::Customer.create(payload, opts) }
 
       customer = gateway_customers.build(user: user, profile_id: response.id)
       customer.save! if user.present?
@@ -185,7 +185,7 @@ module SpreeStripe
       return if customer.blank?
 
       payload = build_customer_payload(order: order, user: user)
-      send_request { Stripe::Customer.update(customer.profile_id, payload) }
+      send_request { |opts| Stripe::Customer.update(customer.profile_id, payload, opts) }
     end
 
     # Creates a Stripe payment intent for the order
@@ -206,7 +206,7 @@ module SpreeStripe
       ).call
 
       protect_from_error do
-        response = send_request { Stripe::PaymentIntent.create(payload) }
+        response = send_request { |opts| Stripe::PaymentIntent.create(payload, opts) }
 
         success(response.id, response)
       end
@@ -228,29 +228,29 @@ module SpreeStripe
           payment_method_id: payment_method_id
         ).call.slice(:amount, :currency, :payment_method, :shipping, :customer)
 
-        response = send_request { Stripe::PaymentIntent.update(payment_intent_id, payload) }
+        response = send_request { |opts| Stripe::PaymentIntent.update(payment_intent_id, payload, opts) }
 
         success(response.id, response)
       end
     end
 
     def retrieve_payment_intent(payment_intent_id)
-      send_request { Stripe::PaymentIntent.retrieve({ id: payment_intent_id, expand: ['payment_method'] }) }
+      send_request { |opts| Stripe::PaymentIntent.retrieve({ id: payment_intent_id, expand: ['payment_method'] }, opts) }
     end
 
     def confirm_payment_intent(payment_intent_id)
-      send_request { Stripe::PaymentIntent.confirm(payment_intent_id) }
+      send_request { |opts| Stripe::PaymentIntent.confirm(payment_intent_id, {}, opts) }
     end
 
     def capture_payment_intent(payment_intent_id, amount_in_cents)
-      send_request { Stripe::PaymentIntent.capture(payment_intent_id, { amount_to_capture: amount_in_cents }) }
+      send_request { |opts| Stripe::PaymentIntent.capture(payment_intent_id, { amount_to_capture: amount_in_cents }, opts) }
     end
 
     # Cancels a Stripe payment intent
     #
     # @param payment_intent_id [String] Stripe payment intent ID, eg. pi_123
     def cancel_payment_intent(payment_intent_id)
-      send_request { Stripe::PaymentIntent.cancel(payment_intent_id) }
+      send_request { |opts| Stripe::PaymentIntent.cancel(payment_intent_id, {}, opts) }
     end
 
     # Ensures a Stripe payment intent exists for Spree payment
@@ -282,12 +282,12 @@ module SpreeStripe
     end
 
     def retrieve_charge(charge_id)
-      send_request { Stripe::Charge.retrieve(charge_id) }
+      send_request { |opts| Stripe::Charge.retrieve(charge_id, opts) }
     end
 
     def create_ephemeral_key(customer_id)
       protect_from_error do
-        response = send_request { Stripe::EphemeralKey.create({ customer: customer_id }, { stripe_version: Stripe.api_version }) }
+        response = send_request { |opts| Stripe::EphemeralKey.create({ customer: customer_id }, opts.merge(stripe_version: Stripe.api_version)) }
 
         success(response.secret, response)
       end
@@ -295,7 +295,7 @@ module SpreeStripe
 
     def create_setup_intent(customer_id)
       protect_from_error do
-        response = send_request { Stripe::SetupIntent.create({ customer: customer_id, automatic_payment_methods: { enabled: true } }) }
+        response = send_request { |opts| Stripe::SetupIntent.create({ customer: customer_id, automatic_payment_methods: { enabled: true } }, opts) }
 
         success(response.client_secret, response)
       end
@@ -303,9 +303,9 @@ module SpreeStripe
 
     def create_tax_calculation(order)
       protect_from_error do
-        send_request do
+        send_request do |opts|
           Stripe::Tax::Calculation.create(
-            SpreeStripe::TaxPresenter.new(order: order).call
+            SpreeStripe::TaxPresenter.new(order: order).call, opts
           )
         end
       end
@@ -319,7 +319,7 @@ module SpreeStripe
           expand: ['line_items']
         }
 
-        send_request { Stripe::Tax::Transaction.create_from_calculation(payload) }
+        send_request { |opts| Stripe::Tax::Transaction.create_from_calculation(payload, opts) }
       end
     end
 
@@ -330,7 +330,7 @@ module SpreeStripe
       customer = fetch_or_create_customer(user: user)
       return if customer.blank?
 
-      send_request { Stripe::PaymentMethod.attach(payment_method_id, { customer: customer.profile_id }) }
+      send_request { |opts| Stripe::PaymentMethod.attach(payment_method_id, { customer: customer.profile_id }, opts) }
 
       user.default_credit_card.update(gateway_customer_profile_id: customer.profile_id, gateway_customer_id: customer.id)
     rescue Stripe::StripeError => e
@@ -387,16 +387,11 @@ module SpreeStripe
     end
 
     def api_options
-      { api_key: preferred_secret_key, api_version: Stripe.api_version }
+      { api_key: preferred_secret_key }
     end
 
-    def send_request(&block)
-      result, _response = client.request(&block)
-      result
-    end
-
-    def client
-      @client ||= Stripe::StripeClient.new(api_options)
+    def send_request
+      yield(api_options)
     end
 
     private

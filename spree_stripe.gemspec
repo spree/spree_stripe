@@ -27,7 +27,7 @@ Gem::Specification.new do |s|
   s.require_path = 'lib'
   s.requirements << 'none'
 
-  spree_version = '>= 5.4.0.alpha'
+  spree_version = '>= 5.3.0'
   s.add_dependency 'spree', spree_version
   s.add_dependency 'spree_admin', spree_version
 

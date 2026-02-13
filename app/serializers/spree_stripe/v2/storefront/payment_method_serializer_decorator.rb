@@ -12,4 +12,6 @@ module SpreeStripe
   end
 end
 
-Spree::V2::Storefront::PaymentMethodSerializer.prepend(SpreeStripe::V2::Storefront::PaymentMethodSerializerDecorator)
+if defined?(Spree::V2::Storefront::PaymentMethodSerializer)
+  Spree::V2::Storefront::PaymentMethodSerializer.prepend(SpreeStripe::V2::Storefront::PaymentMethodSerializerDecorator)
+end

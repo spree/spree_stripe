@@ -27,7 +27,7 @@ module SpreeStripe
         )
 
         ephemeral_key_response = create_ephemeral_key(customer.profile_id) if customer.present?
-        ephemeral_key_secret = ephemeral_key_response&.params['secret']
+        ephemeral_key_secret = ephemeral_key_response&.params&.dig('secret')
 
         payment_session_class.create!(
           order: order,

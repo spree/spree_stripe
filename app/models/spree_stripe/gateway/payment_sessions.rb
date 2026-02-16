@@ -17,13 +17,6 @@ module SpreeStripe
 
         return nil if amount_in_cents.zero?
 
-        # return existing active session if one exists, syncing the amount if the cart changed
-        existing = order.payment_sessions.active.find_by(payment_method: self)
-        if existing.present?
-          update_payment_session(payment_session: existing, amount: total) if existing.amount != total
-          return existing
-        end
-
         customer = fetch_or_create_customer(order: order)
         stripe_pm_id = external_data[:stripe_payment_method_id] || external_data['stripe_payment_method_id']
 

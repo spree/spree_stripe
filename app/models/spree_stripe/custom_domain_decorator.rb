@@ -15,4 +15,6 @@ module SpreeStripe
   end
 end
 
-Spree::CustomDomain.prepend(SpreeStripe::CustomDomainDecorator)
+if defined?(Spree::CustomDomain)
+  Spree::CustomDomain.prepend(SpreeStripe::CustomDomainDecorator)
+end

@@ -14,6 +14,7 @@ spree_opts = if ENV['SPREE_PATH']
              end
 gem 'spree', spree_opts
 gem 'spree_admin', spree_opts
+gem 'spree_multi_store', spree_opts
 gem 'spree_storefront'
 gem 'spree_page_builder'
 

@@ -312,6 +312,8 @@ module SpreeStripe
       stores.each do |store|
         RegisterDomainJob.perform_later(store.id, 'store')
 
+        next unless defined?(Spree::CustomDomain)
+
         store.custom_domains.each do |custom_domain|
           RegisterDomainJob.perform_later(custom_domain.id, 'custom_domain')
         end

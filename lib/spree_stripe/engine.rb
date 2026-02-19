@@ -7,6 +7,12 @@ module SpreeStripe
     # Add app/subscribers to autoload paths
     config.paths.add 'app/subscribers', eager_load: true
 
+    # Only load API controllers and serializers when spree_legacy_api_v2 gem is available
+    if defined?(SpreeLegacyApiV2::Engine)
+      config.autoload_paths << root.join('lib', 'spree_api_v2')
+      config.eager_load_paths << root.join('lib', 'spree_api_v2')
+    end
+
     # use rspec for tests
     config.generators do |g|
       g.test_framework :rspec
@@ -33,8 +39,13 @@ module SpreeStripe
     end
 
     def self.activate
-      Dir.glob(File.join(File.dirname(__FILE__), '../../app/**/*_decorator*.rb')) do |c|
-        Rails.configuration.cache_classes ? require(c) : load(c)
+      glob_paths = [File.join(File.dirname(__FILE__), '../../app/**/*_decorator*.rb')]
+      glob_paths << File.join(File.dirname(__FILE__), '../../lib/spree_api_v2/**/*_decorator*.rb') if defined?(SpreeLegacyApiV2::Engine)
+
+      glob_paths.each do |glob_path|
+        Dir.glob(glob_path) do |c|
+          Rails.configuration.cache_classes ? require(c) : load(c)
+        end
       end
     end
 

@@ -1,3 +1,4 @@
+<% if current_stripe_gateway.present? && current_stripe_payment_intent.present? %>
 <div
   data-controller="checkout-stripe"
   data-checkout-stripe-payment-intent-value="<%= current_stripe_payment_intent.to_json %>"
@@ -64,3 +65,4 @@
     </div>
   </div>
 </div>
+<% end %>

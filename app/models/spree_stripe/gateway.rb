@@ -289,11 +289,11 @@ module SpreeStripe
     end
 
     def success(authorization, full_response)
-      ActiveMerchant::Billing::Response.new(true, nil, full_response.as_json, authorization: authorization)
+      Spree::PaymentResponse.new(true, nil, full_response.as_json, authorization: authorization)
     end
 
     def failure(error = nil)
-      ActiveMerchant::Billing::Response.new(false, error)
+      Spree::PaymentResponse.new(false, error)
     end
 
     def protect_from_error

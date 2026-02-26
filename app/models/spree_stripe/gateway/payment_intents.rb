@@ -39,7 +39,7 @@ module SpreeStripe
       # @param payment_method_id [String] Stripe payment method id to use, eg. a card token
       # @param off_session [Boolean] whether the payment intent is off session
       # @param customer_profile_id [String] Stripe customer profile id to use, eg.  cus_123
-      # @return [ActiveMerchant::Billing::Response] the response from the payment intent creation
+      # @return [Spree::PaymentResponse] the response from the payment intent creation
       def create_payment_intent(amount_in_cents, order, payment_method_id: nil, off_session: false, customer_profile_id: nil)
         payload = SpreeStripe::PaymentIntentPresenter.new(
           amount: amount_in_cents,
@@ -62,7 +62,7 @@ module SpreeStripe
       # @param amount_in_cents [Integer] the amount in cents
       # @param order [Spree::Order] the order to update the payment intent for
       # @param payment_method_id [String] Stripe payment method id to use, eg. a card token
-      # @return [ActiveMerchant::Billing::Response] the response from the payment intent update
+      # @return [Spree::PaymentResponse] the response from the payment intent update
       def update_payment_intent(payment_intent_id, amount_in_cents, order, payment_method_id = nil)
         protect_from_error do
           payload = SpreeStripe::PaymentIntentPresenter.new(

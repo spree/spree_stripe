@@ -11,8 +11,7 @@ module SpreeStripe
 
       return payment_intent if payment_intent.present?
 
-      # response is an ActiveMerchant::Billing::Response object
-      # https://github.com/activemerchant/active_merchant/blob/master/lib/active_merchant/billing/response.rb
+      # response is a Spree::PaymentResponse object
       response = gateway.create_payment_intent(
         amount,
         order,

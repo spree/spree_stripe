@@ -119,7 +119,8 @@ RSpec.describe Spree::PaymentSessions::Stripe, type: :model do
 
     it 'returns existing payment if present' do
       payment = create(:payment, order: order, payment_method: gateway, response_code: payment_session.external_id, amount: payment_session.amount)
-      expect(payment_session.find_or_create_payment!).to eq(payment)
+      # reload to pick up the has_one association
+      expect(payment_session.reload.find_or_create_payment!).to eq(payment)
     end
 
     it 'creates payment via CreatePayment service' do

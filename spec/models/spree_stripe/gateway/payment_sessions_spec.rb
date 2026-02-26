@@ -8,14 +8,14 @@ RSpec.describe SpreeStripe::Gateway::PaymentSessions do
 
   let(:customer) { instance_double(Spree::GatewayCustomer, profile_id: 'cus_test_123') }
   let(:pi_response) do
-    ActiveMerchant::Billing::Response.new(
+    Spree::PaymentResponse.new(
       true, nil,
       { 'client_secret' => 'pi_secret_abc' },
       authorization: 'pi_new_intent_123'
     )
   end
   let(:ephemeral_key_response) do
-    ActiveMerchant::Billing::Response.new(
+    Spree::PaymentResponse.new(
       true, nil,
       { 'secret' => 'ek_test_secret' },
       authorization: 'ek_test_secret'

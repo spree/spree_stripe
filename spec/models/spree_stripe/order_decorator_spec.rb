@@ -21,7 +21,7 @@ RSpec.describe SpreeStripe::OrderDecorator do
   end
 
   context 'when the order is completed' do
-    let(:order) { create(:order_with_line_items, store: store, user: user, state: :complete, completed_at: Time.current) }
+    let(:order) { create(:completed_order_with_totals, store: store, user: user) }
 
     it "doesn't update the payment intent" do
       expect { Spree::Cart::SetQuantity.call(order: order, line_item: order.line_items.first, quantity: 2) }.not_to change { payment_intent.reload.amount }

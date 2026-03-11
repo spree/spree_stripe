@@ -24,7 +24,7 @@ module SpreeStripe
 
     def stripped_order_description
       @stripped_order_description ||= begin
-        AnyAscii.transliterate(order_description)
+        I18n.transliterate(order_description)
                 .gsub(STATEMENT_DESCRIPTOR_NOT_ALLOWED_CHARS, '')
                 .strip
                 .upcase[0...STATEMENT_DESCRIPTOR_MAX_CHARS]

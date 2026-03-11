@@ -53,9 +53,8 @@ RSpec.describe SpreeStripe::CompleteOrder, :vcr do
         expect(order.completed_at).to be_present
       end
 
-      it 'enqueues a job to attach the customer to the credit card' do
-        expect { subject }.to have_enqueued_job(SpreeStripe::AttachCustomerToCreditCardJob).with(order.id)
-      end
+      # customer attachment is tested in order_completed_subscriber_spec.rb
+      # as it happens asynchronously via AttachCustomerToCreditCardJob
     end
 
     context 'for an order with a sepa debit payment intent in processing state', vcr: { cassette_name: 'processing_sepa_debit_payment_intent' } do

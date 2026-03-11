@@ -21,5 +21,7 @@ task :test_app do
     install_storefront: true,
     install_admin: true
   )
+  system({ 'BUNDLE_GEMFILE' => File.expand_path('Gemfile', __dir__) }, 'rails g spree_posts:install')
   system({ 'BUNDLE_GEMFILE' => File.expand_path('Gemfile', __dir__) }, 'rails g spree_legacy_api_v2:install')
+  system({ 'BUNDLE_GEMFILE' => File.expand_path('Gemfile', __dir__) }, 'rails g spree_legacy_product_properties:install')
 end

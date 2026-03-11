@@ -53,10 +53,8 @@ RSpec.describe SpreeStripe::CompleteOrder, :vcr do
         expect(order.completed_at).to be_present
       end
 
-      it 'attaches the customer to the credit card' do
-        subject
-        expect(user.reload.default_credit_card.gateway_customer_profile_id).to eq(customer_id)
-        expect(user.reload.default_credit_card.gateway_customer_id).to eq(stripe_customer.id)
+      it 'enqueues a job to attach the customer to the credit card' do
+        expect { subject }.to have_enqueued_job(SpreeStripe::AttachCustomerToCreditCardJob).with(order.id)
       end
     end
 

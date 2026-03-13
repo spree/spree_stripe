@@ -227,5 +227,25 @@ RSpec.describe SpreeStripe::CreateSource do
         expect(subject).to be_a(SpreeStripe::PaymentSources::Link)
       end
     end
+
+    context 'if source is cashapp' do
+      let(:payment_method_details) { Stripe::StripeObject.construct_from(type: 'cashapp') }
+
+      it 'creates a generic PaymentSource' do
+        expect(subject).to be_a(Spree::PaymentSource)
+        expect(subject.gateway_payment_profile_id).to eq source_id
+        expect(subject.payment_method).to eq gateway
+      end
+    end
+
+    context 'if source is an unknown type' do
+      let(:payment_method_details) { Stripe::StripeObject.construct_from(type: 'some_future_method') }
+
+      it 'creates a generic PaymentSource' do
+        expect(subject).to be_a(Spree::PaymentSource)
+        expect(subject.gateway_payment_profile_id).to eq source_id
+        expect(subject.payment_method).to eq gateway
+      end
+    end
   end
 end

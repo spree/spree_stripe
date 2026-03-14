@@ -178,25 +178,81 @@ RSpec.describe SpreeStripe::Gateway::PaymentSessions do
       create(:stripe_payment_session,
              order: order,
              payment_method: gateway,
+             amount: order.total,
              external_id: 'pi_complete_123')
     end
 
-    context 'when the payment intent is accepted' do
-      let(:stripe_pi) { Stripe::StripeObject.construct_from(id: 'pi_complete_123', status: 'succeeded', payment_method: { type: 'card' }) }
+    let(:stripe_charge) do
+      Stripe::StripeObject.construct_from(
+        id: 'ch_test_123',
+        payment_method: 'pm_test_123',
+        billing_details: {
+          name: 'John Doe',
+          email: 'john@example.com',
+          phone: nil,
+          address: { line1: nil, line2: nil, city: nil, state: nil, postal_code: nil, country: 'US' }
+        },
+        payment_method_details: { type: 'card', card: { brand: 'visa', last4: '4242', exp_month: 12, exp_year: 2025 } }
+      )
+    end
+
+    context 'when the payment intent is accepted and succeeded' do
+      let(:stripe_pi) { Stripe::StripeObject.construct_from(id: 'pi_complete_123', status: 'succeeded', latest_charge: 'ch_test_123', payment_method: { type: 'card' }) }
 
       before do
         allow(gateway).to receive(:retrieve_payment_intent).and_return(stripe_pi)
-        allow(SpreeStripe::CompleteOrder).to receive_message_chain(:new, :call).and_return(order)
+        allow(gateway).to receive(:retrieve_charge).and_return(stripe_charge)
+        allow(payment_session).to receive(:find_or_create_payment!).and_return(
+          create(:payment, order: order, payment_method: gateway, amount: order.total, state: 'checkout')
+        )
       end
 
-      it 'processes and completes the session' do
+      it 'completes the session' do
         gateway.complete_payment_session(payment_session: payment_session)
-        payment_session.reload
-        expect(payment_session.status).to eq('completed')
+        expect(payment_session.reload.status).to eq('completed')
       end
 
-      it 'calls CompleteOrder with the payment session' do
-        expect(SpreeStripe::CompleteOrder).to receive(:new).with(payment_intent: payment_session).and_return(double(call: order))
+      it 'creates a payment record' do
+        expect(payment_session).to receive(:find_or_create_payment!)
+        gateway.complete_payment_session(payment_session: payment_session)
+      end
+
+      it 'does not call CompleteOrder or complete the order' do
+        expect(SpreeStripe::CompleteOrder).not_to receive(:new)
+        gateway.complete_payment_session(payment_session: payment_session)
+        expect(order.reload.state).not_to eq('complete')
+      end
+
+      it 'patches wallet billing address from charge' do
+        order.update!(bill_address: nil)
+        gateway.complete_payment_session(payment_session: payment_session)
+        order.reload
+        expect(order.email).to be_present
+      end
+    end
+
+    context 'when the payment intent is accepted but not succeeded (requires_action with charge_not_required)' do
+      let(:stripe_pi) do
+        Stripe::StripeObject.construct_from(
+          id: 'pi_complete_123',
+          status: 'requires_action',
+          latest_charge: 'ch_test_123',
+          payment_method: { type: 'card' },
+          next_action: { type: 'setup_future_usage' }
+        )
+      end
+      let(:payment) { create(:payment, order: order, payment_method: gateway, amount: order.total, state: 'checkout') }
+
+      before do
+        allow(gateway).to receive(:retrieve_payment_intent).and_return(stripe_pi)
+        allow(gateway).to receive(:retrieve_charge).and_return(stripe_charge)
+        allow(gateway).to receive(:payment_intent_accepted?).and_return(true)
+        allow(payment_session).to receive(:find_or_create_payment!).and_return(payment)
+        allow(payment_session).to receive(:payment).and_return(payment)
+      end
+
+      it 'authorizes the payment instead of processing' do
+        expect(payment).to receive(:authorize!)
         gateway.complete_payment_session(payment_session: payment_session)
       end
     end
@@ -213,8 +269,8 @@ RSpec.describe SpreeStripe::Gateway::PaymentSessions do
         expect(payment_session.reload.status).to eq('failed')
       end
 
-      it 'does not call CompleteOrder' do
-        expect(SpreeStripe::CompleteOrder).not_to receive(:new)
+      it 'does not create a payment' do
+        expect(payment_session).not_to receive(:find_or_create_payment!)
         gateway.complete_payment_session(payment_session: payment_session)
       end
     end
@@ -230,6 +286,104 @@ RSpec.describe SpreeStripe::Gateway::PaymentSessions do
       it 'does not fail a completed session' do
         gateway.complete_payment_session(payment_session: payment_session)
         expect(payment_session.reload.status).to eq('completed')
+      end
+    end
+  end
+
+  describe '#parse_webhook_event' do
+    let(:raw_body) { '{"id": "evt_test"}' }
+    let(:headers) { { 'HTTP_STRIPE_SIGNATURE' => 'sig_test' } }
+
+    context 'with payment_intent.succeeded event' do
+      let(:stripe_event) do
+        Stripe::StripeObject.construct_from(
+          type: 'payment_intent.succeeded',
+          data: { object: { id: 'pi_webhook_123' } }
+        )
+      end
+      let!(:payment_session) do
+        create(:stripe_payment_session, order: order, payment_method: gateway, external_id: 'pi_webhook_123')
+      end
+
+      before do
+        allow(gateway).to receive(:verify_webhook_signature).and_return(stripe_event)
+      end
+
+      it 'returns captured action with payment session' do
+        result = gateway.parse_webhook_event(raw_body, headers)
+
+        expect(result[:action]).to eq(:captured)
+        expect(result[:payment_session]).to eq(payment_session)
+      end
+    end
+
+    context 'with payment_intent.payment_failed event' do
+      let(:stripe_event) do
+        Stripe::StripeObject.construct_from(
+          type: 'payment_intent.payment_failed',
+          data: { object: { id: 'pi_failed_123' } }
+        )
+      end
+      let!(:payment_session) do
+        create(:stripe_payment_session, order: order, payment_method: gateway, external_id: 'pi_failed_123')
+      end
+
+      before do
+        allow(gateway).to receive(:verify_webhook_signature).and_return(stripe_event)
+      end
+
+      it 'returns failed action' do
+        result = gateway.parse_webhook_event(raw_body, headers)
+
+        expect(result[:action]).to eq(:failed)
+        expect(result[:payment_session]).to eq(payment_session)
+      end
+    end
+
+    context 'with unsupported event type' do
+      let(:stripe_event) do
+        Stripe::StripeObject.construct_from(
+          type: 'customer.created',
+          data: { object: { id: 'cus_123' } }
+        )
+      end
+
+      before do
+        allow(gateway).to receive(:verify_webhook_signature).and_return(stripe_event)
+      end
+
+      it 'returns nil' do
+        expect(gateway.parse_webhook_event(raw_body, headers)).to be_nil
+      end
+    end
+
+    context 'when payment session is not found' do
+      let(:stripe_event) do
+        Stripe::StripeObject.construct_from(
+          type: 'payment_intent.succeeded',
+          data: { object: { id: 'pi_unknown_123' } }
+        )
+      end
+
+      before do
+        allow(gateway).to receive(:verify_webhook_signature).and_return(stripe_event)
+      end
+
+      it 'returns nil' do
+        expect(gateway.parse_webhook_event(raw_body, headers)).to be_nil
+      end
+    end
+
+    context 'with invalid signature' do
+      before do
+        allow(gateway).to receive(:verify_webhook_signature)
+          .and_raise(Spree::PaymentMethod::WebhookSignatureError)
+      end
+
+      it 'raises WebhookSignatureError' do
+        expect {
+          gateway.parse_webhook_event(raw_body, headers)
+        }.to raise_error(Spree::PaymentMethod::WebhookSignatureError)
       end
     end
   end

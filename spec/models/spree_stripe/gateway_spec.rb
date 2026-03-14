@@ -248,8 +248,19 @@ RSpec.describe SpreeStripe::Gateway do
   describe '#webhook_url' do
     subject { gateway.webhook_url }
 
-    it 'returns the webhook url' do
-      expect(subject).to eq("https://#{store.url}/stripe/")
+    it 'returns the core webhook url by default' do
+      expect(subject).to eq("#{store.formatted_url}/api/v3/webhooks/payments/#{gateway.prefixed_id}")
+    end
+
+    context 'with legacy webhook handlers enabled' do
+      before do
+        allow(SpreeStripe::Config).to receive(:[]).and_call_original
+        allow(SpreeStripe::Config).to receive(:[]).with(:use_legacy_webhook_handlers).and_return(true)
+      end
+
+      it 'returns the StripeEvent webhook url' do
+        expect(subject).to eq("https://#{store.url}/stripe/")
+      end
     end
   end
 

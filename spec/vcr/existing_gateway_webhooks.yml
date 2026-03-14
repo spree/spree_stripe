@@ -488,7 +488,7 @@ http_interactions:
           ],
           "livemode": false,
           "metadata": {},
-          "secret": "whsec_SyIV35ADfj4Iv9kTfXm4vfr9It0hIetN",
+          "secret": "whsec_FILTERED",
           "status": "enabled",
           "url": "http://spreecommerce.org:3000/api/v3/webhooks/payments/pm_UkLWZg9DAJ"
         }

@@ -29,16 +29,16 @@ module SpreeStripe
     def parse_webhook_event(raw_body, headers)
       event = verify_webhook_signature(raw_body, headers)
 
+      payment_session = Spree::PaymentSessions::Stripe.find_by(
+        payment_method: self,
+        external_id: event.data.object[:id]
+      )
+      return nil unless payment_session
+
       case event.type
       when 'payment_intent.succeeded'
-        payment_session = Spree::PaymentSessions::Stripe.find_by(external_id: event.data.object[:id])
-        return nil unless payment_session
-
         { action: :captured, payment_session: payment_session, metadata: { stripe_event: event } }
       when 'payment_intent.payment_failed'
-        payment_session = Spree::PaymentSessions::Stripe.find_by(external_id: event.data.object[:id])
-        return nil unless payment_session
-
         { action: :failed, payment_session: payment_session, metadata: { stripe_event: event } }
       else
         nil

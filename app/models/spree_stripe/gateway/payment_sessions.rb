@@ -153,11 +153,12 @@ module SpreeStripe
         order.bill_address.state_name ||= state_name
 
         if order.bill_address.invalid?
+          return if order.ship_address.blank?
+
           order.bill_address = order.ship_address
-        else
-          order.bill_address.save!
         end
 
+        order.bill_address.save! if order.bill_address&.changed?
         order.save!
 
         copy_bill_info_to_user(order) if order.user.present?

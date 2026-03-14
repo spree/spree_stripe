@@ -14,6 +14,9 @@ RSpec.describe SpreeStripe::CreateGatewayWebhooks do
 
     before do
       allow_any_instance_of(Spree::Store).to receive(:url).and_return('spreecommerce.org')
+      # VCR cassettes were recorded with the legacy StripeEvent webhook URL format
+      allow(SpreeStripe::Config).to receive(:[]).and_call_original
+      allow(SpreeStripe::Config).to receive(:[]).with(:use_legacy_webhook_handlers).and_return(true)
     end
 
     it 'creates a webhook endpoint', vcr: { cassette_name: 'create_gateway_webhooks' } do

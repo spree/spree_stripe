@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git mv:*)",
+      "Bash(for f in app/serializers/spree/api/v2/platform/*.rb)",
+      "Bash(do git mv \"$f\" lib/spree_api_v2/spree/api/v2/platform/)",
+      "Bash(done)",
+      "Bash(for f in app/serializers/spree/v2/storefront/*.rb)",
+      "Bash(do git mv \"$f\" lib/spree_api_v2/spree/v2/storefront/)",
+      "Bash(find:*)",
+      "Bash(git rm:*)",
+      "Bash(bundle exec rake:*)",
+      "Bash(bundle exec rspec:*)",
+      "Bash(bundle exec ruby:*)",
+      "Bash(bundle list:*)",
+      "Bash(git reset:*)",
+      "Bash(git checkout:*)",
+      "Bash(bundle install:*)",
+      "Bash(bundle show:*)"
+    ]
+  }
+}

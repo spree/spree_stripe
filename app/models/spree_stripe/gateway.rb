@@ -16,7 +16,33 @@ module SpreeStripe
     after_commit :register_domain, on: :create
 
     def webhook_url
-      StripeEvent::Engine.routes.url_helpers.root_url(host: stores.first.url, protocol: 'https')
+      store = stores.first
+      return nil unless store
+
+      if SpreeStripe::Config[:use_legacy_webhook_handlers]
+        StripeEvent::Engine.routes.url_helpers.root_url(host: store.url, protocol: 'https')
+      else
+        "#{store.formatted_url}/api/v3/webhooks/payments/#{prefixed_id}"
+      end
+    end
+
+    def parse_webhook_event(raw_body, headers)
+      event = verify_webhook_signature(raw_body, headers)
+
+      case event.type
+      when 'payment_intent.succeeded'
+        payment_session = Spree::PaymentSessions::Stripe.find_by(external_id: event.data.object[:id])
+        return nil unless payment_session
+
+        { action: :captured, payment_session: payment_session, metadata: { stripe_event: event } }
+      when 'payment_intent.payment_failed'
+        payment_session = Spree::PaymentSessions::Stripe.find_by(external_id: event.data.object[:id])
+        return nil unless payment_session
+
+        { action: :failed, payment_session: payment_session, metadata: { stripe_event: event } }
+      else
+        nil
+      end
     end
 
     def provider_class
@@ -327,6 +353,30 @@ module SpreeStripe
       email = order&.email || user&.email
 
       SpreeStripe::CustomerPresenter.new(name: name, email: email, address: address).call
+    end
+
+    def verify_webhook_signature(raw_body, headers)
+      signature = headers['HTTP_STRIPE_SIGNATURE']
+      signing_secrets = webhook_signing_secrets
+
+      signing_secrets.each do |secret|
+        return Stripe::Webhook.construct_event(raw_body, signature, secret)
+      rescue Stripe::SignatureVerificationError
+        next
+      end
+
+      raise Spree::PaymentMethod::WebhookSignatureError, 'Invalid webhook signature'
+    end
+
+    def webhook_signing_secrets
+      secrets = SpreeStripe::WebhookKey
+        .joins(:payment_methods_webhook_keys)
+        .where(payment_methods_webhook_keys: { payment_method_id: id })
+        .pluck(:signing_secret)
+        .compact
+
+      secrets << ENV['STRIPE_SIGNING_SECRET'] if ENV['STRIPE_SIGNING_SECRET'].present?
+      secrets
     end
   end
 end

@@ -1010,6 +1010,28 @@ RSpec.describe SpreeStripe::Gateway do
     end
   end
 
+  describe '#restricted_api_key?' do
+    subject { gateway.restricted_api_key? }
+
+    context 'when the secret key starts with rk_' do
+      before { gateway.preferred_secret_key = 'rk_live_abc123' }
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when the secret key starts with sk_' do
+      before { gateway.preferred_secret_key = 'sk_live_abc123' }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when the secret key is nil' do
+      before { gateway.preferred_secret_key = nil }
+
+      it { is_expected.to be(false) }
+    end
+  end
+
   describe '#void' do
     subject(:void) { gateway.void(payment_intent_id, nil, nil) }
 

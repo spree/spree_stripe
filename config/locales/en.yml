@@ -3,6 +3,11 @@ en:
   spree:
     bank_transfer: Bank Transfer
     stripe:
+      errors:
+        publishable_key_used: You have provided your publishable key instead of your secret key
+        rak_missing_permissions: Your Restricted API Key is missing required permissions. Please reinstall the Spree Commerce app from the Stripe App Marketplace to get a correctly scoped key.
+      configuration_guide:
+        rak_migration_tip: "Tip: You can switch to a Restricted API Key for improved security. Install the Spree Commerce app from the Stripe App Marketplace to get a scoped key with only the permissions Spree needs."
       payment_intent_errors:
         canceled: Payment intent canceled
         processing: Payment intent processing

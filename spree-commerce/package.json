@@ -1,6 +1,6 @@
 {
   "name": "com.spreecommerce.spree-commerce",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Spree Commerce",
   "license": "BSD-3-Clause",
   "dependencies": {
@@ -8,7 +8,7 @@
     "stripe": "^13.4.0"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=18"
   },
   "eslintConfig": {
     "extends": [

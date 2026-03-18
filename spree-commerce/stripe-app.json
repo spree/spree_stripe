@@ -2,7 +2,7 @@
   "$schema": "https://stripe.com/stripe-app.schema.json",
   "id": "com.spreecommerce.spree-commerce",
   "name": "Spree Commerce",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "icon": "./icon.png",
   "ui_extension": {
     "views": [
@@ -50,14 +50,6 @@
       "purpose": "Retrieve charge and refund details from completed payment intents"
     },
     {
-      "permission": "checkout_session_write",
-      "purpose": "Create checkout sessions for Stripe-hosted payment flows"
-    },
-    {
-      "permission": "checkout_session_read",
-      "purpose": "Retrieve checkout session status and details"
-    },
-    {
       "permission": "tax_calculations_and_transactions_write",
       "purpose": "Calculate and record tax for orders using Stripe Tax"
     },
@@ -66,9 +58,27 @@
       "purpose": "Retrieve tax calculation details"
     },
     {
+      "permission": "setup_intent_write",
+      "purpose": "Create setup intents for saving payment methods to customer profiles"
+    },
+    {
+      "permission": "payment_method_domain_write",
+      "purpose": "Register store domains for Apple Pay and other wallet payment methods"
+    },
+    {
+      "permission": "webhook_write",
+      "purpose": "Create webhook endpoints automatically when setting up Stripe payment method for receiving Stripe event notifications"
+    },
+    {
+      "permission": "webhook_read",
+      "purpose": "List existing webhook endpoints to avoid duplicates"
+    },
+    {
       "permission": "connected_account_read",
       "purpose": "Read connected account information for multi-vendor support"
     }
   ],
-  "stripe_api_access_type": "restricted_api_key"
+  "distribution_type": "public",
+  "stripe_api_access_type": "restricted_api_key",
+  "sandbox_install_compatible": true
 }

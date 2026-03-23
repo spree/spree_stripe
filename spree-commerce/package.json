@@ -1,6 +1,6 @@
 {
   "name": "com.spreecommerce.spree-commerce",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Spree Commerce",
   "license": "BSD-3-Clause",
   "dependencies": {

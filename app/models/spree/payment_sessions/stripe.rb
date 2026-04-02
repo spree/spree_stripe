@@ -39,7 +39,7 @@ module Spree
       payment_method.payment_intent_charge_not_required?(stripe_payment_intent)
     end
 
-    def find_or_create_payment!
+    def find_or_create_payment!(metadata = {})
       return unless persisted?
       return payment if payment.present?
 

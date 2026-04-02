@@ -135,6 +135,14 @@ RSpec.describe Spree::PaymentSessions::Stripe, type: :model do
 
       expect(payment_session.find_or_create_payment!).to eq(mock_payment)
     end
+
+    it 'accepts metadata argument without error' do
+      mock_payment = build(:payment, order: order, payment_method: gateway)
+      service = instance_double(SpreeStripe::CreatePayment, call: mock_payment)
+      allow(SpreeStripe::CreatePayment).to receive(:new).and_return(service)
+
+      expect(payment_session.find_or_create_payment!(charge_id: 'ch_123')).to eq(mock_payment)
+    end
   end
 
   describe 'state machine' do

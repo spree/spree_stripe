@@ -8,7 +8,7 @@ module SpreeStripe
       attributes_to_update = { stripe_apple_pay_domain_id: payment_method_domain.id }
 
       tld_length = model.url.split('.').length
-      if tld_length > 2 && model.is_a?(Spree::CustomDomain)
+      if tld_length > 2 && defined?(Spree::CustomDomain) && model.is_a?(Spree::CustomDomain)
         top_level_domain_name = model.url.split('.').last(tld_length - 1).join('.')
         top_level_domain = gateway.send_request { |opts| Stripe::PaymentMethodDomain.create({ domain_name: top_level_domain_name }, opts) }
         attributes_to_update[:stripe_top_level_domain_id] = top_level_domain.id

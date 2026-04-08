@@ -294,6 +294,10 @@ module SpreeStripe
       payment.source.update(gateway_customer_profile_id: customer.profile_id) if payment.source.present? && customer.present?
     end
 
+    def restricted_api_key?
+      preferred_secret_key&.start_with?('rk_')
+    end
+
     def api_options
       { api_key: preferred_secret_key }
     end
@@ -305,11 +309,15 @@ module SpreeStripe
     private
 
     def validate_secret_key
-      Stripe::Refund.list({ limit: 0 }, api_options)
+      Stripe::PaymentIntent.list({ limit: 1 }, api_options)
     rescue Stripe::AuthenticationError
       errors.add(:base, 'Secret key is invalid')
     rescue Stripe::PermissionError => e
-      errors.add(:base, 'You have provided your publishable key instead of your secret key') if e.error&.code == 'secret_key_required'
+      if e.error&.code == 'secret_key_required'
+        errors.add(:base, I18n.t('spree.stripe.errors.publishable_key_used'))
+      else
+        errors.add(:base, I18n.t('spree.stripe.errors.rak_missing_permissions'))
+      end
     rescue Stripe::StripeError
       errors.add(:base, 'Something went wrong with Stripe. Try again later.')
     end

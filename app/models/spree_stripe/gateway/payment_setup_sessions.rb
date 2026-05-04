@@ -11,12 +11,6 @@ module SpreeStripe
         Spree::PaymentSetupSessions::Stripe
       end
 
-      # Creates a Stripe SetupIntent and persists a Spree::PaymentSetupSession
-      # so the storefront can confirm card setup with Stripe Elements / Mobile SDK.
-      #
-      # @param customer [Spree.user_class] the customer the setup session belongs to
-      # @param external_data [Hash] optional gateway-specific data to persist
-      # @return [Spree::PaymentSetupSessions::Stripe]
       def create_payment_setup_session(customer:, external_data: {})
         gateway_customer = fetch_or_create_customer(user: customer)
 
@@ -29,25 +23,20 @@ module SpreeStripe
           status: 'pending',
           external_id: setup_intent_response.params['id'],
           external_client_secret: setup_intent_response.authorization,
-          external_data: {
+          external_data: external_data.to_h.stringify_keys.merge(
             'customer_id' => gateway_customer.profile_id,
             'ephemeral_key_secret' => ephemeral_key_response&.params&.dig('secret')
-          }.merge(external_data.to_h.stringify_keys).compact
+          ).compact
         )
       end
 
-      # Completes the setup session by verifying the SetupIntent with Stripe and
-      # creating the corresponding payment source for the customer.
-      #
-      # @param setup_session [Spree::PaymentSetupSessions::Stripe]
-      # @param params [Hash] unused, kept for interface compatibility
       def complete_payment_setup_session(setup_session:, params: {})
         stripe_setup_intent = retrieve_setup_intent(setup_session.external_id)
 
         if stripe_setup_intent.status == 'succeeded'
           setup_session.process if setup_session.can_process?
 
-          stripe_payment_method = retrieve_payment_method(stripe_setup_intent.payment_method)
+          stripe_payment_method = stripe_setup_intent.payment_method
 
           source = SpreeStripe::CreateSource.new(
             stripe_payment_method_details: stripe_payment_method,
@@ -57,7 +46,7 @@ module SpreeStripe
             user: setup_session.customer
           ).call
 
-          setup_session.update!(payment_source: source)
+          setup_session.payment_source = source
           setup_session.complete unless setup_session.completed?
         else
           setup_session.fail if setup_session.can_fail?
@@ -67,11 +56,7 @@ module SpreeStripe
       end
 
       def retrieve_setup_intent(setup_intent_id)
-        send_request { |opts| Stripe::SetupIntent.retrieve(setup_intent_id, opts) }
-      end
-
-      def retrieve_payment_method(payment_method_id)
-        send_request { |opts| Stripe::PaymentMethod.retrieve(payment_method_id, opts) }
+        send_request { |opts| Stripe::SetupIntent.retrieve({ id: setup_intent_id, expand: ['payment_method'] }, opts) }
       end
     end
   end

@@ -1130,13 +1130,12 @@ RSpec.describe SpreeStripe::Gateway do
         Stripe::StripeObject.construct_from(
           id: 'seti_test_xyz',
           status: 'succeeded',
-          payment_method: 'pm_card_visa'
+          payment_method: stripe_payment_method
         )
       end
 
       before do
         allow(gateway).to receive(:retrieve_setup_intent).with('seti_test_xyz').and_return(stripe_setup_intent)
-        allow(gateway).to receive(:retrieve_payment_method).with('pm_card_visa').and_return(stripe_payment_method)
       end
 
       it 'creates a payment source and completes the session' do
@@ -1163,11 +1162,13 @@ RSpec.describe SpreeStripe::Gateway do
         allow(gateway).to receive(:retrieve_setup_intent).with('seti_test_xyz').and_return(stripe_setup_intent)
       end
 
-      it 'fails the session' do
-        subject
+      it 'fails the session without creating a source' do
+        expect(SpreeStripe::CreateSource).not_to receive(:new)
+        expect { subject }.not_to change(Spree::CreditCard, :count)
 
         setup_session.reload
         expect(setup_session.status).to eq('failed')
+        expect(setup_session.payment_source).to be_nil
       end
     end
   end

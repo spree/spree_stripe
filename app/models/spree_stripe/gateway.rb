@@ -2,6 +2,7 @@ module SpreeStripe
   class Gateway < ::Spree::Gateway
     include SpreeStripe::Gateway::PaymentIntents
     include SpreeStripe::Gateway::PaymentSessions
+    include SpreeStripe::Gateway::PaymentSetupSessions
     include SpreeStripe::Gateway::Tax if defined?(SpreeStripe::Gateway::Tax)
 
     preference :publishable_key, :password

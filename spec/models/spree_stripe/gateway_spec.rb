@@ -1031,4 +1031,144 @@ RSpec.describe SpreeStripe::Gateway do
       end
     end
   end
+
+  describe '#setup_session_supported?' do
+    it 'returns true' do
+      expect(gateway.setup_session_supported?).to be(true)
+    end
+  end
+
+  describe '#payment_setup_session_class' do
+    it 'returns the Stripe STI subclass' do
+      expect(gateway.payment_setup_session_class).to eq(Spree::PaymentSetupSessions::Stripe)
+    end
+  end
+
+  describe '#create_payment_setup_session' do
+    subject { gateway.create_payment_setup_session(customer: user) }
+
+    let(:user) { create(:user) }
+
+    context 'when user has no saved Stripe customer' do
+      it 'creates the gateway customer and a Stripe payment setup session' do
+        VCR.use_cassette('create_payment_setup_session') do
+          expect { subject }.to change(gateway.gateway_customers, :count).by(1)
+                            .and change(Spree::PaymentSetupSession, :count).by(1)
+
+          expect(subject).to be_a(Spree::PaymentSetupSessions::Stripe)
+          expect(subject).to be_persisted
+          expect(subject.customer).to eq(user)
+          expect(subject.payment_method).to eq(gateway)
+          expect(subject.status).to eq('pending')
+          expect(subject.external_id).to start_with('seti_')
+          expect(subject.external_client_secret).to include('_secret_')
+          expect(subject.external_data['customer_id']).to start_with('cus_')
+          expect(subject.external_data['ephemeral_key_secret']).to start_with('ek_test_')
+        end
+      end
+    end
+
+    context 'when user has a saved Stripe customer' do
+      let(:saved_customer_id) { 'cus_USE66TMAPae0UB' }
+      let!(:gateway_customer) { create(:gateway_customer, user: user, profile_id: saved_customer_id, payment_method: gateway) }
+
+      it 'reuses the saved customer for the setup session' do
+        VCR.use_cassette('create_payment_setup_session_existing_customer') do
+          expect { subject }.to_not change(gateway.gateway_customers, :count)
+          expect(subject).to be_persisted
+          expect(subject.external_data['customer_id']).to eq(saved_customer_id)
+        end
+      end
+    end
+
+    context 'when external_data is provided' do
+      subject { gateway.create_payment_setup_session(customer: user, external_data: { 'foo' => 'bar' }) }
+
+      it 'merges the provided data into external_data' do
+        VCR.use_cassette('create_payment_setup_session') do
+          expect(subject.external_data).to include('foo' => 'bar')
+          expect(subject.external_data).to include('customer_id', 'ephemeral_key_secret')
+        end
+      end
+    end
+  end
+
+  describe '#complete_payment_setup_session' do
+    subject { gateway.complete_payment_setup_session(setup_session: setup_session) }
+
+    let(:user) { create(:user) }
+    let!(:gateway_customer) { create(:gateway_customer, user: user, payment_method: gateway, profile_id: 'cus_test') }
+    let(:setup_session) do
+      Spree::PaymentSetupSessions::Stripe.create!(
+        customer: user,
+        payment_method: gateway,
+        status: 'pending',
+        external_id: 'seti_test_xyz',
+        external_client_secret: 'seti_test_xyz_secret',
+        external_data: { 'customer_id' => 'cus_test' }
+      )
+    end
+
+    let(:stripe_payment_method) do
+      Stripe::StripeObject.construct_from(
+        id: 'pm_card_visa',
+        type: 'card',
+        billing_details: { name: 'Jane Doe' },
+        card: {
+          brand: 'visa',
+          last4: '4242',
+          exp_month: 12,
+          exp_year: 2030,
+          checks: nil,
+          wallet: nil
+        }
+      )
+    end
+
+    context 'when the SetupIntent succeeded' do
+      let(:stripe_setup_intent) do
+        Stripe::StripeObject.construct_from(
+          id: 'seti_test_xyz',
+          status: 'succeeded',
+          payment_method: 'pm_card_visa'
+        )
+      end
+
+      before do
+        allow(gateway).to receive(:retrieve_setup_intent).with('seti_test_xyz').and_return(stripe_setup_intent)
+        allow(gateway).to receive(:retrieve_payment_method).with('pm_card_visa').and_return(stripe_payment_method)
+      end
+
+      it 'creates a payment source and completes the session' do
+        expect { subject }.to change(Spree::CreditCard, :count).by(1)
+
+        setup_session.reload
+        expect(setup_session.status).to eq('completed')
+        expect(setup_session.payment_source).to be_a(Spree::CreditCard)
+        expect(setup_session.payment_source.gateway_payment_profile_id).to eq('pm_card_visa')
+        expect(setup_session.payment_source.user).to eq(user)
+      end
+    end
+
+    context 'when the SetupIntent has not succeeded' do
+      let(:stripe_setup_intent) do
+        Stripe::StripeObject.construct_from(
+          id: 'seti_test_xyz',
+          status: 'requires_payment_method',
+          payment_method: nil
+        )
+      end
+
+      before do
+        allow(gateway).to receive(:retrieve_setup_intent).with('seti_test_xyz').and_return(stripe_setup_intent)
+      end
+
+      it 'fails the session' do
+        subject
+
+        setup_session.reload
+        expect(setup_session.status).to eq('failed')
+      end
+    end
+  end
 end

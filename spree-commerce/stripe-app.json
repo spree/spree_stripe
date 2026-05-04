@@ -1,0 +1,84 @@
+{
+  "$schema": "https://stripe.com/stripe-app.schema.json",
+  "id": "com.spreecommerce.spree-commerce",
+  "name": "Spree Commerce",
+  "version": "0.0.3",
+  "icon": "./icon.png",
+  "ui_extension": {
+    "views": [
+      {
+        "viewport": "settings",
+        "component": "AppSettings"
+      }
+    ],
+    "content_security_policy": {
+      "purpose": ""
+    }
+  },
+  "extensions": null,
+  "permissions": [
+    {
+      "permission": "payment_intent_write",
+      "purpose": "Create, update, confirm, capture, and cancel payment intents for order processing"
+    },
+    {
+      "permission": "payment_intent_read",
+      "purpose": "Retrieve payment intent details and status"
+    },
+    {
+      "permission": "payment_method_write",
+      "purpose": "Attach payment methods to customers for saved payment sources"
+    },
+    {
+      "permission": "payment_method_read",
+      "purpose": "Retrieve payment method details for display and processing"
+    },
+    {
+      "permission": "customer_write",
+      "purpose": "Create and update Stripe customer profiles linked to Spree users"
+    },
+    {
+      "permission": "customer_read",
+      "purpose": "Retrieve customer details for payment processing"
+    },
+    {
+      "permission": "charge_write",
+      "purpose": "Process refunds for canceled or returned orders"
+    },
+    {
+      "permission": "charge_read",
+      "purpose": "Retrieve charge and refund details from completed payment intents"
+    },
+    {
+      "permission": "tax_calculations_and_transactions_write",
+      "purpose": "Calculate and record tax for orders using Stripe Tax"
+    },
+    {
+      "permission": "tax_calculations_and_transactions_read",
+      "purpose": "Retrieve tax calculation details"
+    },
+    {
+      "permission": "setup_intent_write",
+      "purpose": "Create setup intents for saving payment methods to customer profiles"
+    },
+    {
+      "permission": "payment_method_domain_write",
+      "purpose": "Register store domains for Apple Pay and other wallet payment methods"
+    },
+    {
+      "permission": "webhook_write",
+      "purpose": "Create webhook endpoints automatically when setting up Stripe payment method for receiving Stripe event notifications"
+    },
+    {
+      "permission": "webhook_read",
+      "purpose": "List existing webhook endpoints to avoid duplicates"
+    },
+    {
+      "permission": "connected_account_read",
+      "purpose": "Read connected account information for multi-vendor support"
+    }
+  ],
+  "distribution_type": "public",
+  "stripe_api_access_type": "restricted_api_key",
+  "sandbox_install_compatible": true
+}

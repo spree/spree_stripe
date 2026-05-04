@@ -1,0 +1,12 @@
+<div class="alert alert-info">
+  <div>
+    Please follow
+    <%= external_link_to 'how to configure Stripe payment method in Spree Commerce guide', 'https://spreecommerce.org/docs/integrations/payments/stripe', class: 'alert-link' %>.
+  </div>
+</div>
+
+<% if @payment_method.preferred_secret_key.present? && !@payment_method.restricted_api_key? %>
+  <div class="alert alert-info" role="alert">
+    <%= Spree.t('stripe.configuration_guide.rak_migration_tip') %>
+  </div>
+<% end %>

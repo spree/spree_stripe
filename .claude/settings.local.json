@@ -16,7 +16,9 @@
       "Bash(git reset:*)",
       "Bash(git checkout:*)",
       "Bash(bundle install:*)",
-      "Bash(bundle show:*)"
+      "Bash(bundle show:*)",
+      "mcp__claude_ai_Spree_Commerce_Docs_MCP__search_spree_commerce_documentation",
+      "mcp__claude_ai_Spree_Commerce_Docs_MCP__query_docs_filesystem_spree_commerce_documentation"
     ]
   }
 }

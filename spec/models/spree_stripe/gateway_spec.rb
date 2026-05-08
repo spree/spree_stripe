@@ -12,11 +12,13 @@ RSpec.describe SpreeStripe::Gateway do
       Stripe::StripeObject.construct_from(
         id: 'pi_123',
         status: payment_intent_status,
+        capture_method: capture_method,
         payment_method: {
           type: payment_method_type
         }
       )
     }
+    let(:capture_method) { 'automatic' }
 
     context 'for a card payment method' do
       let(:payment_method_type) { 'card' }
@@ -43,6 +45,22 @@ RSpec.describe SpreeStripe::Gateway do
         let(:payment_intent_status) { 'failed' }
 
         it { is_expected.to be(false) }
+      end
+
+      context 'when the payment intent status is requires_capture' do
+        let(:payment_intent_status) { 'requires_capture' }
+
+        context 'when capture_method is manual' do
+          let(:capture_method) { 'manual' }
+
+          it { is_expected.to be(true) }
+        end
+
+        context 'when capture_method is automatic' do
+          let(:capture_method) { 'automatic' }
+
+          it { is_expected.to be(false) }
+        end
       end
     end
 
@@ -361,6 +379,36 @@ RSpec.describe SpreeStripe::Gateway do
         end
       end
     end
+
+    context 'when auto_capture is false on the gateway' do
+      before { gateway.update!(auto_capture: false) }
+
+      it 'forwards capture_method: manual to the PaymentIntentPresenter' do
+        expect(SpreeStripe::PaymentIntentPresenter).to receive(:new).with(
+          hash_including(capture_method: 'manual')
+        ).and_call_original
+
+        VCR.use_cassette('create_payment_intent_manual_capture') do
+          expect(subject.success?).to be(true)
+          expect(subject.params['capture_method']).to eq('manual')
+          expect(subject.params['status']).to eq('requires_payment_method')
+        end
+      end
+    end
+
+    context 'when auto_capture is true on the gateway' do
+      before { gateway.update!(auto_capture: true) }
+
+      it 'does not forward capture_method to the PaymentIntentPresenter' do
+        expect(SpreeStripe::PaymentIntentPresenter).to receive(:new).with(
+          hash_including(capture_method: nil)
+        ).and_call_original
+
+        VCR.use_cassette('create_payment_intent') do
+          expect(subject.success?).to be(true)
+        end
+      end
+    end
   end
 
   describe '#update_payment_intent' do
@@ -603,6 +651,179 @@ RSpec.describe SpreeStripe::Gateway do
         expect(subject.success?).to be(false)
         expect(payment.reload.state).to eq 'checkout'
       end
+    end
+  end
+
+  describe '#authorize (manual capture)' do
+    subject { gateway.authorize(amount_in_cents, credit_card, { order_id: order_id }) }
+
+    let(:amount_in_cents) { 1000 }
+    let(:order_id) { "#{order.number}-#{payment.number}" }
+    let!(:order) { create(:completed_order_with_totals, number: 'R111098766') }
+    let!(:customer) { create(:gateway_customer, user: order.user, profile_id: customer_id, payment_method: gateway) }
+    let!(:credit_card) { create(:credit_card, gateway_payment_profile_id: payment_method_id, payment_method: gateway) }
+    let!(:payment) { create(:payment, number: 'ABC1DEF3', amount: 10, payment_method: gateway, order: order, source: credit_card, response_code: nil) }
+
+    let(:customer_id) { 'cus_RQdclxFVLH4oau' }
+    let(:payment_method_id) { 'pm_1QXmPJ2ESifGlJezC2py6ZqS' }
+
+    before { gateway.update!(auto_capture: false) }
+
+    it 'creates a manual-capture payment intent and does not capture funds' do
+      VCR.use_cassette('create_payment_intent_with_payment_method_manual_capture') do
+        expect(subject.success?).to be(true)
+        expect(subject.params['capture_method']).to eq('manual')
+        expect(subject.params['status']).to eq('requires_capture')
+      end
+    end
+  end
+
+  describe '#capture' do
+    subject { gateway.capture(amount_in_cents, payment_intent_id) }
+
+    let(:amount_in_cents) { 1000 }
+
+    # We bootstrap a manual-capture PI on Stripe so it sits in `requires_capture`
+    # before the test calls `gateway.capture(...)`. The cassette records both the
+    # bootstrap and the capture, which is faithful to what a real auth-then-capture
+    # flow looks like.
+    context 'when the payment intent is in requires_capture state' do
+      let(:payment_intent_id) do
+        bootstrap = Stripe::PaymentIntent.create(
+          {
+            amount: amount_in_cents,
+            currency: 'usd',
+            payment_method: 'pm_card_visa',
+            confirm: true,
+            capture_method: 'manual',
+            automatic_payment_methods: { enabled: true, allow_redirects: 'never' }
+          },
+          { api_key: gateway.preferred_secret_key }
+        )
+        bootstrap.id
+      end
+
+      it 'captures the payment intent through Stripe' do
+        VCR.use_cassette('capture_payment_intent_requires_capture') do
+          expect(subject.success?).to be(true)
+          expect(subject.authorization).to eq(payment_intent_id)
+          expect(subject.params['status']).to eq('succeeded')
+          expect(subject.params['amount_received']).to eq(amount_in_cents)
+        end
+      end
+    end
+
+    context 'when the payment intent is already succeeded (idempotent capture)' do
+      let(:payment_intent_id) do
+        bootstrap = Stripe::PaymentIntent.create(
+          {
+            amount: amount_in_cents,
+            currency: 'usd',
+            payment_method: 'pm_card_visa',
+            confirm: true,
+            automatic_payment_methods: { enabled: true, allow_redirects: 'never' }
+          },
+          { api_key: gateway.preferred_secret_key }
+        )
+        bootstrap.id
+      end
+
+      it 'returns the existing payment intent without re-capturing' do
+        VCR.use_cassette('capture_payment_intent_already_succeeded') do
+          expect(subject.success?).to be(true)
+          expect(subject.params['status']).to eq('succeeded')
+        end
+      end
+    end
+
+    context 'when the payment intent is in an unsupported state' do
+      let(:payment_intent_id) do
+        bootstrap = Stripe::PaymentIntent.create(
+          {
+            amount: amount_in_cents,
+            currency: 'usd',
+            automatic_payment_methods: { enabled: true, allow_redirects: 'never' }
+          },
+          { api_key: gateway.preferred_secret_key }
+        )
+        bootstrap.id
+      end
+
+      it 'raises a GatewayError' do
+        VCR.use_cassette('capture_payment_intent_unsupported_state') do
+          expect { subject }.to raise_error(Spree::Core::GatewayError, /Payment intent status is/)
+        end
+      end
+    end
+  end
+
+  describe '#parse_webhook_event' do
+    subject(:result) { gateway.parse_webhook_event(raw_body, headers) }
+
+    let(:store) { Spree::Store.default }
+    let(:order) { create(:order_with_line_items, store: store) }
+    let(:raw_body) { '{"id": "evt_test"}' }
+    let(:headers) { { 'HTTP_STRIPE_SIGNATURE' => 'sig_test' } }
+
+    let!(:payment_session) do
+      create(:stripe_payment_session, order: order, payment_method: gateway, external_id: 'pi_webhook_999')
+    end
+
+    let(:stripe_event) do
+      Stripe::StripeObject.construct_from(
+        type: event_type,
+        data: { object: { id: 'pi_webhook_999' } }
+      )
+    end
+
+    before do
+      allow(gateway).to receive(:verify_webhook_signature).and_return(stripe_event)
+    end
+
+    context 'when event is payment_intent.amount_capturable_updated' do
+      let(:event_type) { 'payment_intent.amount_capturable_updated' }
+
+      it 'returns :authorized action and the matching payment session' do
+        expect(result[:action]).to eq(:authorized)
+        expect(result[:payment_session]).to eq(payment_session)
+      end
+    end
+  end
+
+  describe '#payment_intent_manual_capture?' do
+    subject { gateway.payment_intent_manual_capture?(stripe_pi) }
+
+    let(:stripe_pi) { Stripe::StripeObject.construct_from(id: 'pi_x', capture_method: capture_method) }
+
+    context 'when capture_method is manual' do
+      let(:capture_method) { 'manual' }
+      it { is_expected.to be(true) }
+    end
+
+    context 'when capture_method is automatic' do
+      let(:capture_method) { 'automatic' }
+      it { is_expected.to be(false) }
+    end
+
+    context 'when capture_method is missing' do
+      let(:stripe_pi) { Stripe::StripeObject.construct_from(id: 'pi_x') }
+      it { is_expected.to be(false) }
+    end
+  end
+
+  describe '#payment_intent_requires_capture?' do
+    subject { gateway.payment_intent_requires_capture?(stripe_pi) }
+
+    let(:stripe_pi) { Stripe::StripeObject.construct_from(id: 'pi_x', status: status) }
+
+    context 'when status is requires_capture' do
+      let(:status) { 'requires_capture' }
+      it { is_expected.to be(true) }
+    end
+
+    context 'when status is succeeded' do
+      let(:status) { 'succeeded' }
+      it { is_expected.to be(false) }
     end
   end
 

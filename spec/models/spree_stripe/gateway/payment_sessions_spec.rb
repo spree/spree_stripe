@@ -275,6 +275,32 @@ RSpec.describe SpreeStripe::Gateway::PaymentSessions do
       end
     end
 
+    context 'when the payment intent is in requires_capture (manual capture)' do
+      let(:stripe_pi) do
+        Stripe::StripeObject.construct_from(
+          id: 'pi_complete_123',
+          status: 'requires_capture',
+          capture_method: 'manual',
+          latest_charge: nil,
+          payment_method: { type: 'card' }
+        )
+      end
+      let(:payment) { create(:payment, order: order, payment_method: gateway, amount: order.total, state: 'checkout') }
+
+      before do
+        allow(gateway).to receive(:retrieve_payment_intent).and_return(stripe_pi)
+        allow(payment_session).to receive(:find_or_create_payment!).and_return(payment)
+        allow(payment_session).to receive(:payment).and_return(payment)
+      end
+
+      it 'completes the session and authorizes the payment without capturing' do
+        expect(payment).to receive(:authorize!)
+        expect(payment).not_to receive(:process!)
+        gateway.complete_payment_session(payment_session: payment_session)
+        expect(payment_session.reload.status).to eq('completed')
+      end
+    end
+
     context 'when the session is already completed' do
       let(:stripe_pi) { Stripe::StripeObject.construct_from(id: 'pi_complete_123', status: 'requires_payment_method', payment_method: { type: 'card' }) }
 
@@ -336,6 +362,29 @@ RSpec.describe SpreeStripe::Gateway::PaymentSessions do
         result = gateway.parse_webhook_event(raw_body, headers)
 
         expect(result[:action]).to eq(:failed)
+        expect(result[:payment_session]).to eq(payment_session)
+      end
+    end
+
+    context 'with payment_intent.amount_capturable_updated event' do
+      let(:stripe_event) do
+        Stripe::StripeObject.construct_from(
+          type: 'payment_intent.amount_capturable_updated',
+          data: { object: { id: 'pi_authorized_123' } }
+        )
+      end
+      let!(:payment_session) do
+        create(:stripe_payment_session, order: order, payment_method: gateway, external_id: 'pi_authorized_123')
+      end
+
+      before do
+        allow(gateway).to receive(:verify_webhook_signature).and_return(stripe_event)
+      end
+
+      it 'returns authorized action' do
+        result = gateway.parse_webhook_event(raw_body, headers)
+
+        expect(result[:action]).to eq(:authorized)
         expect(result[:payment_session]).to eq(payment_session)
       end
     end

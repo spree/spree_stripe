@@ -8,6 +8,12 @@ module SpreeStripe
     preference :publishable_key, :password
     preference :secret_key, :password
 
+    WEBHOOK_EVENT_ACTIONS = {
+      'payment_intent.succeeded' => :captured,
+      'payment_intent.amount_capturable_updated' => :authorized,
+      'payment_intent.payment_failed' => :failed
+    }.freeze
+
     has_one_attached :apple_developer_merchantid_domain_association, service: Spree.private_storage_service_name
 
     validates :preferred_secret_key, :preferred_publishable_key, presence: true
@@ -30,20 +36,16 @@ module SpreeStripe
     def parse_webhook_event(raw_body, headers)
       event = verify_webhook_signature(raw_body, headers)
 
+      action = WEBHOOK_EVENT_ACTIONS[event.type]
+      return nil unless action
+
       payment_session = Spree::PaymentSessions::Stripe.find_by(
         payment_method: self,
         external_id: event.data.object[:id]
       )
       return nil unless payment_session
 
-      case event.type
-      when 'payment_intent.succeeded'
-        { action: :captured, payment_session: payment_session, metadata: { stripe_event: event } }
-      when 'payment_intent.payment_failed'
-        { action: :failed, payment_session: payment_session, metadata: { stripe_event: event } }
-      else
-        nil
-      end
+      { action: action, payment_session: payment_session, metadata: { stripe_event: event } }
     end
 
     def provider_class
@@ -107,7 +109,7 @@ module SpreeStripe
       protect_from_error do
         stripe_payment_intent = retrieve_payment_intent(payment_intent_id)
 
-        response = if stripe_payment_intent.status == 'requires_capture'
+        response = if payment_intent_requires_capture?(stripe_payment_intent)
                      capture_payment_intent(payment_intent_id, amount_in_cents)
                    elsif stripe_payment_intent.status == 'succeeded'
                      stripe_payment_intent

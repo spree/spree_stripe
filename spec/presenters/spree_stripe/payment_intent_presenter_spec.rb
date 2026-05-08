@@ -195,4 +195,74 @@ RSpec.describe SpreeStripe::PaymentIntentPresenter do
       )
     end
   end
+
+  describe 'capture_method handling' do
+    context 'when capture_method is nil (default)' do
+      it 'does not include capture_method in the payload' do
+        expect(subject).not_to have_key(:capture_method)
+      end
+    end
+
+    context 'when capture_method is "manual"' do
+      let(:presenter) do
+        described_class.new(
+          amount: amount,
+          order: order,
+          customer: customer,
+          payment_method_id: payment_method_id,
+          capture_method: 'manual'
+        )
+      end
+
+      it 'includes capture_method: manual in the payload (new payment method flow)' do
+        expect(subject[:capture_method]).to eq('manual')
+      end
+
+      context 'with a saved payment method' do
+        let(:payment_method_id) { 'pm_123' }
+
+        it 'includes capture_method: manual in the payload' do
+          expect(subject[:capture_method]).to eq('manual')
+        end
+      end
+
+      context 'with off_session and a saved payment method' do
+        let(:payment_method_id) { 'pm_123' }
+        let(:presenter) do
+          described_class.new(
+            amount: amount,
+            order: order,
+            customer: customer,
+            payment_method_id: payment_method_id,
+            off_session: true,
+            capture_method: 'manual'
+          )
+        end
+
+        it 'includes capture_method: manual alongside confirm/off_session' do
+          expect(subject).to include(
+            capture_method: 'manual',
+            off_session: true,
+            confirm: true
+          )
+        end
+      end
+    end
+
+    context 'when capture_method is "automatic"' do
+      let(:presenter) do
+        described_class.new(
+          amount: amount,
+          order: order,
+          customer: customer,
+          payment_method_id: payment_method_id,
+          capture_method: 'automatic'
+        )
+      end
+
+      it 'does not include capture_method (Stripe default)' do
+        expect(subject).not_to have_key(:capture_method)
+      end
+    end
+  end
 end

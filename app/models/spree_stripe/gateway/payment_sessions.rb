@@ -90,7 +90,8 @@ module SpreeStripe
           # Create the Payment record
           payment_session.find_or_create_payment!
 
-          # Process the payment state
+          # `else` covers requires_capture (manual capture), processing (delayed-notification
+          # banks), and requires_action (bank transfer awaiting funds) — all auth-only states.
           payment = payment_session.payment
           if payment.present? && !payment.completed?
             if payment_intent_successful?(stripe_pi)

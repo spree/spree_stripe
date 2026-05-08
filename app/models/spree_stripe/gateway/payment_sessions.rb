@@ -90,10 +90,8 @@ module SpreeStripe
           # Create the Payment record
           payment_session.find_or_create_payment!
 
-          # Process the payment state. When Stripe confirmed and captured (status: succeeded)
-          # we run the regular Spree process flow which honors auto_capture. For manual
-          # capture flows the PI lands in `requires_capture` and we only authorize so the
-          # Spree payment ends up in `pending` until capture is invoked explicitly.
+          # `else` covers requires_capture (manual capture), processing (delayed-notification
+          # banks), and requires_action (bank transfer awaiting funds) — all auth-only states.
           payment = payment_session.payment
           if payment.present? && !payment.completed?
             if payment_intent_successful?(stripe_pi)

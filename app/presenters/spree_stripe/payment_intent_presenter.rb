@@ -1,7 +1,6 @@
 module SpreeStripe
   class PaymentIntentPresenter
     SETUP_FUTURE_USAGE = 'off_session'
-    MANUAL_CAPTURE_METHOD = 'manual'
 
     def initialize(amount:, order:, customer: nil, payment_method_id: nil, off_session: false, capture_method: nil)
       @amount = amount
@@ -21,7 +20,7 @@ module SpreeStripe
                 end
 
       payload = payload.deep_merge(basic_payload)
-      payload = payload.merge(capture_method: MANUAL_CAPTURE_METHOD) if manual_capture?
+      payload = payload.merge(capture_method: SpreeStripe::Gateway::PaymentIntents::MANUAL_CAPTURE_METHOD) if manual_capture?
 
       return payload unless ship_address
 
@@ -55,7 +54,7 @@ module SpreeStripe
     attr_reader :order, :amount, :customer, :ship_address, :payment_method_id, :capture_method
 
     def manual_capture?
-      capture_method.to_s == MANUAL_CAPTURE_METHOD
+      capture_method.to_s == SpreeStripe::Gateway::PaymentIntents::MANUAL_CAPTURE_METHOD
     end
 
     def basic_payload

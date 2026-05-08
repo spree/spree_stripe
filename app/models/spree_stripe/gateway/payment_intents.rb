@@ -137,9 +137,6 @@ module SpreeStripe
 
       private
 
-      # Returns the Stripe capture_method to use for new PaymentIntents based on
-      # the gateway's auto_capture setting. Returns nil to let Stripe default to
-      # automatic capture, otherwise 'manual' for auth-only flows.
       def stripe_capture_method
         auto_capture? ? nil : MANUAL_CAPTURE_METHOD
       end

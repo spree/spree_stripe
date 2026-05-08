@@ -5,6 +5,7 @@ module SpreeStripe
 
       DELAYED_NOTIFICATION_PAYMENT_METHOD_TYPES = %w[sepa_debit us_bank_account].freeze
       BANK_PAYMENT_METHOD_TYPES = %w[customer_balance us_bank_account].freeze
+      MANUAL_CAPTURE_METHOD = 'manual'.freeze
 
       included do
         has_many :payment_intents, class_name: 'SpreeStripe::PaymentIntent', foreign_key: 'payment_method_id', dependent: :delete_all
@@ -32,6 +33,14 @@ module SpreeStripe
         payment_intent.payment_method.type.in?(BANK_PAYMENT_METHOD_TYPES)
       end
 
+      def payment_intent_requires_capture?(payment_intent)
+        payment_intent.status == 'requires_capture'
+      end
+
+      def payment_intent_manual_capture?(payment_intent)
+        payment_intent.respond_to?(:capture_method) && payment_intent.capture_method == MANUAL_CAPTURE_METHOD
+      end
+
       # Creates a Stripe payment intent for the order
       #
       # @param amount_in_cents [Integer] the amount in cents
@@ -46,7 +55,8 @@ module SpreeStripe
           order: order,
           customer: customer_profile_id || fetch_or_create_customer(order: order)&.profile_id,
           payment_method_id: payment_method_id,
-          off_session: off_session
+          off_session: off_session,
+          capture_method: stripe_capture_method
         ).call
 
         protect_from_error do
@@ -127,8 +137,16 @@ module SpreeStripe
 
       private
 
+      # Returns the Stripe capture_method to use for new PaymentIntents based on
+      # the gateway's auto_capture setting. Returns nil to let Stripe default to
+      # automatic capture, otherwise 'manual' for auth-only flows.
+      def stripe_capture_method
+        auto_capture? ? nil : MANUAL_CAPTURE_METHOD
+      end
+
       def payment_intent_accepted_statuses(payment_intent)
         statuses = %w[succeeded]
+        statuses << 'requires_capture' if payment_intent_manual_capture?(payment_intent)
         statuses << 'processing' if payment_intent_delayed_notification?(payment_intent)
         statuses << 'requires_action' if payment_intent_charge_not_required?(payment_intent)
         statuses

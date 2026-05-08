@@ -39,6 +39,8 @@ module SpreeStripe
       case event.type
       when 'payment_intent.succeeded'
         { action: :captured, payment_session: payment_session, metadata: { stripe_event: event } }
+      when 'payment_intent.amount_capturable_updated'
+        { action: :authorized, payment_session: payment_session, metadata: { stripe_event: event } }
       when 'payment_intent.payment_failed'
         { action: :failed, payment_session: payment_session, metadata: { stripe_event: event } }
       else

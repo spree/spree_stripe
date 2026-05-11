@@ -223,11 +223,130 @@ RSpec.describe SpreeStripe::Gateway::PaymentSessions do
         expect(order.reload.state).not_to eq('complete')
       end
 
-      it 'patches wallet billing address from charge' do
-        order.update!(bill_address: nil)
-        gateway.complete_payment_session(payment_session: payment_session)
-        order.reload
-        expect(order.email).to be_present
+      describe 'wallet billing address patching' do
+        # Helper to build a Stripe::Charge stub with overridable billing_details fields.
+        def build_charge(billing_overrides = {}, address_overrides = {})
+          default_address = { line1: nil, line2: nil, city: nil, state: nil, postal_code: nil, country: 'US' }
+          default_billing = { name: 'John Doe', email: 'john@example.com', phone: nil }
+
+          Stripe::StripeObject.construct_from(
+            id: 'ch_test_123',
+            payment_method: 'pm_test_123',
+            billing_details: default_billing.merge(billing_overrides).merge(
+              address: default_address.merge(address_overrides)
+            ),
+            payment_method_details: { type: 'card', card: { brand: 'visa', last4: '4242', exp_month: 12, exp_year: 2025 } }
+          )
+        end
+
+        context 'when the charge billing address has a known country ISO' do
+          it 'looks up the country and assigns it on the bill_address' do
+            order.update!(bill_address: nil)
+
+            gateway.complete_payment_session(payment_session: payment_session)
+
+            order.reload
+            expect(order.bill_address).to be_present
+            expect(order.bill_address.country.iso).to eq('US')
+            expect(order.bill_address.first_name).to eq('John')
+            expect(order.bill_address.last_name).to eq('Doe')
+          end
+        end
+
+        context 'when the charge billing address country is nil' do
+          let(:stripe_charge) { build_charge({}, country: nil) }
+
+          context 'and the store has a default_market with a default_country' do
+            let(:default_country) { Spree::Country.find_by(iso: 'US') || create(:country_us) }
+            let!(:market) do
+              create(:market, store: store, default: true, countries: [default_country])
+            end
+
+            it 'falls back to the store default_market default_country' do
+              order.update!(bill_address: nil)
+              store.reload
+
+              gateway.complete_payment_session(payment_session: payment_session)
+
+              order.reload
+              expect(order.bill_address).to be_present
+              expect(order.bill_address.country).to eq(default_country)
+            end
+          end
+
+          context 'and the store has no default_market' do
+            it 'falls back to the US country as last resort' do
+              order.update!(bill_address: nil)
+              # Ensure the store truly has no markets to force the US fallback path
+              store.markets.destroy_all
+
+              gateway.complete_payment_session(payment_session: payment_session)
+
+              order.reload
+              expect(order.bill_address).to be_present
+              expect(order.bill_address.country.iso).to eq('US')
+            end
+          end
+        end
+
+        context 'when the charge billing address country is an unknown ISO' do
+          let(:stripe_charge) { build_charge({}, country: 'ZZ') }
+
+          it 'ignores the unknown ISO and falls back through the chain' do
+            order.update!(bill_address: nil)
+
+            gateway.complete_payment_session(payment_session: payment_session)
+
+            order.reload
+            expect(order.bill_address).to be_present
+            # Falls through to store.default_market&.default_country or US fallback —
+            # in this test setup, order_with_line_items leaves a US country available.
+            expect(order.bill_address.country.iso).to eq('US')
+          end
+        end
+
+        context 'when the order already has a valid bill_address' do
+          it 'does not modify the bill_address' do
+            original_address = order.bill_address
+            expect(original_address).to be_present
+            expect(original_address).to be_valid
+
+            gateway.complete_payment_session(payment_session: payment_session)
+
+            expect(order.reload.bill_address_id).to eq(original_address.id)
+          end
+        end
+
+        context 'when billing_details email fills a missing order email' do
+          it 'sets the order email from billing_details' do
+            order.update!(email: nil)
+
+            gateway.complete_payment_session(payment_session: payment_session)
+
+            expect(order.reload.email).to eq('john@example.com')
+          end
+        end
+
+        context 'when the latest_charge is missing (no charge to patch from)' do
+          let(:stripe_pi) do
+            Stripe::StripeObject.construct_from(
+              id: 'pi_complete_123',
+              status: 'succeeded',
+              latest_charge: nil,
+              payment_method: { type: 'card' }
+            )
+          end
+
+          it 'does not raise and still completes the session' do
+            order.update!(bill_address: nil)
+
+            expect {
+              gateway.complete_payment_session(payment_session: payment_session)
+            }.not_to raise_error
+
+            expect(payment_session.reload.status).to eq('completed')
+          end
+        end
       end
     end
 

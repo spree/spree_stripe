@@ -129,7 +129,9 @@ module SpreeStripe
         return if order.bill_address.present? && order.bill_address.valid?
 
         country_iso = address.country
-        country = Spree::Country.find_by(iso: country_iso) || Spree::Country.default
+        country = (country_iso.present? && Spree::Country.by_iso(country_iso)) ||
+                  order.store.default_market&.default_country ||
+                  Spree::Country.by_iso('US')
 
         order.bill_address ||= Spree::Address.new(country: country, user: order.user)
         order.bill_address.quick_checkout = true

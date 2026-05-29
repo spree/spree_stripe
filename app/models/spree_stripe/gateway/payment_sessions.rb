@@ -15,7 +15,7 @@ module SpreeStripe
         total = amount.presence || order.total_minus_store_credits
         amount_in_cents = Spree::Money.new(total, currency: order.currency).cents
 
-        return nil if amount_in_cents.zero?
+        raise Spree::Core::GatewayError, I18n.t('spree.stripe.payment_session_errors.zero_amount') if amount_in_cents.zero?
 
         customer = fetch_or_create_customer(order: order)
         stripe_pm_id = external_data[:stripe_payment_method_id] || external_data['stripe_payment_method_id']

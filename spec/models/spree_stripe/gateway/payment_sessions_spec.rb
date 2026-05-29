@@ -83,9 +83,9 @@ RSpec.describe SpreeStripe::Gateway::PaymentSessions do
       expect(session.customer_external_id).to eq('cus_test_123')
     end
 
-    it 'returns nil when amount is zero' do
+    it 'raises a GatewayError when amount is zero' do
       allow(order).to receive(:total_minus_store_credits).and_return(0)
-      expect(subject).to be_nil
+      expect { subject }.to raise_error(Spree::Core::GatewayError, I18n.t('spree.stripe.payment_session_errors.zero_amount'))
     end
 
     context 'with a custom amount' do

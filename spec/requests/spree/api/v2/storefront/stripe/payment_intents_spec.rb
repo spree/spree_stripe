@@ -64,6 +64,37 @@ RSpec.describe Spree::Api::V2::Storefront::Stripe::PaymentIntentsController, typ
       expect(payment_intent.client_secret).to eq(client_secret)
       expect(payment_intent.stripe_payment_method_id).to eq(stripe_payment_method_id)
     end
+
+    context 'when stripe_payment_method_id is not provided' do
+      let(:existing_profile_id) { 'pm_existing_1234567890' }
+      let(:credit_card) { create(:credit_card, payment_method: gateway, gateway_payment_profile_id: existing_profile_id) }
+      let(:params) do
+        {
+          payment_intent: {
+            amount: amount,
+            off_session: off_session
+          }
+        }
+      end
+  
+      before do
+        order.update(total: amount)
+        create(:payment, order: order, payment_method: gateway, source: credit_card, amount: amount, state: 'checkout')
+  
+        allow_any_instance_of(gateway.class).to receive(:create_payment_intent)
+          .with(Spree::Money.new(amount).cents, order, payment_method_id: existing_profile_id, off_session: off_session)
+          .and_return(stripe_response)
+  
+        post '/api/v2/storefront/stripe/payment_intents', headers: headers, params: params
+      end
+  
+      include_context 'returns 200 HTTP status'
+  
+      it "falls back to the gateway payment profile id of the order's existing stripe credit card" do
+        expect(payment_intent).to be_present
+        expect(payment_intent.stripe_payment_method_id).to eq(existing_profile_id)
+      end
+    end
   end
 
   describe 'payment_intents#update' do

@@ -12,7 +12,10 @@ module Spree
               spree_authorize! :update, spree_current_order, order_token
 
               stripe_payment_method_id = permitted_attributes[:stripe_payment_method_id].presence
-              stripe_payment_method_id ||= spree_current_order.valid_credit_cards.where(payment_method: stripe_gateway).first&.gateway_payment_profile_id
+              stripe_payment_method_id ||= Spree::CreditCard.where(
+                id: spree_current_order.payments.from_credit_card.valid.select(:source_id),
+                payment_method: stripe_gateway
+              ).first&.gateway_payment_profile_id
 
               @payment_intent = SpreeStripe::CreatePaymentIntent.new.call(
                 spree_current_order,

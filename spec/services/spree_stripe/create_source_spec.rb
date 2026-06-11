@@ -90,6 +90,7 @@ RSpec.describe SpreeStripe::CreateSource do
           expect(subject.month).to eq 11
           expect(subject.year).to eq 2025
           expect(subject.last_digits).to eq '3522'
+          expect(subject.fingerprint).to eq 'FZqjhq46SWprIY8i'
           expect(subject.gateway_payment_profile_id).to eq source_id
           expect(subject.user).to eq user
           expect(subject.brand).to eq 'master'
@@ -99,6 +100,100 @@ RSpec.describe SpreeStripe::CreateSource do
             'checks' => { 'address_line1_check' => 'unchecked',
                           'address_postal_code_check' => 'unchecked', 'cvc_check' => nil }
           )
+        end
+      end
+    end
+
+    context 'deduplicating the same physical card by fingerprint' do
+      let(:source_id) { 'pm_new' }
+      let!(:customer) { create(:gateway_customer, user: user, payment_method: gateway) }
+
+      context 'when the same card is presented again with a new gateway_payment_profile_id' do
+        let!(:existing_card) do
+          create(:credit_card,
+                 user: user,
+                 payment_method: gateway,
+                 gateway_payment_profile_id: 'pm_old',
+                 fingerprint: 'FZqjhq46SWprIY8i',
+                 month: 11,
+                 year: 2025,
+                 cc_type: 'master')
+        end
+
+        it 'reuses the existing card instead of creating a duplicate' do
+          expect { subject }.not_to change { Spree::CreditCard.count }
+          expect(subject).to eq(existing_card)
+        end
+
+        it 'leaves the existing gateway_payment_profile_id untouched' do
+          subject
+          expect(existing_card.reload.gateway_payment_profile_id).to eq('pm_old')
+        end
+      end
+
+      context 'when a genuinely different card is presented (different fingerprint, same last4)' do
+        let!(:existing_card) do
+          create(:credit_card,
+                 user: user,
+                 payment_method: gateway,
+                 gateway_payment_profile_id: 'pm_old',
+                 fingerprint: 'someOtherFingerprint',
+                 month: 11,
+                 year: 2025,
+                 cc_type: 'master')
+        end
+
+        it 'creates a new card' do
+          expect { subject }.to change { user.credit_cards.count }.by 1
+        end
+      end
+
+      context 'when the same card number is reissued with a new expiry (same fingerprint, different expiry)' do
+        let!(:existing_card) do
+          create(:credit_card,
+                 user: user,
+                 payment_method: gateway,
+                 gateway_payment_profile_id: 'pm_old',
+                 fingerprint: 'FZqjhq46SWprIY8i',
+                 month: 12,
+                 year: 2030,
+                 cc_type: 'master')
+        end
+
+        it 'creates a new card' do
+          expect { subject }.to change { user.credit_cards.count }.by 1
+        end
+      end
+
+      context 'when the incoming card has no fingerprint' do
+        let(:payment_method_details) do
+          Stripe::StripeObject.construct_from(
+            card: Stripe::StripeObject.construct_from(
+              brand: 'mastercard',
+              checks: nil,
+              exp_month: 11,
+              exp_year: 2025,
+              fingerprint: nil,
+              last4: '3522',
+              wallet: nil
+            ),
+            type: 'card'
+          )
+        end
+
+        let!(:existing_card) do
+          create(:credit_card,
+                 user: user,
+                 payment_method: gateway,
+                 gateway_payment_profile_id: 'pm_old',
+                 fingerprint: nil,
+                 month: 11,
+                 year: 2025,
+                 cc_type: 'master')
+        end
+
+        it 'creates a new card' do
+          expect { subject }.to change { user.credit_cards.count }.by 1
         end
       end
     end

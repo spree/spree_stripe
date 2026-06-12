@@ -1340,6 +1340,7 @@ RSpec.describe SpreeStripe::Gateway do
           last4: '4242',
           exp_month: 12,
           exp_year: 2030,
+          fingerprint: 'FZqjhq46SWprIY8i',
           checks: nil,
           wallet: nil
         }

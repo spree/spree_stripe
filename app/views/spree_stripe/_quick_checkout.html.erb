@@ -1,4 +1,5 @@
-<% if quick_checkout_enabled?(@order) && current_stripe_gateway.present? && current_stripe_payment_intent.present? %>
+<%# The Stripe storefront payment flow depends on the legacy Storefront API v2 %>
+<% if defined?(SpreeLegacyApiV2::Engine) && quick_checkout_enabled?(@order) && current_stripe_gateway.present? && current_stripe_payment_intent.present? %>
   <div id="quick-checkout" class="<%= defined?(container_class) ? container_class : nil %>">
     <%= tag.div class: 'w-full', data: {
         controller: 'checkout-stripe-button',

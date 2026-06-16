@@ -1,3 +1,5 @@
+<%# The Stripe storefront payment flow depends on the legacy Storefront API v2 %>
+<% if defined?(SpreeLegacyApiV2::Engine) %>
 <div
   data-controller="checkout-stripe"
   data-checkout-stripe-payment-intent-value="<%= current_stripe_payment_intent.to_json %>"
@@ -64,3 +66,4 @@
     </div>
   </div>
 </div>
+<% end %>

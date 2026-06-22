@@ -1253,6 +1253,33 @@ RSpec.describe SpreeStripe::Gateway do
     end
   end
 
+  describe '#create_ephemeral_key' do
+    subject(:create_ephemeral_key) { gateway.create_ephemeral_key('cus_123') }
+
+    context 'when using a restricted API key' do
+      before { gateway.preferred_secret_key = 'rk_test_abc123' }
+
+      it 'does not create ephemeral key and returns nil' do
+        expect(Stripe::EphemeralKey).not_to receive(:create)
+        expect(create_ephemeral_key).to be_nil
+      end
+    end
+
+    context 'when using a standard secret key' do
+      before do
+        gateway.preferred_secret_key = 'sk_test_abc123'
+        allow(Stripe::EphemeralKey).to receive(:create).and_return(
+          Stripe::StripeObject.construct_from(id: 'ek_123', secret: 'ek_test_secret')
+        )
+      end
+
+      it 'creates the ephemeral key and returns a successful response' do
+        expect(create_ephemeral_key).to be_a(Spree::PaymentResponse)
+        expect(create_ephemeral_key.authorization).to eq('ek_test_secret')
+      end
+    end
+  end
+
   describe '#void' do
     subject(:void) { gateway.void(payment_intent_id, nil, nil) }
 

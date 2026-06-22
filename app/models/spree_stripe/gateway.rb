@@ -197,6 +197,11 @@ module SpreeStripe
     end
 
     def create_ephemeral_key(customer_id)
+      # Restricted API Keys coming from Spree app cannot be granted ephemeral key permissions,
+      # so skip the call entirely rather than letting it fail. This limitation is noted
+      # on the Stripe gateway configuration guide.
+      return if restricted_api_key?
+
       protect_from_error do
         response = send_request { |opts| Stripe::EphemeralKey.create({ customer: customer_id }, opts.merge(stripe_version: Stripe.api_version)) }
 

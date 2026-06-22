@@ -5,8 +5,19 @@
   </div>
 </div>
 
-<% if @payment_method.preferred_secret_key.present? && !@payment_method.restricted_api_key? %>
-  <div class="alert alert-info" role="alert">
-    <%= Spree.t('stripe.configuration_guide.rak_migration_tip') %>
+<div class="alert alert-info">
+  <div>
+    <%= Spree.t(
+          'stripe.configuration_guide.marketplace_app_html',
+          link: external_link_to(
+            Spree.t('stripe.configuration_guide.marketplace_app_link_text'),
+            'https://marketplace.stripe.com/apps/spree-commerce',
+            class: 'alert-link'
+          )
+        ) %>
   </div>
-<% end %>
+  <br/>
+  <div>
+    <%= Spree.t('stripe.configuration_guide.ephemeral_key_warning') %>
+  </div>
+</div>

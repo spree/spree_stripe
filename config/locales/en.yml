@@ -3,6 +3,13 @@ en:
   spree:
     bank_transfer: Bank Transfer
     stripe:
+      configuration_guide:
+        ephemeral_key_warning: "Restricted API Keys from the Spree Commerce app cannot create Stripe ephemeral keys. If you need ephemeral key support, use a standard Stripe secret key instead."
+        marketplace_app_html: 'Recommended: install the %{link} to generate a Restricted API Key scoped to only the permissions Spree needs, then paste it as your secret key below.'
+        marketplace_app_link_text: Spree Commerce app from the Stripe App Marketplace
+      errors:
+        publishable_key_used: You have provided your publishable key instead of your secret key
+        rak_missing_permissions: Your Restricted API Key is missing required permissions. Please reinstall the Spree Commerce app from the Stripe App Marketplace to get a correctly scoped key.
       payment_intent_errors:
         canceled: Payment intent canceled
         processing: Payment intent processing

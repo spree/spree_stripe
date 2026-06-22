@@ -44,5 +44,27 @@ RSpec.describe SpreeStripe::CreateSetupIntent, vcr: true do
         expect(saved_customer.profile_id).to eq('cus_Q9v0APMRnrNbfC')
       end
     end
+
+    context 'when the gateway cannot create an ephemeral key', vcr: false do
+      let!(:customer) { create(:gateway_customer, user: user, profile_id: saved_customer_id, payment_method: gateway) }
+
+      before do
+        allow(gateway).to receive(:create_ephemeral_key).and_return(nil)
+        allow(gateway).to receive(:create_setup_intent).and_return(
+          Spree::PaymentResponse.new(true, nil, { 'client_secret' => 'setup_intent_test_secret' }, authorization: 'setup_intent_test')
+        )
+      end
+
+      it 'still succeeds with a nil ephemeral key secret' do
+        expect(subject).to be_success
+        expect(subject.value).to eq(
+          {
+            customer_id: customer.profile_id,
+            ephemeral_key_secret: nil,
+            setup_intent_client_secret: 'setup_intent_test_secret'
+          }
+        )
+      end
+    end
   end
 end

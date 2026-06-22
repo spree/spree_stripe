@@ -1,0 +1,23 @@
+<div class="alert alert-info">
+  <div>
+    Please follow
+    <%= external_link_to 'how to configure Stripe payment method in Spree Commerce guide', 'https://spreecommerce.org/docs/integrations/payments/stripe', class: 'alert-link' %>.
+  </div>
+</div>
+
+<div class="alert alert-info">
+  <div>
+    <%= Spree.t(
+          'stripe.configuration_guide.marketplace_app_html',
+          link: external_link_to(
+            Spree.t('stripe.configuration_guide.marketplace_app_link_text'),
+            'https://marketplace.stripe.com/apps/spree-commerce',
+            class: 'alert-link'
+          )
+        ) %>
+  </div>
+  <br/>
+  <div>
+    <%= Spree.t('stripe.configuration_guide.ephemeral_key_warning') %>
+  </div>
+</div>

@@ -11,7 +11,7 @@ module SpreeStripe
       success(
         {
           customer_id: customer.profile_id,
-          ephemeral_key_secret: ephemeral_key_response.params['secret'],
+          ephemeral_key_secret: ephemeral_key_response&.params&.dig('secret'),
           setup_intent_client_secret: setup_intent.params['client_secret']
         }
       )

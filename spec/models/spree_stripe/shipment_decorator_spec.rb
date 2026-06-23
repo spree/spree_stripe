@@ -5,9 +5,9 @@ RSpec.describe SpreeStripe::ShipmentDecorator do
     subject { shipment.ship! }
 
     let(:store) { Spree::Store.default }
-    let(:order) { create(:order_ready_to_ship, payment_intents: payment_intents) }
+    let(:order) { create(:order_ready_to_ship) }
 
-    let(:payment_intents) { [create(:payment_intent, stripe_id: payment_intent_id)] }
+    let!(:payment_session) { create(:stripe_payment_session, order: order, external_id: payment_intent_id) }
     let(:payment_intent_id) { 'pi_1234567890' }
     let(:tax_calculation_id) { 'taxcalc_1234567890' }
 
@@ -32,8 +32,8 @@ RSpec.describe SpreeStripe::ShipmentDecorator do
         end
       end
 
-      context 'when the shipment order has no payment intents' do
-        let(:payment_intents) { [] }
+      context 'when the shipment order has no payment sessions' do
+        let!(:payment_session) { nil }
 
         it 'does not create a tax transaction' do
           expect { subject }.not_to have_enqueued_job(SpreeStripe::CreateTaxTransactionJob)

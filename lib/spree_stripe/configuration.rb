@@ -6,7 +6,6 @@ module SpreeStripe
       payment_intent.succeeded
       setup_intent.succeeded
     ]
-    preference :use_legacy_payment_intents, :boolean, default: false
     preference :use_legacy_webhook_handlers, :boolean, default: false
   end
 end

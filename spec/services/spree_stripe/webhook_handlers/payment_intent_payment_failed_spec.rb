@@ -37,11 +37,6 @@ RSpec.describe SpreeStripe::WebhookHandlers::PaymentIntentPaymentFailed do
         expect { subject }.to change { order.reload.state }.from('complete').to('canceled')
       end
 
-      it 'does not look up legacy payment intents' do
-        expect(SpreeStripe::PaymentIntent).not_to receive(:find_by)
-        subject
-      end
-
       context 'when the payment session is already completed' do
         before { payment_session.update_column(:status, 'completed') }
 
@@ -57,15 +52,6 @@ RSpec.describe SpreeStripe::WebhookHandlers::PaymentIntentPaymentFailed do
         it 'does not cancel again' do
           expect { subject }.not_to change { order.reload.state }
         end
-      end
-    end
-
-    context 'with a legacy payment intent' do
-      let!(:order) { create(:completed_order_with_totals, store: store) }
-      let!(:payment_intent) { create(:payment_intent, order: order, payment_method: stripe_gateway, stripe_id: stripe_id) }
-
-      it 'cancels the order' do
-        expect { subject }.to change { order.reload.state }.from('complete').to('canceled')
       end
     end
 

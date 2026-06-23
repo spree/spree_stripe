@@ -4,7 +4,7 @@ module SpreeStripe
       extend ActiveSupport::Concern
 
       def session_required?
-        !SpreeStripe::Config[:use_legacy_payment_intents]
+        true
       end
 
       def payment_session_class

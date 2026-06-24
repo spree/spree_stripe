@@ -3,13 +3,6 @@ en:
   spree:
     bank_transfer: Bank Transfer
     stripe:
-      payment_intent_errors:
-        canceled: Payment intent canceled
-        processing: Payment intent processing
-        requires_action: Payment intent requires action
-        requires_capture: Payment intent requires capture
-        requires_confirmation: Payment intent requires confirmation
-        requires_payment_method: Payment intent requires payment method
-        succeeded: Payment intent succeeded
+      payment_could_not_be_processed: Your payment could not be processed. Please try again.
       payment_session_errors:
         zero_amount: Payment session amount must be greater than zero

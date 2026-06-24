@@ -1,109 +1,72 @@
 import { Controller } from '@hotwired/stimulus'
 import showFlashMessage from 'spree/storefront/helpers/show_flash_message'
 
+// Regular Stripe checkout on the v3 Store API — renders the payment form and
+// confirms the payment. Completion is NOT handled here: both new and saved
+// cards redirect to `return_url` (new cards via Stripe's redirect, saved cards
+// manually after inline confirmation), where the server-side
+// ConfirmPaymentsController finalizes the session + cart.
 export default class extends Controller {
   static values = {
     apiKey: String,
-    paymentIntent: Object,
-    returnUrl: String,
+    clientSecret: String,
+    sessionId: String,
+    cartId: String,
+    cartToken: String,
+    spreeApiKey: String,
     orderEmail: String,
-    orderToken: String,
+    returnUrl: String,
     colorPrimary: String,
-    colorBackground: String,
     colorText: String,
-    paymentIntentPath: String,
-    checkoutPath: String,
-    checkoutValidateOrderForPaymentPath: String,
     paymentElementAdditionalOptions: { type: Object, default: {} }
   }
 
-  static targets = [
-    'paymentElement',
-    'loading',
-    'spinner',
-    'buttonText',
-    'defaultCard'
-  ]
+  static targets = ['paymentElement', 'loading', 'defaultCard']
 
   connect() {
-    const stripeOptions = {}
-
     this.submitTarget = document.querySelector('#checkout-payment-submit')
     this.billingAddressCheckbox = document.querySelector('#order_use_shipping')
     this.billingAddressForm = document.querySelector('form.edit_order')
-    this.stripe = Stripe(this.apiKeyValue, stripeOptions)
+    this.stripe = Stripe(this.apiKeyValue)
 
     if (this.hasDefaultCardTarget) {
-      this.initializeStripe({
-        target: { value: this.defaultCardTarget.value }
-      })
+      this.initializeStripe({ target: { value: this.defaultCardTarget.value } })
     } else {
       this.initializeStripe({ target: { value: 'on' } })
     }
 
-    // hijack the submit button to call the submit method
-    this.submitTarget.addEventListener('click', this.submit.bind(this))
+    if (this.submitTarget) {
+      this.submitTarget.addEventListener('click', this.submit.bind(this))
+    }
   }
 
-  // Fetches a payment intent
-  async initializeStripe(e) {
+  // Mounts the Payment Element for a new card, or records the selected saved card.
+  initializeStripe(e) {
     this.setLoading(true)
 
-    if (e.target.value == 'on') {
-      this.stripePaymentMethodId = null
-    } else {
-      this.stripePaymentMethodId = e.target.value
-    }
+    const value = e.target.value
+    this.stripePaymentMethodId = value && value !== 'on' ? value : null
 
-    const response = await fetch(
-      this.paymentIntentPathValue,
-      {
-        method: 'PATCH',
-        headers: this.spreeApiHeaders,
-        body: JSON.stringify({
-          payment_intent: {
-            stripe_payment_method_id: this.stripePaymentMethodId
-          }
-        })
-      }
-    )
-    const { data, error } = await response.json()
-
-    if (error) {
-      this.handleError(error)
-      return
-    }
-
-    if (this.stripePaymentMethodId === null) {
+    if (this.stripePaymentMethodId === null && !this.elements) {
       const appearance = {
         theme: 'stripe',
         variables: {
           colorPrimary: this.colorPrimaryValue,
-          colorBackground: this.colorBackgroundValue,
           colorText: this.colorTextValue
         }
       }
-      this.elements = this.stripe.elements({
-        appearance,
-        clientSecret: this.paymentIntentValue.client_secret
-      })
+      this.elements = this.stripe.elements({ appearance, clientSecret: this.clientSecretValue })
       const paymentElement = this.elements.create('payment', {
         fields: {
           billingDetails: {
             name: 'never',
             email: 'never',
-            address: {
-              country: 'never',
-              postalCode: 'never'
-            }
+            address: { country: 'never', postalCode: 'never' }
           }
         },
         ...this.paymentElementAdditionalOptionsValue
       })
       paymentElement.mount(this.paymentElementTarget)
-      paymentElement.on('change', (event) => {
-        this.selectedMethod = event.value?.type
-      })
     }
 
     this.setLoading(false)
@@ -113,202 +76,172 @@ export default class extends Controller {
     e.preventDefault()
     this.setLoading(true)
 
-    const validated = await this.validateOrderForPayment()
-
-    if (!validated) {
-      this.setLoading(false)
-      e.stopImmediatePropagation()
-      return
-    }
-
-    const billingAddress = await this.updateBillingAddress()
-
-    if (!billingAddress) {
+    const billing = await this.updateBillingAddress()
+    if (!billing) {
       this.setLoading(false)
       e.stopImmediatePropagation()
       return
     }
 
     if (this.stripePaymentMethodId) {
-      const { paymentIntent, error } = await this.stripe.confirmCardPayment(
-        this.paymentIntentValue.client_secret
-      )
+      // Saved card: bind it to the session, confirm inline, then hand off to the
+      // return controller (mirrors how Stripe redirects new cards back).
+      await this.patchSessionPaymentMethod(this.stripePaymentMethodId)
 
-      this.handleError(error)
+      const { error } = await this.stripe.confirmCardPayment(this.clientSecretValue, {
+        payment_method: this.stripePaymentMethodId
+      })
+
+      if (error) {
+        this.handleError(error)
+        this.setLoading(false)
+        return
+      }
 
       window.location.href = this.returnUrlValue
     } else {
+      // New card: confirm with the Payment Element; Stripe redirects to return_url.
       const elements = this.elements
-
       if (!elements || !elements.getElement('payment')) {
-        showFlashMessage(
-          'An unexpected error occurred. Please refresh the page and try again.',
-          'error'
-        )
+        showFlashMessage('An unexpected error occurred. Please refresh the page and try again.', 'error')
+        this.setLoading(false)
         return
       }
 
       const { error } = await this.stripe.confirmPayment({
         elements,
         confirmParams: {
-          payment_method_data: {
-            billing_details: {
-              email: this.orderEmailValue,
-              name: billingAddress.firstname + ' ' + billingAddress.lastname,
-              address: {
-                city: billingAddress.city,
-                country: billingAddress.country_iso,
-                line1: billingAddress.address1,
-                line2: billingAddress.address2,
-                postal_code: billingAddress.zipcode,
-                state: billingAddress.state_code
-              }
-            }
-          },
-          return_url: this.returnUrlValue
+          return_url: this.returnUrlValue,
+          payment_method_data: { billing_details: this.billingDetails(billing) }
         }
       })
 
-      // This point will only be reached if there is an immediate error when
-      // confirming the payment. Otherwise, your customer will be redirected to
-      // your `return_url`. For some payment methods like iDEAL, your customer will
-      // be redirected to an intermediate site first to authorize the payment, then
-      // redirected to the `return_url`.
-      // TODO: we need to remove the payment intent id from this order and create new
-      this.handleError(error)
-    }
-
-    this.setLoading(false)
-  }
-
-  async validateOrderForPayment() {
-    const response = await fetch(
-      this.checkoutValidateOrderForPaymentPathValue,
-      {
-        method: 'POST',
-        headers: this.spreeApiHeaders
-      }
-    )
-
-    const json = await response.json()
-
-    if (json.meta?.messages?.length) {
-      const message = [
-        json.meta.messages,
-        'please refresh the page and try again.'
-      ].join(', ')
-
-      showFlashMessage(message, 'error')
-      return false
-    } else {
-      return true
+      // Reached only on an immediate error; otherwise Stripe redirects to return_url.
+      if (error) this.handleError(error)
+      this.setLoading(false)
     }
   }
 
+  // Persists the billing address to the cart via the v3 Store API.
+  // Returns the cart's billing_address on success, false on failure.
   async updateBillingAddress() {
-    // billing address same as shipping address
+    let body
     if (this.billingAddressCheckbox?.checked) {
-      const response = await fetch(this.checkoutPathValue, {
-        method: 'PATCH',
-        headers: this.spreeApiHeaders,
-        body: JSON.stringify({
-          include: 'billing_address',
-          order: {
-            use_shipping: true
-          }
-        })
-      });
-
-      const responseJson = await response.json();
-
-      if (response.ok) {
-        return responseJson.included.find(item => item.type === 'address').attributes;
-      } else {
-        const errors = Array.isArray(responseJson.error) ? responseJson.error.join('. ') : responseJson.error || 'Billing address is invalid';
-        showFlashMessage(errors, 'error');
-        this.submitTarget.disabled = false;
-        return false;
-      }
-    }
-
-    // billing address different from shipping address
-    if (this.billingAddressForm.checkValidity()) {
-      const formData = new FormData(this.billingAddressForm);
-
-      const response = await fetch(this.checkoutPathValue, {
-        method: 'PATCH',
-        headers: this.spreeApiHeaders,
-        body: JSON.stringify({
-          include: 'billing_address',
-          order: {
-            bill_address_attributes: {
-              firstname: formData.get("order[bill_address_attributes][firstname]"),
-              lastname: formData.get("order[bill_address_attributes][lastname]"),
-              address1: formData.get("order[bill_address_attributes][address1]"),
-              address2: formData.get("order[bill_address_attributes][address2]"),
-              city: formData.get("order[bill_address_attributes][city]"),
-              country_id: formData.get("order[bill_address_attributes][country_id]"),
-              state_id: formData.get("order[bill_address_attributes][state_id]"),
-              state_name: formData.get("order[bill_address_attributes][state_name]"),
-              zipcode: formData.get("order[bill_address_attributes][zipcode]"),
-              phone: formData.get("order[bill_address_attributes][phone]")
-            }
-          }
-        })
-      });
-
-      const responseJson = await response.json();
-
-      if (response.ok) {
-        return responseJson.included.find(item => item.type === 'address').attributes;
-      } else {
-        const errors = Array.isArray(responseJson.error) ? responseJson.error.join('. ') : responseJson.error || 'Billing address is invalid';
-        showFlashMessage(errors, 'error');
-
-        this.submitTarget.disabled = false;
-        return false;
-      }
+      body = { use_shipping: true }
+    } else if (this.billingAddressForm?.checkValidity()) {
+      body = { billing_address: this.readBillingAddressForm() }
     } else {
-      this.submitTarget.disabled = false;
+      if (this.submitTarget) this.submitTarget.disabled = false
       return false
     }
+
+    const response = await fetch(this.cartApiBase, {
+      method: 'PATCH',
+      headers: this.spreeApiHeaders,
+      body: JSON.stringify(body)
+    })
+    const json = await response.json().catch(() => ({}))
+
+    if (response.ok) {
+      return json.billing_address || {}
+    }
+
+    showFlashMessage(this.extractErrors(json) || 'Billing address is invalid', 'error')
+    if (this.submitTarget) this.submitTarget.disabled = false
+    return false
+  }
+
+  readBillingAddressForm() {
+    const form = this.billingAddressForm
+    const field = (name) => form.querySelector(`[name="order[bill_address_attributes][${name}]"]`)
+    const value = (name) => field(name)?.value || null
+
+    const countryOption = field('country_id')?.selectedOptions?.[0]
+    const stateOption = field('state_id')?.selectedOptions?.[0]
+
+    return {
+      first_name: value('firstname'),
+      last_name: value('lastname'),
+      address1: value('address1'),
+      address2: value('address2'),
+      city: value('city'),
+      postal_code: value('zipcode'),
+      phone: value('phone'),
+      country_iso: countryOption?.dataset?.iso || null,
+      state_name: stateOption?.text?.trim() || value('state_name')
+    }
+  }
+
+  billingDetails(address) {
+    return {
+      name: [address.first_name, address.last_name].filter(Boolean).join(' '),
+      email: this.orderEmailValue,
+      address: {
+        city: address.city,
+        country: address.country_iso,
+        line1: address.address1,
+        line2: address.address2,
+        postal_code: address.postal_code,
+        state: address.state_abbr || address.state_name
+      }
+    }
+  }
+
+  // Binds the selected saved card's payment method to the session server-side.
+  async patchSessionPaymentMethod(stripePaymentMethodId) {
+    await fetch(`${this.cartApiBase}/payment_sessions/${this.sessionIdValue}`, {
+      method: 'PATCH',
+      headers: this.spreeApiHeaders,
+      body: JSON.stringify({ external_data: { stripe_payment_method_id: stripePaymentMethodId } })
+    }).catch(() => {})
   }
 
   handleError(error) {
-    if (error) {
-      if (error.type === 'card_error' || error.type === 'validation_error') {
-        showFlashMessage(error.message, 'error')
-      } else {
-        showFlashMessage(
-          'An unexpected error occured. Please refresh the page and try again.',
-          'error'
-        )
+    if (!error) return
+
+    // Per Stripe: only card_error / validation_error messages are meant to be
+    // shown to customers; other types are developer-facing, so fall back to a
+    // generic message.
+    if (error.type === 'card_error' || error.type === 'validation_error') {
+      showFlashMessage(error.message, 'error')
+    } else {
+      showFlashMessage('An unexpected error occurred. Please refresh the page and try again.', 'error')
+    }
+
+    if (this.submitTarget) this.submitTarget.disabled = false
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  setLoading(isLoading) {
+    if (isLoading) {
+      if (this.submitTarget) this.submitTarget.disabled = true
+    } else {
+      if (this.hasLoadingTarget) this.loadingTarget.classList.add('hidden')
+      if (this.submitTarget) {
+        this.submitTarget.disabled = false
+        this.submitTarget.classList.remove('hidden')
       }
-
-      this.submitTarget.disabled = false;
-
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      })
     }
   }
 
-  // Show a spinner on payment submission
-  setLoading(isLoading) {
-    if (isLoading) {
-      // Disable the button and show a spinner
-      this.submitTarget.disabled = true
-    } else {
-      this.loadingTarget.classList.add('hidden')
-      this.submitTarget.disabled = false
-      this.submitTarget.classList.remove('hidden')
+  extractErrors(json) {
+    if (!json) return null
+    if (typeof json.error === 'string') return json.error
+    if (Array.isArray(json.error)) return json.error.join('. ')
+    if (json.errors) {
+      return Array.isArray(json.errors) ? json.errors.join('. ') : Object.values(json.errors).flat().join('. ')
     }
+    return null
+  }
+
+  get cartApiBase() {
+    return `/api/v3/store/carts/${this.cartIdValue}`
   }
 
   get spreeApiHeaders() {
     return {
-      'X-Spree-Order-Token': this.orderTokenValue,
+      'X-Spree-API-Key': this.spreeApiKeyValue,
+      'X-Spree-Token': this.cartTokenValue,
       'Content-Type': 'application/json'
     }
   }

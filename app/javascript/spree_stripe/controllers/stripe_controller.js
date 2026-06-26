@@ -10,7 +10,6 @@ export default class extends Controller {
   static values = {
     apiKey: String,
     clientSecret: String,
-    sessionId: String,
     cartId: String,
     cartToken: String,
     spreeApiKey: String,
@@ -84,10 +83,10 @@ export default class extends Controller {
     }
 
     if (this.stripePaymentMethodId) {
-      // Saved card: bind it to the session, confirm inline, then hand off to the
-      // return controller (mirrors how Stripe redirects new cards back).
-      await this.patchSessionPaymentMethod(this.stripePaymentMethodId)
-
+      // Saved card: confirm inline (Stripe binds the payment method to the
+      // intent), then hand off to the return controller — mirrors how Stripe
+      // redirects new cards back. The server reads the bound method from the
+      // confirmed intent, so no extra session call is needed.
       const { error } = await this.stripe.confirmCardPayment(this.clientSecretValue, {
         payment_method: this.stripePaymentMethodId
       })
@@ -185,15 +184,6 @@ export default class extends Controller {
         state: address.state_abbr || address.state_name
       }
     }
-  }
-
-  // Binds the selected saved card's payment method to the session server-side.
-  async patchSessionPaymentMethod(stripePaymentMethodId) {
-    await fetch(`${this.cartApiBase}/payment_sessions/${this.sessionIdValue}`, {
-      method: 'PATCH',
-      headers: this.spreeApiHeaders,
-      body: JSON.stringify({ external_data: { stripe_payment_method_id: stripePaymentMethodId } })
-    }).catch(() => {})
   }
 
   handleError(error) {

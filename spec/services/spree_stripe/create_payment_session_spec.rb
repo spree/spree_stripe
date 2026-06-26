@@ -7,6 +7,16 @@ RSpec.describe SpreeStripe::CreatePaymentSession do
 
   subject(:session) { described_class.new.call(order, gateway) }
 
+  context 'when store credits cover the whole order (zero amount)' do
+    before { allow(order).to receive(:total_minus_store_credits).and_return(0) }
+
+    it 'skips Stripe and returns nil' do
+      expect(gateway).not_to receive(:create_payment_session)
+      expect(gateway).not_to receive(:update_payment_session)
+      expect(session).to be_nil
+    end
+  end
+
   context 'when no pending session exists' do
     it 'creates one for the order' do
       new_session = instance_double(Spree::PaymentSessions::Stripe)

@@ -22,10 +22,14 @@ module SpreeStripe
     end
 
     # The store's publishable Spree API key, used by the storefront JS as the
-    # `X-Spree-API-Key` header for v3 Store API calls.
-    # @return [String, nil]
+    # `X-Spree-API-Key` header for v3 Store API calls. Creates one on first use
+    # when the store has no active publishable key yet.
+    # @return [String]
     def current_store_publishable_api_key
-      current_store.api_keys.publishable.active.first&.plaintext_token
+      @current_store_publishable_api_key ||= (
+        current_store.api_keys.publishable.active.first ||
+          current_store.api_keys.create!(key_type: 'publishable', name: 'Storefront')
+      ).plaintext_token
     end
   end
 end

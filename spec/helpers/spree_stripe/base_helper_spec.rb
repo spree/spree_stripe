@@ -27,6 +27,13 @@ RSpec.describe SpreeStripe::BaseHelper do
       key = create(:api_key, store: store)
       expect(helper.current_store_publishable_api_key).to eq(key.plaintext_token)
     end
+
+    context 'when the store has no publishable key' do
+      it 'creates one and returns its token' do
+        expect { helper.current_store_publishable_api_key }.to change { store.api_keys.publishable.count }.by(1)
+        expect(helper.current_store_publishable_api_key).to eq(store.api_keys.publishable.active.first.plaintext_token)
+      end
+    end
   end
 
   describe '#current_stripe_payment_session' do

@@ -2,39 +2,43 @@ import { Controller } from '@hotwired/stimulus'
 import { loadStripe } from '@stripe/stripe-js/pure'
 import showFlashMessage from 'spree/storefront/helpers/show_flash_message'
 
+// Stripe zero-decimal currencies — amount is already in the smallest unit.
+// https://docs.stripe.com/currencies#zero-decimal
+const ZERO_DECIMAL_CURRENCIES = new Set([
+  'bif', 'clp', 'djf', 'gnf', 'jpy', 'kmf', 'krw', 'mga', 'pyg',
+  'rwf', 'ugx', 'vnd', 'vuv', 'xaf', 'xof', 'xpf'
+])
+
+// Apple Pay / Google Pay express checkout on the v3 Store API. The wallet sheet
+// drives address + shipping selection against `/api/v3/store/carts`, then a
+// payment session is created and confirmed; completion is handled server-side by
+// ConfirmPaymentsController via the `return_url` (same as the regular flow).
 export default class extends Controller {
   static values = {
     apiKey: String,
-    orderToken: String,
-    clientSecret: String,
+    spreeApiKey: String,
+    paymentMethodId: String,
+    cartId: String,
+    cartToken: String,
+    confirmPaymentUrl: String,
     currency: String,
     amount: Number,
-    availableCountries: Array,
-    giftCardCode: String,
-    giftCardAmount: Number,
     borderRadius: Number,
     height: Number,
     theme: String,
     maxRows: Number,
     maxColumns: Number,
     buttonWidth: Number,
-    checkoutPath: String,
-    checkoutAdvancePath: String,
-    checkoutSelectShippingMethodPath: String,
-    checkoutValidateGiftCardDataPath: String,
-    checkoutValidateOrderForPaymentPath: String,
     shippingRequired: { type: Boolean, default: true },
-    returnUrl: String,
-    phoneRequired: { type: Boolean, default: false },
+    phoneRequired: { type: Boolean, default: false }
   }
 
   static targets = ['container']
 
   connect() {
-    this.paymentMethod = null
+    this.isGooglePay = false
+    this.shippingRateMap = new Map()
     this.initStripe()
-    this.shippingRates = []
-    this.currentShippingOptionId = null
   }
 
   initStripe() {
@@ -63,8 +67,7 @@ export default class extends Controller {
       paymentMethodCreation: 'manual'
     })
 
-    const prButton = this.elements.create('expressCheckout', {
-      wallets: { applePay: 'always', googlePay: 'always' },
+    const expressCheckout = this.elements.create('expressCheckout', {
       buttonHeight: this.heightValue > 0 ? this.heightValue : undefined,
       buttonTheme: {
         applePay: this.themeValue.length ? this.themeValue : undefined,
@@ -81,400 +84,315 @@ export default class extends Controller {
       },
       paymentMethodOrder: ['applePay', 'googlePay', 'link']
     })
-    prButton.mount('#payment-request-button')
+    expressCheckout.mount('#payment-request-button')
 
-    prButton.on('ready', ({ availablePaymentMethods }) => {
-      if (!availablePaymentMethods) {
-        this.containerTarget.style.display = 'hidden'
-        return
-      }
-      const availableMethodsCount = Object.keys(availablePaymentMethods).filter(
-        (key) => availablePaymentMethods[key]
-      ).length
-      if (this.buttonWidthValue > 0) {
-        this.containerTarget.style.setProperty(
-          '--desktop-max-width',
-          this.buttonWidthValue * availableMethodsCount + 'px'
-        )
-        this.containerTarget.classList.add('desktop-max-width')
-      }
-      window.parent?.postMessage({ enabledPaymentMethodsCount: availableMethodsCount }, '*')
-    })
-    prButton.on('click', (event) => {
-      this.paymentMethod = event.expressPaymentType
-
-      event.resolve({
-        emailRequired: true,
-        phoneNumberRequired: this.phoneRequiredValue,
-        shippingAddressRequired: this.shippingRequiredValue,
-        allowedShippingCountries: this.availableCountriesValue,
-        // If we want to collect shipping address then we need to provide at least one shipping option, it will be updated to the real ones in the `shippingaddresschange` event
-        shippingRates: this.shippingRequiredValue ? [{ id: 'loading', displayName: 'Loading...', amount: 0 }] : [],
-        lineItems: [
-          { name: 'Subtotal', amount: 0 },
-          { name: 'Shipping', amount: 0 },
-          { name: 'Store credit', amount: 0 },
-          { name: 'Discount', amount: 0 },
-          { name: 'Tax', amount: 0 }
-        ]
-      })
-    })
+    expressCheckout.on('ready', this.handleReady.bind(this))
+    expressCheckout.on('click', this.handleClick.bind(this))
     if (this.shippingRequiredValue) {
-      prButton.on('shippingaddresschange', this.handleAddressChange.bind(this))
-      prButton.on('shippingratechange', this.handleShippingOptionChange.bind(this))
+      expressCheckout.on('shippingaddresschange', this.handleAddressChange.bind(this))
+      expressCheckout.on('shippingratechange', this.handleShippingOptionChange.bind(this))
     }
-    prButton.on('confirm', this.handleFinalizePayment.bind(this))
-    prButton.on('cancel', this.handleCancelPayment.bind(this))
+    expressCheckout.on('confirm', this.handleFinalizePayment.bind(this))
   }
 
-  async handleAddressChange(ev) {
-    // Perform server-side request to fetch shipping options
-    // https://stripe.com/docs/js/payment_request/events/on_shipping_address_change#payment_request_on_shipping_address_change-handler-shippingAddress
-    const orderUpdatePayload = {
-      order: {
-        ship_address_attributes: {
-          // we need to use quick checkout option to skip first/last/street address validation
-          // as at this point we don't receive this information as browsers do not share it with us
-          quick_checkout: true,
-          firstname: ev.name.split(' ')[0],
-          lastname: ev.name.split(' ')[1],
-          city: ev.address.city,
-          zipcode: ev.address.postal_code,
-          country_iso: ev.address.country,
-          state_name: ev.address.state
-        },
-        bill_address_id: 'CLEAR' // we need to clear out the bill address to avoid order being pushed to confirm/complete state
-      }
+  handleReady({ availablePaymentMethods }) {
+    if (!availablePaymentMethods) {
+      this.containerTarget.style.display = 'none'
+      return
     }
+    const availableMethodsCount = Object.keys(availablePaymentMethods).filter(
+      (key) => availablePaymentMethods[key]
+    ).length
+    if (this.buttonWidthValue > 0) {
+      this.containerTarget.style.setProperty('--desktop-max-width', this.buttonWidthValue * availableMethodsCount + 'px')
+      this.containerTarget.classList.add('desktop-max-width')
+    }
+    window.parent?.postMessage({ enabledPaymentMethodsCount: availableMethodsCount }, '*')
+  }
 
-    // 1st we need to persist the address to the order
-    const saveAddressResponse = await fetch(this.checkoutPathValue, {
-      method: 'PATCH',
-      headers: {
-        'X-Spree-Order-Token': this.orderTokenValue,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(orderUpdatePayload)
+  handleClick(event) {
+    this.isGooglePay = event.expressPaymentType === 'google_pay'
+    event.resolve({
+      emailRequired: true,
+      phoneNumberRequired: this.phoneRequiredValue,
+      shippingAddressRequired: this.shippingRequiredValue,
+      lineItems: [{ name: 'Subtotal', amount: parseInt(this.amountValue) }]
     })
-
-    // 2nd we need to push the order to delivery state to generate shipping rates
-    if (saveAddressResponse.status === 200) {
-      // In case of any error here we have to allow user try again
-      try {
-        const response = await fetch(
-          this.checkoutAdvancePathValue,
-          {
-            method: 'PATCH',
-            headers: {
-              'X-Spree-Order-Token': this.orderTokenValue,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              state: 'delivery',
-              include: 'shipments.shipping_rates',
-              quick_checkout: true,
-              shipping_method_id: this.currentShippingOptionId
-            })
-          }
-        )
-        const newOrderResponse = await response.json()
-        this.shippingRates = newOrderResponse.included.filter((item) => item.type === 'shipping_rate')
-
-        if (this.shippingRates.length > 0) {
-          this.elements.update({ amount: newOrderResponse.data.attributes.total_minus_store_credits_cents })
-          const shippingRates = this.shippingOptions(this.shippingRates)
-          // We need to select first shipping rate as default, because Apple Pay sometimes doesn't trigger `shippingratechange` event when the modal is opened
-          this.currentShippingOptionId = String(shippingRates[0].id)
-
-          ev.resolve({
-            shippingRates: shippingRates,
-            lineItems: this.buildLineItems(newOrderResponse)
-          })
-          return
-        }
-      } catch (error) {
-        ev.reject()
-        return
-      }
-    }
-    ev.reject()
   }
 
-  async handleShippingOptionChange(ev) {
-    const { resolve, shippingRate, reject } = ev
-
-    if (shippingRate) {
-      const shippingRateId = String(shippingRate.id).replace(/_google_pay_\d+/, '')
-
-      if (shippingRateId === 'standard') return resolve()
-      if (shippingRateId === 'loading') return reject()
-
-      this.currentShippingOptionId = shippingRateId
-
-      const response = await fetch(this.checkoutSelectShippingMethodPathValue, {
-        method: 'PATCH',
-        headers: {
-          'X-Spree-Order-Token': this.orderTokenValue,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ shipping_method_id: shippingRateId })
+  async handleAddressChange(event) {
+    try {
+      const { address } = event
+      // Stripe only shares city/zip/country/state at this stage; pad the rest
+      // with placeholders and quick_checkout to skip street-level validation.
+      const cart = await this.patchCart({
+        shipping_address: {
+          first_name: 'Express',
+          last_name: 'Checkout',
+          address1: 'TBD',
+          city: address.city,
+          postal_code: address.postal_code,
+          country_iso: address.country,
+          state_name: address.state || undefined,
+          quick_checkout: true
+        }
       })
+      if (!cart) return event.reject()
 
-      if (response.status === 200) {
-        const newOrderResponse = await response.json()
+      const { shippingRates, selectionMap } = this.buildShippingRates(cart.fulfillments || [])
+      this.shippingRateMap = selectionMap
 
-        this.elements.update({ amount: newOrderResponse.data.attributes.total_minus_store_credits_cents })
-        resolve({ lineItems: this.buildLineItems(newOrderResponse) })
-      } else {
-        reject()
-      }
-    } else {
-      reject()
+      if (shippingRates.length === 0) return event.reject()
+
+      const lineItems = this.buildLineItems(cart)
+      lineItems.push({ name: 'Shipping', amount: shippingRates[0].amount })
+
+      // Amount must be updated before resolve — Stripe requires amount >= sum(lineItems).
+      this.elements.update({ amount: this.sumLineItems(lineItems) })
+      event.resolve({ shippingRates, lineItems })
+    } catch (_e) {
+      try { event.reject() } catch (_) { /* already resolved */ }
     }
   }
 
-  async handleFinalizePayment(ev) {
-    let shippingRateId = (ev.shippingRate?.id || this.currentShippingOptionId)
-    if (shippingRateId) {
-      shippingRateId = String(shippingRateId).replace(/_google_pay_\d+/, '')
-    }
+  async handleShippingOptionChange(event) {
+    try {
+      const selections = this.shippingRateMap.get(event.shippingRate.id)
+      if (!selections || selections.length === 0) return event.reject()
 
-    if (this.shippingRequiredValue && (!shippingRateId || shippingRateId === 'loading')) {
-      ev.paymentFailed({ reason: 'invalid_shipping_address' })
+      let cart = null
+      for (const { fulfillmentId, rateId } of selections) {
+        cart = await this.patchFulfillment(fulfillmentId, rateId)
+        if (!cart) return event.reject()
+      }
+
+      const lineItems = this.buildLineItems(cart)
+      lineItems.push({ name: 'Shipping', amount: event.shippingRate.amount })
+
+      this.elements.update({ amount: this.sumLineItems(lineItems) })
+      event.resolve({ lineItems })
+    } catch (_e) {
+      try { event.reject() } catch (_) { /* already resolved */ }
+    }
+  }
+
+  async handleFinalizePayment(event) {
+    if (!this.stripe || !this.elements) {
+      event.paymentFailed({ reason: 'fail' })
       return
     }
 
-    if (this.giftCardCodeValue && this.giftCardAmountValue && this.checkoutValidateGiftCardDataPathValue) {
-      const giftCardValidationResponse = await fetch(
-        this.checkoutValidateGiftCardDataPathValue,
-        {
-          method: 'POST',
-          headers: {
-            'X-Spree-Order-Token': this.orderTokenValue,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            gift_card_code: this.giftCardCodeValue,
-            gift_card_amount: this.giftCardAmountValue
-          })
-        }
-      )
-      if (giftCardValidationResponse.status === 422) {
-        ev.paymentFailed()
-        return
-      }
-    }
+    const billing = event.billingDetails
+    const shipping = event.shippingAddress
+    const shipAddress = shipping?.address || billing?.address
+    const billAddress = billing?.address || shipping?.address
 
-    const validationResponse = await fetch(
-      this.checkoutValidateOrderForPaymentPathValue,
-      {
-        method: 'POST',
-        headers: {
-          'X-Spree-Order-Token': this.orderTokenValue,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ skip_state: true })
-      }
-    )
-
-    if (validationResponse.status === 422) {
-      ev.paymentFailed()
+    if (!shipAddress || !billAddress) {
+      event.paymentFailed({ reason: 'invalid_shipping_address' })
       return
     }
 
-    // Confirm the PaymentIntent without handling potential next actions (yet).
-    const { error: confirmError } = await this.elements.submit()
+    const phone = billing?.phone
+    const shipName = this.parseName(shipping?.name || billing?.name || '')
+    const billName = this.parseName(billing?.name || shipping?.name || '')
+
+    // Persist the final email + addresses before creating the payment session.
+    const cart = await this.patchCart({
+      email: billing?.email,
+      shipping_address: this.buildAddress(shipName, shipAddress, phone),
+      billing_address: this.buildAddress(billName, billAddress, phone)
+    })
+    if (!cart) {
+      event.paymentFailed({ reason: 'invalid_shipping_address' })
+      return
+    }
+
+    // The wallet can keep stale rates and an enabled Pay button after a rejected
+    // address change, so re-check the confirmed address is serviceable before
+    // charging — otherwise the payment confirms but the order can't complete.
+    if (this.shippingRequiredValue && !this.hasAvailableShipping(cart)) {
+      event.paymentFailed({ reason: 'address_unserviceable' })
+      return
+    }
+
+    const { error: submitError } = await this.elements.submit()
+    if (submitError) {
+      event.paymentFailed({ reason: 'fail' })
+      this.handleError(submitError)
+      return
+    }
+
+    const { error: pmError, paymentMethod } = await this.stripe.createPaymentMethod({ elements: this.elements })
+    if (pmError || !paymentMethod) {
+      event.paymentFailed({ reason: 'invalid_payment_data' })
+      this.handleError(pmError)
+      return
+    }
+
+    const session = await this.createPaymentSession(paymentMethod.id)
+    const clientSecret = session?.external_data?.client_secret
+    if (!clientSecret) {
+      event.paymentFailed({ reason: 'fail' })
+      return
+    }
+
+    const returnUrl = `${this.confirmPaymentUrlValue}?session=${session.id}`
+    const { error: confirmError } = await this.stripe.confirmPayment({
+      clientSecret,
+      confirmParams: {
+        payment_method: paymentMethod.id,
+        return_url: returnUrl
+      },
+      redirect: 'if_required'
+    })
 
     if (confirmError) {
-      if (confirmError.length > 0) {
-        showFlashMessage(confirmError, 'error')
-      }
+      event.paymentFailed({ reason: 'fail' })
+      this.handleError(confirmError)
       return
     }
 
-    // we need to persist some information about the customer to move the order to the next state
-    const orderUpdatePayload = {
-      order: {
-        email: ev.billingDetails.email,
-        ship_address_attributes: this.ShipAddressAttributes(ev)
-      },
-      do_not_change_state: true
-    }
+    // Payment confirmed — let the server finalize the session + cart.
+    window.location.href = returnUrl
+  }
 
-    const updateResponse = await fetch(this.checkoutPathValue, {
+  // --- v3 Store API calls -------------------------------------------------
+
+  async patchCart(body) {
+    const response = await fetch(this.cartApiBase, {
       method: 'PATCH',
-      headers: {
-        'X-Spree-Order-Token': this.orderTokenValue,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(orderUpdatePayload)
+      headers: this.spreeApiHeaders,
+      body: JSON.stringify(body)
     })
+    return response.ok ? response.json() : null
+  }
 
-    if (updateResponse.status !== 200) {
-      ev.paymentFailed()
-      return
-    }
-
-    const advanceResponse = await fetch(this.checkoutAdvancePathValue, {
+  async patchFulfillment(fulfillmentId, deliveryRateId) {
+    const response = await fetch(`${this.cartApiBase}/fulfillments/${fulfillmentId}`, {
       method: 'PATCH',
-      headers: {
-        'X-Spree-Order-Token': this.orderTokenValue,
-        'Content-Type': 'application/json'
-      },
+      headers: this.spreeApiHeaders,
+      body: JSON.stringify({ selected_delivery_rate_id: deliveryRateId })
+    })
+    return response.ok ? response.json() : null
+  }
+
+  async createPaymentSession(stripePaymentMethodId) {
+    const response = await fetch(`${this.cartApiBase}/payment_sessions`, {
+      method: 'POST',
+      headers: this.spreeApiHeaders,
       body: JSON.stringify({
-        state: 'payment',
-        shipping_method_id: shippingRateId
+        payment_method_id: this.paymentMethodIdValue,
+        external_data: { stripe_payment_method_id: stripePaymentMethodId }
       })
     })
+    return response.ok ? response.json() : null
+  }
 
-    if (advanceResponse.status !== 200) {
-      ev.paymentFailed()
-      return
-    }
+  // --- helpers ------------------------------------------------------------
 
-    try {
-      const { error: paymentMethodError, paymentMethod } = await this.stripe.createPaymentMethod({
-        elements: this.elements
-      })
+  // Line items for the wallet sheet. Shipping is added separately by the
+  // address/rate handlers (Stripe owns shipping via shippingRates).
+  buildLineItems(cart) {
+    const items = [{ name: 'Subtotal', amount: this.toCents(cart.item_total) }]
 
-      if (paymentMethodError) {
-        showFlashMessage(paymentMethodError, 'error')
-        return
-      }
+    const discount = this.toCents(cart.discount_total)
+    if (discount < 0) items.push({ name: 'Discount', amount: discount })
 
-      const { error } = await this.stripe.confirmPayment({
-        clientSecret: this.clientSecretValue,
-        confirmParams: {
-          payment_method: paymentMethod.id,
-          // Stripe will automatically add `payment_intent` and `payment_intent_client_secret` params
-          return_url: this.returnUrlValue
+    const tax = this.toCents(cart.additional_tax_total)
+    if (tax > 0) items.push({ name: 'Tax', amount: tax })
+
+    return items
+  }
+
+  // Builds deduped Stripe shipping rates (by delivery_method_id) and a map from
+  // each Stripe rate id to the per-fulfillment delivery rate ids to select.
+  buildShippingRates(fulfillments) {
+    const rateMap = new Map()
+    const selectionMap = new Map()
+
+    for (const fulfillment of fulfillments) {
+      for (const rate of fulfillment.delivery_rates || []) {
+        const methodId = rate.delivery_method_id
+
+        if (!rateMap.has(methodId)) {
+          // Google Pay rejects duplicate rate ids across address changes, so
+          // give it a unique suffix.
+          const id = this.isGooglePay ? `${methodId}-${this.randomSuffix()}` : String(methodId)
+          rateMap.set(methodId, { id, displayName: rate.name, amount: this.toCents(rate.cost) })
+          selectionMap.set(id, [])
+        } else {
+          rateMap.get(methodId).amount += this.toCents(rate.cost)
         }
-      })
-      if (error?.length > 0) {
-        showFlashMessage(error, 'error')
-      }
-    } catch (e) {
-      console.log(e)
-    }
-  }
 
-  async handleCancelPayment(ev) {
-    const orderUpdatePayload = {
-      order: {
-        ship_address_id: 'CLEAR',
-        bill_address_id: 'CLEAR'
+        const stripeId = rateMap.get(methodId).id
+        selectionMap.get(stripeId).push({ fulfillmentId: fulfillment.id, rateId: rate.id })
       }
     }
 
-    // reset shipping method for some cases when user select paid shipping method then reload page
-    // do not reset shipping method if we have only one or is multivendor order
-    let defaultShippingMethodId = this.shippingRates[0]?.attributes?.shipping_method_id
-    if (defaultShippingMethodId) {
-      defaultShippingMethodId = String(defaultShippingMethodId)
-    }
-
-    if (this.shippingRates?.length > 1 && this.currentShippingOptionId !== defaultShippingMethodId) {
-      // reset shipping choice
-      await fetch(this.checkoutSelectShippingMethodPathValue, {
-        method: 'PATCH',
-        headers: {
-          'X-Spree-Order-Token': this.orderTokenValue,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ shipping_method_id: defaultShippingMethodId })
-      })
-    }
-
-    // reset addresses
-    await fetch(this.checkoutPathValue, {
-      method: 'PATCH',
-      headers: {
-        'X-Spree-Order-Token': this.orderTokenValue,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(orderUpdatePayload)
-    })
-
-    this.currentShippingOptionId = null
+    return { shippingRates: Array.from(rateMap.values()), selectionMap }
   }
 
-  shippingOptions(shippingRates) {
-    return shippingRates.map((rate) => {
-      let id = String(rate.attributes.shipping_method_id)
-      if (this.paymentMethod === 'google_pay') {
-        // We need to add some random data to the shipping rate to avoid weird issue with Google Pay, in which it clears the shipping rates when a new address is added
-        id += `_google_pay_${Math.floor(Math.random() * 100)}`
-      }
-      return {
-        id: id, // shipping rates can be refreshed and removed, shipping methods are more reliable
-        displayName: rate.attributes.name,
-        deliveryEstimate: rate.attributes.display_delivery_range || '',
-        amount: parseInt(rate.attributes.final_price_cents)
-      }
-    })
+  // True when every shippable fulfillment has at least one delivery rate — i.e.
+  // the confirmed address is serviceable. Digital fulfillments need no shipping.
+  hasAvailableShipping(cart) {
+    const shippable = (cart.fulfillments || []).filter((f) => f.fulfillment_type !== 'digital')
+    return shippable.length > 0 && shippable.every((f) => (f.delivery_rates || []).length > 0)
   }
 
-  multiVendorOrder(newOrderResponse) {
-    const vendorIds = newOrderResponse.included.filter((item) => item.type === 'vendor').map((vendor) => vendor.id)
-
-    return [...new Set(vendorIds)].length > 1
-  }
-
-  buildLineItems(newOrderResponse) {
-    return [
-      { name: 'Subtotal', amount: newOrderResponse.data.attributes.subtotal_cents },
-      { name: 'Shipping', amount: newOrderResponse.data.attributes.ship_total_cents },
-      this.buildStoreCreditLine(newOrderResponse),
-      this.buildDiscountLine(newOrderResponse),
-      this.buildTaxLine(newOrderResponse)
-    ].filter((i) => i)
-  }
-
-  buildStoreCreditLine(newOrderResponse) {
-    const amount = newOrderResponse.data.attributes.store_credit_total_cents
-
-    if (amount > 0) {
-      return { name: 'Store credit', amount: -amount }
+  buildAddress(name, address, phone) {
+    return {
+      first_name: name.firstName,
+      last_name: name.lastName,
+      address1: address.line1,
+      address2: address.line2 || undefined,
+      city: address.city,
+      postal_code: address.postal_code,
+      country_iso: address.country,
+      state_name: address.state || undefined,
+      phone: phone || undefined,
+      quick_checkout: true
     }
   }
 
-  buildDiscountLine(newOrderResponse) {
-    const amount = newOrderResponse.data.attributes.promo_total_cents
+  parseName(name) {
+    const parts = name.trim().split(/\s+/)
+    if (parts.length <= 1) return { firstName: parts[0] || '', lastName: '' }
+    return { firstName: parts.slice(0, -1).join(' '), lastName: parts[parts.length - 1] }
+  }
 
-    if (amount > 0) {
-      return { name: 'Discount', amount: -amount }
+  toCents(amount) {
+    const n = Number(amount)
+    if (!Number.isFinite(n)) return 0
+    return ZERO_DECIMAL_CURRENCIES.has(this.currencyValue.toLowerCase()) ? Math.round(n) : Math.round(n * 100)
+  }
+
+  sumLineItems(lineItems) {
+    return lineItems.reduce((sum, item) => sum + item.amount, 0)
+  }
+
+  randomSuffix() {
+    return Math.random().toString(36).slice(2, 6)
+  }
+
+  handleError(error) {
+    if (!error) return
+
+    if (error.type === 'card_error' || error.type === 'validation_error') {
+      showFlashMessage(error.message, 'error')
+    } else {
+      showFlashMessage('An unexpected error occurred. Please refresh the page and try again.', 'error')
     }
   }
 
-  buildTaxLine(newOrderResponse) {
-    const attributes = newOrderResponse.data.attributes
-    const isTaxIncluded = parseInt(attributes.included_tax_total) > 0
-    if (isTaxIncluded) return null
-
-    const amount = attributes.tax_total_cents
-
-    return { name: 'Tax', amount: amount }
+  get cartApiBase() {
+    return `/api/v3/store/carts/${this.cartIdValue}`
   }
 
-  ShipAddressAttributes(ev) {
-    if (ev.shippingAddress) {
-      return {
-        quick_checkout: true,
-        firstname: ev.shippingAddress.name.split(' ')[0],
-        lastname: ev.shippingAddress.name.split(' ')[1],
-        address1: ev.shippingAddress.address.line1,
-        address2: ev.shippingAddress.address.line2,
-        city: ev.shippingAddress.address.city,
-        zipcode: ev.shippingAddress.address.postal_code,
-        country_iso: ev.shippingAddress.address.country,
-        state_name: ev.shippingAddress.address.state,
-        phone: ev.billingDetails.phone
-      }
-    }
-    else {
-      return {
-        quick_checkout: true,
-      }
+  get spreeApiHeaders() {
+    return {
+      'X-Spree-API-Key': this.spreeApiKeyValue,
+      'X-Spree-Token': this.cartTokenValue,
+      'Content-Type': 'application/json'
     }
   }
 }

@@ -9,7 +9,7 @@ RSpec.describe SpreeStripe::CreatePayment do
   let!(:gateway) { create(:stripe_gateway, *gateway_traits, stores: [order.store]) }
   let(:gateway_traits) { [] }
 
-  let(:payment_intent) { create(:payment_intent, order: order, payment_method: gateway, amount: 30, stripe_id: payment_intent_id) }
+  let(:payment_intent) { create(:stripe_payment_session, order: order, payment_method: gateway, amount: 30, external_id: payment_intent_id) }
   let!(:stripe_customer) { create(:gateway_customer, user: order.user, payment_method: gateway, profile_id: customer_id) }
 
   let(:payment_intent_event) { SpreeStripe::Events::PaymentIntentEvent.new(event_data: event_data) }

@@ -67,15 +67,15 @@ RSpec.describe 'Stripe webhook requests', type: :request do
     end
 
     context 'when receiving the payment intent succeeded event' do
-      let!(:payment_intent) { create(:payment_intent, stripe_id: payment_intent_id) }
+      let!(:payment_session) { create(:stripe_payment_session, external_id: payment_intent_id) }
       let(:payment_intent_id) { 'pi_00000000000000' }
 
       before do
         create(:stripe_webhook_key, signing_secret: 'whsec_1234567890')
       end
 
-      it 'processes the payment intent succeeded event' do
-        expect { receive_event }.to have_enqueued_job(SpreeStripe::CompleteOrderJob).with(payment_intent.id)
+      it 'enqueues the CompleteOrderFromSessionJob' do
+        expect { receive_event }.to have_enqueued_job(SpreeStripe::CompleteOrderFromSessionJob).with(payment_session.id)
       end
     end
   end

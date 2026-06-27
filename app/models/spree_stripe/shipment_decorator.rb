@@ -10,10 +10,10 @@ module SpreeStripe
       return unless order.fully_shipped?
       return if order.stripe_tax_calculation_id.blank?
 
-      payment_intent = order.payment_intents.last
-      return if payment_intent.blank?
+      payment_session = order.payment_sessions.where(type: Spree::PaymentSessions::Stripe.name).last
+      return if payment_session.blank?
 
-      SpreeStripe::CreateTaxTransactionJob.perform_later(order.store_id, payment_intent.stripe_id, order.stripe_tax_calculation_id)
+      SpreeStripe::CreateTaxTransactionJob.perform_later(order.store_id, payment_session.stripe_id, order.stripe_tax_calculation_id)
     end
   end
 end

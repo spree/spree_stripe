@@ -24,7 +24,6 @@ gem 'spree_storefront', spree_storefront_opts
 
 gem 'spree_multi_store', github: 'spree/spree-multi-store', branch: 'main'
 
-gem 'spree_legacy_api_v2'
 gem 'spree_dev_tools', '>= 0.6.0.rc1'
 
 if ENV['DB'] == 'mysql'

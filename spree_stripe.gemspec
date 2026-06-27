@@ -35,7 +35,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'stripe_event', '~> 2.14'
 
   s.add_development_dependency 'dotenv'
-  s.add_development_dependency 'jsonapi-rspec'
   s.add_development_dependency 'spree_dev_tools'
   s.add_development_dependency 'vcr'
   s.add_development_dependency 'webmock'

@@ -29,13 +29,8 @@ RSpec.describe SpreeStripe::Gateway::PaymentSessions do
   end
 
   describe '#session_required?' do
-    it 'returns true by default' do
+    it 'returns true' do
       expect(gateway.session_required?).to be true
-    end
-
-    it 'returns false when use_legacy_payment_intents is true' do
-      allow(SpreeStripe::Config).to receive(:[]).with(:use_legacy_payment_intents).and_return(true)
-      expect(gateway.session_required?).to be false
     end
   end
 

@@ -7,10 +7,6 @@ module SpreeStripe
       BANK_PAYMENT_METHOD_TYPES = %w[customer_balance us_bank_account].freeze
       MANUAL_CAPTURE_METHOD = 'manual'.freeze
 
-      included do
-        has_many :payment_intents, class_name: 'SpreeStripe::PaymentIntent', foreign_key: 'payment_method_id', dependent: :delete_all
-      end
-
       def payment_intent_accepted?(payment_intent)
         payment_intent.status.in?(payment_intent_accepted_statuses(payment_intent))
       end

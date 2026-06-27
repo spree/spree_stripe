@@ -47,12 +47,31 @@ module SpreeStripe
 
     def find_or_create_credit_card
       if user
-        source = user.credit_cards.find_by(gateway_payment_profile_id: stripe_payment_method_id)
+        exact_source = user.credit_cards.find_by(gateway_payment_profile_id: stripe_payment_method_id)
+        return exact_source if exact_source
 
-        return source if source
+        matching_source = match_credit_card_by_fingerprint
+        return matching_source if matching_source
       end
 
       Spree::CreditCard.create!(credit_card_params)
+    end
+
+    # Stripe issues a new PaymentMethod (pm_xxx) on every new credit card entry, even for the same physical card,
+    # so deduping on gateway_payment_profile_id alone misses repeat cards. Stripe's card.fingerprint
+    # is stable for the same card number, so we match on fingerprint + expiry (per Stripe guidance) to
+    # reuse the existing saved card instead of creating a duplicate.
+    #
+    # @return [Spree::CreditCard, nil] the existing saved card for this physical card, or nil
+    def match_credit_card_by_fingerprint
+      card = stripe_payment_method_details.card
+      return if card.fingerprint.blank?
+
+      user.credit_cards.
+        where(payment_method: gateway).
+        by_fingerprint(card.fingerprint, card.exp_month, card.exp_year).
+        order(created_at: :desc).
+        first
     end
 
     def credit_card_params
@@ -65,6 +84,7 @@ module SpreeStripe
         payment_method: gateway,
         gateway_customer_profile_id: customer&.profile_id,
         gateway_payment_profile_id: stripe_payment_method_id,
+        fingerprint: card_details.fingerprint,
         name: stripe_billing_details.name,
         month: card_details.exp_month,
         year: card_details.exp_year,

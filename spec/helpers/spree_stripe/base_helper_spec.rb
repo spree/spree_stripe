@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec.describe SpreeStripe::BaseHelper do
   let(:store) { Spree::Store.default }
-  let(:gateway) { create(:stripe_gateway, stores: [store]) }
+  let(:gateway) { create(:stripe_gateway, store: store) }
   let(:order) { create(:order_with_line_items, store: store) }
 
   before do

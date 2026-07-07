@@ -5,7 +5,7 @@ RSpec.describe SpreeStripe::WebhookHandlers::PaymentIntentPaymentFailed do
     subject { described_class.new.call(event) }
 
     let(:store) { Spree::Store.default }
-    let(:stripe_gateway) { create(:stripe_gateway, stores: [store]) }
+    let(:stripe_gateway) { create(:stripe_gateway, store: store) }
     let(:stripe_id) { 'pi_failed_123' }
 
     let(:event) do

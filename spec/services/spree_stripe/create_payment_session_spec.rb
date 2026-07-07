@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec.describe SpreeStripe::CreatePaymentSession do
   let(:store) { Spree::Store.default }
-  let(:gateway) { create(:stripe_gateway, stores: [store]) }
+  let(:gateway) { create(:stripe_gateway, store: store) }
   let(:order) { create(:order_with_line_items, store: store) }
 
   subject(:session) { described_class.new.call(order, gateway) }

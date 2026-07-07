@@ -11,7 +11,7 @@ RSpec.describe SpreeStripe::UpdateCustomer do
   end
 
   context 'when user has a Stripe gateway customer' do
-    let!(:stripe_gateway) { create(:stripe_gateway, stores: [store]) }
+    let!(:stripe_gateway) { create(:stripe_gateway, store: store) }
     let!(:gateway_customer) { create(:gateway_customer, user: user, payment_method: stripe_gateway, profile_id: 'cus_123') }
 
     it 'updates the Stripe customer' do
@@ -20,7 +20,7 @@ RSpec.describe SpreeStripe::UpdateCustomer do
     end
 
     context 'when user has no Stripe gateway customers' do
-      let!(:credit_card_payment_method) { create(:credit_card_payment_method, stores: [store]) }
+      let!(:credit_card_payment_method) { create(:credit_card_payment_method, store: store) }
       let!(:credit_card_gateway_customer) { create(:gateway_customer, user: user, payment_method: credit_card_payment_method, profile_id: 'other_123') }
 
       let(:gateway_customer) { nil }

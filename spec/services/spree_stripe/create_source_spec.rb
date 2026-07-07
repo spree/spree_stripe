@@ -13,7 +13,7 @@ RSpec.describe SpreeStripe::CreateSource do
 
   let(:order) { create(:order) }
   let(:user) { create(:user) }
-  let!(:gateway) { create(:stripe_gateway, stores: [order.store]) }
+  let!(:gateway) { create(:stripe_gateway, store: order.store) }
   let(:source_id) { 'source_id' }
 
   let(:stripe_charge) do

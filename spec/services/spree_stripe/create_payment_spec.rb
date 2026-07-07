@@ -6,7 +6,7 @@ RSpec.describe SpreeStripe::CreatePayment do
   let(:store) { Spree::Store.default }
   let!(:order) { create(:order_with_line_items, store: store) }
 
-  let!(:gateway) { create(:stripe_gateway, *gateway_traits, stores: [order.store]) }
+  let!(:gateway) { create(:stripe_gateway, *gateway_traits, store: order.store) }
   let(:gateway_traits) { [] }
 
   let(:payment_intent) { create(:stripe_payment_session, order: order, payment_method: gateway, amount: 30, external_id: payment_intent_id) }

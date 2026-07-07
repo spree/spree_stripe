@@ -5,7 +5,7 @@ RSpec.describe SpreeStripe::AttachCustomerToCreditCardJob do
 
   let(:store) { Spree::Store.default }
   let(:user) { create(:user) }
-  let!(:gateway) { create(:stripe_gateway, stores: [store]) }
+  let!(:gateway) { create(:stripe_gateway, store: store) }
   let(:order) { create(:completed_order_with_totals, store: store, user: user) }
 
   subject { described_class.new.perform(order.id) }

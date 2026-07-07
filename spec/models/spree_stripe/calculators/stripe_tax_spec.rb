@@ -4,7 +4,7 @@ RSpec.describe SpreeStripe::Calculators::StripeTax do
   let(:calculator) { described_class.new }
 
   let(:store) { Spree::Store.default }
-  let!(:gateway) { create(:stripe_gateway, stores: [store]) }
+  let!(:gateway) { create(:stripe_gateway, store: store) }
 
   let(:order) { create(:order_with_line_items, line_items_count: 3, shipment_cost: 10, ship_address: ship_address) }
 

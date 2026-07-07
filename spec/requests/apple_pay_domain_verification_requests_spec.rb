@@ -9,7 +9,7 @@ RSpec.describe 'Apple Pay domain verification requests' do
     before { host!(store.url) }
 
     context 'with the apple domain association file attached' do
-      let!(:stripe_gateway) { create(:stripe_gateway, :with_apple_domain_association_file, stores: [store], active: false) }
+      let!(:stripe_gateway) { create(:stripe_gateway, :with_apple_domain_association_file, store: store, active: false) }
 
       it 'responds with the attached apple domain association file content' do
         subject
@@ -20,7 +20,7 @@ RSpec.describe 'Apple Pay domain verification requests' do
     end
 
     context 'without the apple domain association file attached' do
-      let!(:stripe_gateway) { create(:stripe_gateway, stores: [store]) }
+      let!(:stripe_gateway) { create(:stripe_gateway, store: store) }
 
       it 'raises a not found error' do
         subject
@@ -29,7 +29,7 @@ RSpec.describe 'Apple Pay domain verification requests' do
     end
 
     context 'for a store without the Stripe gateway' do
-      let!(:stripe_gateway) { create(:stripe_gateway, stores: [create(:store)]) }
+      let!(:stripe_gateway) { create(:stripe_gateway, store: create(:store)) }
 
       it 'raises a not found error' do
         subject

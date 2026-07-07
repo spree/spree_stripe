@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec.describe SpreeStripe::Gateway do
   let(:store) { Spree::Store.default }
-  let(:gateway) { create(:stripe_gateway, stores: [store]) }
+  let(:gateway) { create(:stripe_gateway, store: store) }
   let(:amount) { 100 }
 
   describe '#payment_intent_accepted?' do

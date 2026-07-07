@@ -1,13 +1,13 @@
 require 'spec_helper'
 
 RSpec.describe SpreeStripe::StoreDecorator do
-  describe '#after_commit :handle_code_changes' do
+  describe '#after_commit :register_stripe_domain' do
     subject { store.update!(code: new_code) }
 
     describe 'registering Apple Pay domain in Stripe' do
       let(:store) { create(:store, code: 'store-with-stripe-1') }
 
-      before { create(:stripe_gateway, stores: [store]) }
+      before { create(:stripe_gateway, store: store) }
 
       context 'when code changed' do
         let(:new_code) { 'store-with-stripe-2' }
@@ -32,10 +32,10 @@ RSpec.describe SpreeStripe::StoreDecorator do
 
     let(:store) { Spree::Store.default }
 
-    before { create(:stripe_gateway, stores: [store], active: false) }
+    before { create(:stripe_gateway, store: store, active: false) }
 
     context 'when there is an active Stripe gateway' do
-      let!(:active_stripe_gateway) { create(:stripe_gateway, stores: [store]) }
+      let!(:active_stripe_gateway) { create(:stripe_gateway, store: store) }
 
       it { is_expected.to eq(active_stripe_gateway) }
     end

@@ -5,7 +5,7 @@ RSpec.describe SpreeStripe::CompleteOrder, :vcr do
     subject { described_class.new(payment_intent: payment_intent).call }
 
     let(:store) { Spree::Store.default }
-    let!(:stripe_gateway) { create(:stripe_gateway, stores: [store]) }
+    let!(:stripe_gateway) { create(:stripe_gateway, store: store) }
     let(:user) { create(:user) }
 
     shared_examples 'a successful payment' do

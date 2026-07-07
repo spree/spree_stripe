@@ -12,7 +12,7 @@ RSpec.describe SpreeStripe::CreateTaxTransactionJob do
   end
 
   context 'when the stripe gateway is enabled' do
-    let!(:stripe_gateway) { create(:stripe_gateway, stores: [store]) }
+    let!(:stripe_gateway) { create(:stripe_gateway, store: store) }
 
     it 'creates a tax transaction' do
       subject

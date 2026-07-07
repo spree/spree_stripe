@@ -6,7 +6,7 @@ RSpec.describe SpreeStripe::WebhookHandlers::SetupIntentSucceeded do
 
     let(:store) { Spree::Store.default }
     let(:user) { create(:user) }
-    let(:stripe_gateway) { create(:stripe_gateway, stores: [store]) }
+    let(:stripe_gateway) { create(:stripe_gateway, store: store) }
     let!(:gateway_customer) { create(:gateway_customer, user: user, payment_method: stripe_gateway, profile_id: customer_id) }
     let(:customer_id) { 'cus_123456789' }
     let(:payment_method_id) { 'pm_123456789' }

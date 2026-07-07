@@ -6,7 +6,7 @@ RSpec.describe SpreeStripe::WebhookHandlers::PaymentIntentAmountCapturableUpdate
 
     let(:store) { Spree::Store.default }
     let(:order) { create(:order_with_line_items, store: store) }
-    let(:stripe_gateway) { create(:stripe_gateway, stores: [store]) }
+    let(:stripe_gateway) { create(:stripe_gateway, store: store) }
     let(:payment_intent_id) { 'pi_3Kf5vdDFyWwdfZQ10kAY6fo0' }
 
     let(:event) do

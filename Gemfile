@@ -13,7 +13,16 @@ spree_opts = if ENV['SPREE_PATH']
                 { 'github': 'spree/spree', 'branch': 'main', 'glob': 'spree/**/*.gemspec' }
              end
 gem 'spree', spree_opts
-gem 'spree_admin', spree_opts
+
+# spree_admin pinned to the commit before spree#14287, which added a
+# Spree::Admin::StorefrontController + `admin_storefront` route that collides
+# with spree_page_builder's. Revert to spree_opts once upstream deconflicts.
+spree_admin_opts = if ENV['SPREE_PATH']
+                      { 'path': ENV['SPREE_PATH'] }
+                   else
+                      { 'github': 'spree/spree', 'ref': '2174f67734f523207bb90d6cdf4eb7463619af52', 'glob': 'spree/admin/*.gemspec' }
+                   end
+gem 'spree_admin', spree_admin_opts
 
 gem 'spree_posts', github: 'spree/spree-posts', branch: 'main'
 gem 'spree_legacy_product_properties', github: 'spree/spree_legacy_product_properties', branch: 'main'

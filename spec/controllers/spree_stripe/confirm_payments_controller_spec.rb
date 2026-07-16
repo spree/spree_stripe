@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec.describe SpreeStripe::ConfirmPaymentsController, type: :controller do
   let(:store) { Spree::Store.default }
-  let(:gateway) { create(:stripe_gateway, stores: [store]) }
+  let(:gateway) { create(:stripe_gateway, store: store) }
   let(:order) { create(:order_with_line_items, store: store, state: 'payment') }
   let(:payment_session) { create(:stripe_payment_session, order: order, payment_method: gateway, status: 'pending') }
 

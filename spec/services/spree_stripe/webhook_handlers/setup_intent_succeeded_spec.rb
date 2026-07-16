@@ -6,7 +6,7 @@ RSpec.describe SpreeStripe::WebhookHandlers::SetupIntentSucceeded do
 
     let(:store) { Spree::Store.default }
     let(:user) { create(:user) }
-    let(:stripe_gateway) { create(:stripe_gateway, stores: [store]) }
+    let(:stripe_gateway) { create(:stripe_gateway, store: store) }
     let!(:gateway_customer) { create(:gateway_customer, user: user, payment_method: stripe_gateway, profile_id: customer_id) }
     let(:customer_id) { 'cus_123456789' }
     let(:payment_method_id) { 'pm_123456789' }
@@ -44,6 +44,7 @@ RSpec.describe SpreeStripe::WebhookHandlers::SetupIntentSucceeded do
             brand: 'visa',
             exp_month: 12,
             exp_year: 2025,
+            fingerprint: 'FZqjhq46SWprIY8i',
             last4: '4242',
             wallet: { type: 'apple_pay' },
             checks: nil
@@ -85,6 +86,28 @@ RSpec.describe SpreeStripe::WebhookHandlers::SetupIntentSucceeded do
           name: 'John Doe',
           brand: 'visa'
         )
+      end
+
+      context 'when the user already saved the same physical card under a different pm_xxx' do
+        let!(:existing_card) do
+          create(:credit_card,
+                 user: user,
+                 payment_method: stripe_gateway,
+                 gateway_payment_profile_id: 'pm_previously_saved',
+                 fingerprint: 'FZqjhq46SWprIY8i',
+                 month: 12,
+                 year: 2025,
+                 cc_type: 'visa')
+        end
+
+        it 'does not create a duplicate card' do
+          expect { subject }.not_to change(Spree::CreditCard, :count)
+        end
+
+        it 'keeps the existing card pointing at its original pm_xxx' do
+          subject
+          expect(existing_card.reload.gateway_payment_profile_id).to eq('pm_previously_saved')
+        end
       end
 
       context 'when Stripe::PaymentMethod.retrieve fails' do

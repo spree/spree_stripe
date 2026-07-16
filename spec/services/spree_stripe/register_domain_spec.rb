@@ -4,7 +4,7 @@ RSpec.describe SpreeStripe::RegisterDomain do
   subject(:register_domain) { described_class.new.call(model: model) }
 
   let(:store) { create(:store) }
-  let!(:stripe_gateway) { create(:stripe_gateway, stores: [store]) }
+  let!(:stripe_gateway) { create(:stripe_gateway, store: store) }
 
   let(:payment_method_domain) do
     Stripe::PaymentMethodDomain.list({ domain_name: domain }, stripe_gateway.api_options).data.find do |s_domain|

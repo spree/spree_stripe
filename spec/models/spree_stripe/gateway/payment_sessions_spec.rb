@@ -4,7 +4,7 @@ RSpec.describe SpreeStripe::Gateway::PaymentSessions do
   let(:store) { Spree::Store.default }
   let(:user) { create(:user) }
   let(:order) { create(:order_with_line_items, store: store, user: user) }
-  let(:gateway) { create(:stripe_gateway, stores: [store]) }
+  let(:gateway) { create(:stripe_gateway, store: store) }
 
   let(:customer) { instance_double(Spree::GatewayCustomer, profile_id: 'cus_test_123') }
   let(:pi_response) do

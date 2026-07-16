@@ -4,7 +4,7 @@ RSpec.describe Spree::PaymentSessions::Stripe, type: :model do
   let(:store) { Spree::Store.default }
   let(:user) { create(:user) }
   let(:order) { create(:order_with_line_items, store: store, user: user) }
-  let(:gateway) { create(:stripe_gateway, stores: [store]) }
+  let(:gateway) { create(:stripe_gateway, store: store) }
   let(:payment_session) do
     create(:stripe_payment_session,
            order: order,

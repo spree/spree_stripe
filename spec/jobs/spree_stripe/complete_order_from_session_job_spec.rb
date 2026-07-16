@@ -5,7 +5,7 @@ RSpec.describe SpreeStripe::CompleteOrderFromSessionJob do
 
   let(:store) { Spree::Store.default }
   let(:order) { create(:order_with_line_items, store: store) }
-  let(:stripe_gateway) { create(:stripe_gateway, stores: [store]) }
+  let(:stripe_gateway) { create(:stripe_gateway, store: store) }
   let(:payment_session) do
     create(:stripe_payment_session,
            order: order,

@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec.describe SpreeStripe::Gateway do
   let(:store) { Spree::Store.default }
-  let(:gateway) { create(:stripe_gateway, stores: [store]) }
+  let(:gateway) { create(:stripe_gateway, store: store) }
   let(:amount) { 100 }
 
   describe '#payment_intent_accepted?' do
@@ -1340,6 +1340,7 @@ RSpec.describe SpreeStripe::Gateway do
           last4: '4242',
           exp_month: 12,
           exp_year: 2030,
+          fingerprint: 'FZqjhq46SWprIY8i',
           checks: nil,
           wallet: nil
         }

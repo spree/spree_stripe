@@ -3,7 +3,7 @@ require 'spec_helper'
 RSpec.describe Spree::PaymentSetupSessions::Stripe, type: :model do
   let(:store) { Spree::Store.default }
   let(:user) { create(:user) }
-  let(:gateway) { create(:stripe_gateway, stores: [store]) }
+  let(:gateway) { create(:stripe_gateway, store: store) }
   let(:setup_session) do
     Spree::PaymentSetupSessions::Stripe.create!(
       customer: user,

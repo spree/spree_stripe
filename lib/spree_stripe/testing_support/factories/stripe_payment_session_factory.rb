@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :stripe_payment_session, class: 'Spree::PaymentSessions::Stripe' do
     order { create(:order_with_line_items) }
-    payment_method { create(:stripe_gateway, stores: [order.store]) }
+    payment_method { create(:stripe_gateway, store: order.store) }
     amount { order.total }
     currency { order.currency }
     status { 'pending' }

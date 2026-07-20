@@ -24,8 +24,6 @@ spree_admin_opts = if ENV['SPREE_PATH']
                    end
 gem 'spree_admin', spree_admin_opts
 
-gem 'spree_posts', github: 'spree/spree-posts', branch: 'main'
-gem 'spree_legacy_product_properties', github: 'spree/spree_legacy_product_properties', branch: 'main'
 gem 'spree_custom_domains', github: 'spree/spree_custom_domains', branch: 'main'
 
 spree_storefront_opts = { 'github': 'spree/spree-rails-storefront', 'branch': 'main' }

@@ -6,7 +6,7 @@
         checkout_stripe_button_api_key_value: current_stripe_gateway.try(:preferred_publishable_key),
         checkout_stripe_button_spree_api_key_value: current_store_publishable_api_key,
         checkout_stripe_button_payment_method_id_value: current_stripe_gateway.prefixed_id,
-        checkout_stripe_button_cart_id_value: stripe_cart_prefixed_id(@order),
+        checkout_stripe_button_cart_api_path_value: stripe_cart_api_path(@order),
         checkout_stripe_button_cart_token_value: @order.token,
         checkout_stripe_button_confirm_payment_url_value: spree.stripe_confirm_payment_url(@order.prefixed_id),
         checkout_stripe_button_currency_value: @order.currency.downcase,

@@ -3,7 +3,7 @@
     data-controller="checkout-stripe"
     data-checkout-stripe-api-key-value="<%= current_stripe_gateway.try(:preferred_publishable_key) %>"
     data-checkout-stripe-client-secret-value="<%= current_stripe_payment_session.client_secret %>"
-    data-checkout-stripe-cart-id-value="<%= stripe_cart_prefixed_id(@order) %>"
+    data-checkout-stripe-cart-api-path-value="<%= stripe_cart_api_path(@order) %>"
     data-checkout-stripe-cart-token-value="<%= @order.token %>"
     data-checkout-stripe-spree-api-key-value="<%= current_store_publishable_api_key %>"
     data-checkout-stripe-order-email-value="<%= @order.email %>"

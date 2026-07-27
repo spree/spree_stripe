@@ -22,6 +22,12 @@ RSpec.describe SpreeStripe::BaseHelper do
     end
   end
 
+  describe '#stripe_cart_api_path' do
+    it 'returns the v3 store cart API path for the order' do
+      expect(helper.stripe_cart_api_path(order)).to eq("/api/v3/store/carts/#{helper.stripe_cart_prefixed_id(order)}")
+    end
+  end
+
   describe '#current_store_publishable_api_key' do
     it "returns the store's active publishable key token" do
       key = create(:api_key, store: store)

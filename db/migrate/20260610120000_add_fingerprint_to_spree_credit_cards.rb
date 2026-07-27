@@ -38,6 +38,14 @@ class AddFingerprintToSpreeCreditCards < ActiveRecord::Migration[7.2]
   end
 
   def down
+    # From spree 5.6.0 the fingerprint column AND its unique index live in core (both
+    # share the same names), and Rails' migration installer dedupes this migration
+    # against core's — so on 5.6.0+ this migration never created them. Leave core's
+    # schema untouched there, which also covers an app that added the column here on
+    # older spree and later upgraded: the column is now core-owned and must survive
+    # a rollback.
+    return if Gem::Version.new(Spree.version) >= Gem::Version.new('5.6.0')
+
     remove_index :spree_credit_cards, name: INDEX_NAME if index_name_exists?(:spree_credit_cards, INDEX_NAME)
     remove_column :spree_credit_cards, :fingerprint if column_exists?(:spree_credit_cards, :fingerprint)
   end

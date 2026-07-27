@@ -21,6 +21,13 @@ module SpreeStripe
       "cart_#{Spree::PrefixedId::SQIDS.encode([order.id])}"
     end
 
+    # Server-generated v3 Store API path for the order's cart, passed to the
+    # storefront JS so proxied/prefixed deployments resolve the API correctly.
+    # @return [String]
+    def stripe_cart_api_path(order)
+      spree.api_v3_store_cart_path(stripe_cart_prefixed_id(order))
+    end
+
     # The store's publishable Spree API key, used by the storefront JS as the
     # `X-Spree-API-Key` header for v3 Store API calls. Creates one on first use
     # when the store has no active publishable key yet.

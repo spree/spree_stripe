@@ -10,15 +10,16 @@ const ZERO_DECIMAL_CURRENCIES = new Set([
 ])
 
 // Apple Pay / Google Pay express checkout on the v3 Store API. The wallet sheet
-// drives address + shipping selection against `/api/v3/store/carts`, then a
-// payment session is created and confirmed; completion is handled server-side by
-// ConfirmPaymentsController via the `return_url` (same as the regular flow).
+// drives address + shipping selection against the server-provided cart API
+// path, then a payment session is created and confirmed; completion is handled
+// server-side by ConfirmPaymentsController via the `return_url` (same as the
+// regular flow).
 export default class extends Controller {
   static values = {
     apiKey: String,
     spreeApiKey: String,
     paymentMethodId: String,
-    cartId: String,
+    cartApiPath: String,
     cartToken: String,
     confirmPaymentUrl: String,
     currency: String,
@@ -38,6 +39,7 @@ export default class extends Controller {
   connect() {
     this.isGooglePay = false
     this.shippingRateMap = new Map()
+    this.deliveryMethodMap = new Map()
     this.initStripe()
   }
 
@@ -139,8 +141,9 @@ export default class extends Controller {
       })
       if (!cart) return event.reject()
 
-      const { shippingRates, selectionMap } = this.buildShippingRates(cart.fulfillments || [])
+      const { shippingRates, selectionMap, methodMap } = this.buildShippingRates(cart.fulfillments || [])
       this.shippingRateMap = selectionMap
+      this.deliveryMethodMap = methodMap
 
       if (shippingRates.length === 0) return event.reject()
 
@@ -215,6 +218,17 @@ export default class extends Controller {
       return
     }
 
+    // The address patch above rebuilds fulfillments with their default rate,
+    // discarding the wallet's selection — re-select it before charging, or the
+    // order completes with the wrong delivery method and total.
+    if (this.shippingRequiredValue && event.shippingRate) {
+      const reselected = await this.reselectDeliveryRates(cart, event.shippingRate.id)
+      if (!reselected) {
+        event.paymentFailed({ reason: 'fail' })
+        return
+      }
+    }
+
     const { error: submitError } = await this.elements.submit()
     if (submitError) {
       event.paymentFailed({ reason: 'fail' })
@@ -259,7 +273,7 @@ export default class extends Controller {
   // --- v3 Store API calls -------------------------------------------------
 
   async patchCart(body) {
-    const response = await fetch(this.cartApiBase, {
+    const response = await fetch(this.cartApiPathValue, {
       method: 'PATCH',
       headers: this.spreeApiHeaders,
       body: JSON.stringify(body)
@@ -268,7 +282,7 @@ export default class extends Controller {
   }
 
   async patchFulfillment(fulfillmentId, deliveryRateId) {
-    const response = await fetch(`${this.cartApiBase}/fulfillments/${fulfillmentId}`, {
+    const response = await fetch(`${this.cartApiPathValue}/fulfillments/${fulfillmentId}`, {
       method: 'PATCH',
       headers: this.spreeApiHeaders,
       body: JSON.stringify({ selected_delivery_rate_id: deliveryRateId })
@@ -277,7 +291,7 @@ export default class extends Controller {
   }
 
   async createPaymentSession(stripePaymentMethodId) {
-    const response = await fetch(`${this.cartApiBase}/payment_sessions`, {
+    const response = await fetch(`${this.cartApiPathValue}/payment_sessions`, {
       method: 'POST',
       headers: this.spreeApiHeaders,
       body: JSON.stringify({
@@ -304,11 +318,14 @@ export default class extends Controller {
     return items
   }
 
-  // Builds deduped Stripe shipping rates (by delivery_method_id) and a map from
-  // each Stripe rate id to the per-fulfillment delivery rate ids to select.
+  // Builds deduped Stripe shipping rates (by delivery_method_id), a map from
+  // each Stripe rate id to the per-fulfillment delivery rate ids to select,
+  // and a map back to the delivery_method_id (the only id that survives a
+  // fulfillment rebuild — see reselectDeliveryRates).
   buildShippingRates(fulfillments) {
     const rateMap = new Map()
     const selectionMap = new Map()
+    const methodMap = new Map()
 
     for (const fulfillment of fulfillments) {
       for (const rate of fulfillment.delivery_rates || []) {
@@ -320,6 +337,7 @@ export default class extends Controller {
           const id = this.isGooglePay ? `${methodId}-${this.randomSuffix()}` : String(methodId)
           rateMap.set(methodId, { id, displayName: rate.name, amount: this.toCents(rate.cost) })
           selectionMap.set(id, [])
+          methodMap.set(id, methodId)
         } else {
           rateMap.get(methodId).amount += this.toCents(rate.cost)
         }
@@ -329,7 +347,26 @@ export default class extends Controller {
       }
     }
 
-    return { shippingRates: Array.from(rateMap.values()), selectionMap }
+    return { shippingRates: Array.from(rateMap.values()), selectionMap, methodMap }
+  }
+
+  // Re-selects the delivery method chosen in the wallet sheet on freshly
+  // rebuilt fulfillments. Matches by delivery_method_id: fulfillment and rate
+  // ids do not survive the rebuild that a shipping-address update triggers
+  // server-side (checkout reverts to the address step and shipments are
+  // recreated with their default rate).
+  async reselectDeliveryRates(cart, stripeRateId) {
+    const methodId = this.deliveryMethodMap.get(stripeRateId)
+    if (!methodId) return false
+
+    for (const fulfillment of cart.fulfillments || []) {
+      const rate = (fulfillment.delivery_rates || []).find((r) => r.delivery_method_id === methodId)
+      if (!rate || rate.selected) continue
+
+      const updated = await this.patchFulfillment(fulfillment.id, rate.id)
+      if (!updated) return false
+    }
+    return true
   }
 
   // True when every shippable fulfillment has at least one delivery rate — i.e.
@@ -382,10 +419,6 @@ export default class extends Controller {
     } else {
       showFlashMessage('An unexpected error occurred. Please refresh the page and try again.', 'error')
     }
-  }
-
-  get cartApiBase() {
-    return `/api/v3/store/carts/${this.cartIdValue}`
   }
 
   get spreeApiHeaders() {

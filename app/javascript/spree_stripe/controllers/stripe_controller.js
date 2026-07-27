@@ -10,7 +10,7 @@ export default class extends Controller {
   static values = {
     apiKey: String,
     clientSecret: String,
-    cartId: String,
+    cartApiPath: String,
     cartToken: String,
     spreeApiKey: String,
     orderEmail: String,
@@ -134,7 +134,7 @@ export default class extends Controller {
       return false
     }
 
-    const response = await fetch(this.cartApiBase, {
+    const response = await fetch(this.cartApiPathValue, {
       method: 'PATCH',
       headers: this.spreeApiHeaders,
       body: JSON.stringify(body)
@@ -222,10 +222,6 @@ export default class extends Controller {
       return Array.isArray(json.errors) ? json.errors.join('. ') : Object.values(json.errors).flat().join('. ')
     }
     return null
-  }
-
-  get cartApiBase() {
-    return `/api/v3/store/carts/${this.cartIdValue}`
   }
 
   get spreeApiHeaders() {

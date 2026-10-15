@@ -1,6 +1,11 @@
 require 'spec_helper'
 
 RSpec.describe SpreeStripe::ConfirmPaymentsController, type: :controller do
+  # config/routes.rb registers this route via Spree::Core::Engine.add_routes, so it
+  # lives in the engine's route set, not the application's. Declared explicitly
+  # rather than relying on Spree::TestingSupport::ControllerRequests being included.
+  routes { Spree::Core::Engine.routes }
+
   let(:store) { Spree::Store.default }
   let(:gateway) { create(:stripe_gateway, store: store) }
   let(:order) { create(:order_with_line_items, store: store, state: 'payment') }

@@ -3,6 +3,11 @@ module SpreeStripe
     module PaymentSessions
       extend ActiveSupport::Concern
 
+      # Intent states where nothing has been confirmed yet, so the intent can
+      # safely be handed to another checkout window. Anything further along
+      # means money is already moving and a second intent would double-charge.
+      REUSABLE_INTENT_STATUSES = %w[requires_payment_method requires_confirmation].freeze
+
       def session_required?
         true
       end
@@ -11,11 +16,19 @@ module SpreeStripe
         Spree::PaymentSessions::Stripe
       end
 
+      # Returns the order's reusable pending session (its amount and payment
+      # method brought up to date) or creates a new one. An order gets at most
+      # one unconfirmed Stripe intent at a time: a second checkout window
+      # confirms the same intent — which Stripe rejects once the first one
+      # succeeds — instead of charging a second one.
       def create_payment_session(order:, amount: nil, external_data: {})
         total = amount.presence || order.total_minus_store_credits
         amount_in_cents = Spree::Money.new(total, currency: order.currency).cents
 
         raise Spree::Core::GatewayError, I18n.t('spree.stripe.payment_session_errors.zero_amount') if amount_in_cents.zero?
+
+        reused_session = reuse_payment_session(order, total, external_data)
+        return reused_session if reused_session.present?
 
         customer = fetch_or_create_customer(order: order)
         stripe_pm_id = external_data[:stripe_payment_method_id] || external_data['stripe_payment_method_id']
@@ -108,6 +121,26 @@ module SpreeStripe
       end
 
       private
+
+      def reuse_payment_session(order, amount, external_data)
+        session = order.payment_sessions.where(payment_method: self, status: 'pending').not_expired.order(:created_at).last
+        return if session.blank?
+
+        intent = retrieve_payment_intent(session.external_id)
+
+        if intent.status == 'canceled'
+          session.cancel if session.can_cancel?
+          return
+        end
+
+        unless intent.status.in?(REUSABLE_INTENT_STATUSES)
+          raise Spree::Core::GatewayError, I18n.t('spree.stripe.payment_session_errors.payment_in_progress')
+        end
+
+        update_payment_session(payment_session: session, amount: amount, external_data: external_data)
+
+        session
+      end
 
       def payment_intent_successful?(stripe_pi)
         stripe_pi.status == 'succeeded'

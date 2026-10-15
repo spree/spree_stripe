@@ -130,6 +130,112 @@ RSpec.describe SpreeStripe::Gateway::PaymentSessions do
         expect(session.customer_external_id).to be_nil
       end
     end
+
+    # Two checkout windows on the same order must share one Stripe intent —
+    # otherwise both confirm and the order is charged twice.
+    context 'when the order already has a pending session' do
+      let!(:existing) do
+        create(:stripe_payment_session,
+               order: order,
+               payment_method: gateway,
+               amount: 1.0,
+               external_id: 'pi_pending_123',
+               external_data: { 'client_secret' => 'pi_secret_pending' })
+      end
+
+      let(:intent_status) { 'requires_payment_method' }
+
+      before do
+        allow(gateway).to receive(:retrieve_payment_intent).
+          with('pi_pending_123').
+          and_return(Stripe::StripeObject.construct_from(id: 'pi_pending_123', status: intent_status))
+        allow(gateway).to receive(:update_payment_intent)
+      end
+
+      it 'reuses it instead of creating another payment intent' do
+        expect(gateway).not_to receive(:create_payment_intent)
+        expect(subject).to eq(existing)
+      end
+
+      it 'syncs the amount onto the reused session' do
+        expect(subject.reload.amount).to eq(order.total_minus_store_credits)
+      end
+
+      it 'attaches the new Stripe payment method to the reused intent' do
+        session = gateway.create_payment_session(order: order, external_data: { stripe_payment_method_id: 'pm_second_window' })
+
+        expect(session).to eq(existing)
+        expect(session.reload.external_data['stripe_payment_method_id']).to eq('pm_second_window')
+        expect(session.external_data['client_secret']).to eq('pi_secret_pending')
+      end
+
+      context 'when the intent is awaiting confirmation' do
+        let(:intent_status) { 'requires_confirmation' }
+
+        it 'still reuses it' do
+          expect(gateway).not_to receive(:create_payment_intent)
+          expect(subject).to eq(existing)
+        end
+      end
+
+      context 'when the intent has already succeeded' do
+        let(:intent_status) { 'succeeded' }
+
+        it 'refuses to start a second payment' do
+          expect(gateway).not_to receive(:create_payment_intent)
+          expect { subject }.to raise_error(
+            Spree::Core::GatewayError,
+            I18n.t('spree.stripe.payment_session_errors.payment_in_progress')
+          )
+        end
+      end
+
+      context 'when the intent is mid-flight' do
+        let(:intent_status) { 'processing' }
+
+        it 'refuses to start a second payment' do
+          expect { subject }.to raise_error(
+            Spree::Core::GatewayError,
+            I18n.t('spree.stripe.payment_session_errors.payment_in_progress')
+          )
+        end
+      end
+
+      context 'when the intent awaits customer action' do
+        let(:intent_status) { 'requires_action' }
+
+        it 'refuses to start a second payment' do
+          expect { subject }.to raise_error(
+            Spree::Core::GatewayError,
+            I18n.t('spree.stripe.payment_session_errors.payment_in_progress')
+          )
+        end
+      end
+
+      context 'when the intent was canceled' do
+        let(:intent_status) { 'canceled' }
+
+        it 'cancels the session and creates a new one' do
+          expect(gateway).to receive(:create_payment_intent).and_return(pi_response)
+
+          session = subject
+
+          expect(session).not_to eq(existing)
+          expect(session.external_id).to eq('pi_new_intent_123')
+          expect(existing.reload.status).to eq('canceled')
+        end
+      end
+
+      context 'when the session has expired' do
+        before { existing.update!(expires_at: 1.minute.ago) }
+
+        it 'creates a new one' do
+          expect(gateway).not_to receive(:retrieve_payment_intent)
+          expect(subject.external_id).to eq('pi_new_intent_123')
+        end
+      end
+    end
+
   end
 
   describe '#update_payment_session' do

@@ -77,18 +77,10 @@ module SpreeStripe
     # adds tax on top of it - so the Stripe refund is the authority. Falls back to the
     # refund's own amount when it was never sent to Stripe.
     def refunded_amount_in_cents(refund, gateway)
-      stripe_refund = retrieve_stripe_refund(refund, gateway)
+      stripe_refund = gateway.retrieve_refund(refund.transaction_id) if refund.transaction_id.present?
       return stripe_refund.amount if stripe_refund.present?
 
       Spree::Money.new(refund.amount, currency: refund.currency).cents
-    end
-
-    def retrieve_stripe_refund(refund, gateway)
-      return if refund.transaction_id.blank?
-
-      gateway.retrieve_refund(refund.transaction_id)
-    rescue Stripe::StripeError => e
-      Rails.error.report(e, context: { refund_id: refund.id }, source: 'spree_stripe')
     end
   end
 end

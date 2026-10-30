@@ -197,7 +197,9 @@ module SpreeStripe
     end
 
     def retrieve_refund(refund_id)
-      send_request { |opts| Stripe::Refund.retrieve(refund_id, opts) }
+      protect_from_error do
+        send_request { |opts| Stripe::Refund.retrieve(refund_id, opts) }
+      end
     end
 
     def create_ephemeral_key(customer_id)

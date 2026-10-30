@@ -133,13 +133,11 @@ RSpec.describe SpreeStripe::CreateTaxReversalJob do
   context 'when the Stripe refund cannot be retrieved' do
     before { allow(Stripe::Refund).to receive(:retrieve).and_raise(Stripe::InvalidRequestError.new('nope', nil)) }
 
-    it 'falls back to the refund amount' do
-      subject
+    it 'raises rather than reversing a guessed amount, so the job is retried' do
+      expect { subject }.to raise_error(Spree::Core::GatewayError)
 
-      expect(Stripe::Tax::Transaction).to have_received(:create_reversal).with(
-        hash_including(flat_amount: -1000),
-        anything
-      )
+      expect(Stripe::Tax::Transaction).not_to have_received(:create_reversal)
+      expect(refund.reload.stripe_tax_reversal_id).to be_nil
     end
   end
 end

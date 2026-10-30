@@ -37,6 +37,59 @@ RSpec.describe SpreeStripe::CreateTaxReversalJob do
     )
   end
 
+  context 'when the order has been fully refunded' do
+    let(:refund) { create(:refund, payment: payment, amount: order.total, transaction_id: 're_1234567890') }
+
+    it 'reverses the whole transaction instead of a flat amount' do
+      subject
+
+      expect(Stripe::Tax::Transaction).to have_received(:create_reversal).with(
+        {
+          mode: 'full',
+          original_transaction: 'tax_1234567890',
+          reference: "pi_1234567890-refund-#{refund.id}",
+          metadata: { refund: refund.id },
+          expand: ['line_items']
+        },
+        { api_key: stripe_gateway.preferred_secret_key }
+      )
+    end
+
+    it 'does not need to look the refund up on Stripe' do
+      subject
+
+      expect(Stripe::Refund).not_to have_received(:retrieve)
+    end
+
+    context 'when an earlier refund was already reversed' do
+      let!(:earlier_refund) do
+        create(:refund, payment: payment, amount: 1, transaction_id: 're_earlier',
+                        private_metadata: { 'stripe_tax_reversal_id' => 'tax_reversal_earlier' })
+      end
+      let(:refund) { create(:refund, payment: payment, amount: order.total - 1, transaction_id: 're_1234567890') }
+
+      it 'falls back to a partial reversal, so the earlier one is not reversed twice' do
+        subject
+
+        expect(Stripe::Tax::Transaction).to have_received(:create_reversal).with(
+          hash_including(mode: 'partial'), anything
+        )
+      end
+    end
+
+    context 'when the payment was voided' do
+      before { order.update_column(:payment_state, 'void') }
+
+      it 'does not treat it as a full refund' do
+        subject
+
+        expect(Stripe::Tax::Transaction).to have_received(:create_reversal).with(
+          hash_including(mode: 'partial'), anything
+        )
+      end
+    end
+  end
+
   it 'stores the reversal id on the refund' do
     subject
 

@@ -238,21 +238,20 @@ module SpreeStripe
       end
     end
 
-    # Reverses part of a recorded tax transaction, offsetting it with negative
-    # amounts. We always reverse by flat amount rather than by line item: refunds
-    # are amount based, the flat amount distributes proportionally over the line
-    # items and the shipping cost, and mixing partial and full reversals on one
-    # transaction risks recording a refund twice.
-    def create_tax_reversal(tax_transaction_id, reference:, flat_amount:, metadata: {})
+    # A +full+ reversal mirrors the original line items with opposite signs and takes
+    # no amount. A +partial+ one reverses +flat_amount+, an after-tax amount in cents
+    # that Stripe distributes proportionally over whatever is left to refund on the
+    # line items and the shipping cost.
+    def create_tax_reversal(tax_transaction_id, mode:, reference:, flat_amount: nil, metadata: {})
       protect_from_error do
         payload = {
-          mode: 'partial',
+          mode: mode,
           original_transaction: tax_transaction_id,
           reference: reference,
-          flat_amount: flat_amount,
           metadata: metadata,
           expand: ['line_items']
         }
+        payload[:flat_amount] = flat_amount if mode.to_s == 'partial'
 
         send_request { |opts| Stripe::Tax::Transaction.create_reversal(payload, opts) }
       end

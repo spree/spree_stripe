@@ -196,6 +196,12 @@ module SpreeStripe
       send_request { |opts| Stripe::Charge.retrieve(charge_id, opts) }
     end
 
+    def retrieve_refund(refund_id)
+      protect_from_error do
+        send_request { |opts| Stripe::Refund.retrieve(refund_id, opts) }
+      end
+    end
+
     def create_ephemeral_key(customer_id)
       protect_from_error do
         response = send_request { |opts| Stripe::EphemeralKey.create({ customer: customer_id }, opts.merge(stripe_version: Stripe.api_version)) }
@@ -231,6 +237,25 @@ module SpreeStripe
         }
 
         send_request { |opts| Stripe::Tax::Transaction.create_from_calculation(payload, opts) }
+      end
+    end
+
+    # A +full+ reversal mirrors the original line items with opposite signs and takes
+    # no amount. A +partial+ one reverses +flat_amount+, an after-tax amount in cents
+    # that Stripe distributes proportionally over whatever is left to refund on the
+    # line items and the shipping cost.
+    def create_tax_reversal(tax_transaction_id, mode:, reference:, flat_amount: nil, metadata: {})
+      protect_from_error do
+        payload = {
+          mode: mode,
+          original_transaction: tax_transaction_id,
+          reference: reference,
+          metadata: metadata,
+          expand: ['line_items']
+        }
+        payload[:flat_amount] = flat_amount if mode.to_s == 'partial'
+
+        send_request { |opts| Stripe::Tax::Transaction.create_reversal(payload, opts) }
       end
     end
 

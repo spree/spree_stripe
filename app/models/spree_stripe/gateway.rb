@@ -196,6 +196,10 @@ module SpreeStripe
       send_request { |opts| Stripe::Charge.retrieve(charge_id, opts) }
     end
 
+    def retrieve_refund(refund_id)
+      send_request { |opts| Stripe::Refund.retrieve(refund_id, opts) }
+    end
+
     def create_ephemeral_key(customer_id)
       protect_from_error do
         response = send_request { |opts| Stripe::EphemeralKey.create({ customer: customer_id }, opts.merge(stripe_version: Stripe.api_version)) }
@@ -231,6 +235,26 @@ module SpreeStripe
         }
 
         send_request { |opts| Stripe::Tax::Transaction.create_from_calculation(payload, opts) }
+      end
+    end
+
+    # Reverses part of a recorded tax transaction, offsetting it with negative
+    # amounts. We always reverse by flat amount rather than by line item: refunds
+    # are amount based, the flat amount distributes proportionally over the line
+    # items and the shipping cost, and mixing partial and full reversals on one
+    # transaction risks recording a refund twice.
+    def create_tax_reversal(tax_transaction_id, reference:, flat_amount:, metadata: {})
+      protect_from_error do
+        payload = {
+          mode: 'partial',
+          original_transaction: tax_transaction_id,
+          reference: reference,
+          flat_amount: flat_amount,
+          metadata: metadata,
+          expand: ['line_items']
+        }
+
+        send_request { |opts| Stripe::Tax::Transaction.create_reversal(payload, opts) }
       end
     end
 

@@ -104,4 +104,50 @@ RSpec.describe SpreeStripe::PaymentDecorator do
       end
     end
   end
+
+  describe 'after_transition to :completed' do
+    subject { payment.complete! }
+
+    let(:payment) do
+      create(:payment, order: order, payment_method: stripe_gateway, response_code: 'pi_1234567890', amount: order.total)
+    end
+
+    before { order.update(stripe_tax_calculation_id: 'taxcalc_1234567890') }
+
+    it 'records the tax transaction' do
+      expect { subject }.to have_enqueued_job(SpreeStripe::CreateTaxTransactionJob).with(payment.id)
+    end
+
+    context 'when the order has no tax calculation' do
+      before { order.update(stripe_tax_calculation_id: nil) }
+
+      it 'does not record a tax transaction' do
+        expect { subject }.not_to have_enqueued_job(SpreeStripe::CreateTaxTransactionJob)
+      end
+    end
+
+    context 'when the tax transaction has already been recorded' do
+      before { payment.update(stripe_tax_transaction_id: 'tax_1234567890') }
+
+      it 'does not record it again' do
+        expect { subject }.not_to have_enqueued_job(SpreeStripe::CreateTaxTransactionJob)
+      end
+    end
+
+    context 'when the payment has no payment intent' do
+      before { payment.update_column(:response_code, nil) }
+
+      it 'does not record a tax transaction' do
+        expect { subject }.not_to have_enqueued_job(SpreeStripe::CreateTaxTransactionJob)
+      end
+    end
+
+    context 'when the payment is not a Stripe one' do
+      let(:payment) { create(:payment, order: order, response_code: 'pi_1234567890', amount: order.total) }
+
+      it 'does not record a tax transaction' do
+        expect { subject }.not_to have_enqueued_job(SpreeStripe::CreateTaxTransactionJob)
+      end
+    end
+  end
 end

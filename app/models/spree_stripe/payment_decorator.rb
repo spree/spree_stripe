@@ -27,6 +27,16 @@ module SpreeStripe
       base.store_accessor :private_metadata, :stripe_tax_transaction_id
 
       base.before_save :set_cvv_and_avs_response_from_metadata, if: :credit_card_source?
+      base.state_machine.after_transition to: :completed, do: :create_tax_transaction_async
+    end
+
+    def create_tax_transaction_async
+      return unless payment_method.is_a?(SpreeStripe::Gateway)
+      return if stripe_tax_transaction_id.present?
+      return if response_code.blank?
+      return if order.stripe_tax_calculation_id.blank?
+
+      SpreeStripe::CreateTaxTransactionJob.perform_later(id)
     end
 
     def set_cvv_and_avs_response_from_metadata
@@ -43,4 +53,4 @@ module SpreeStripe
   end
 end
 
-Spree::Payment.prepend(SpreeStripe::PaymentDecorator)
+Spree::Payment.prepend(SpreeStripe::PaymentDecorator) if Spree::Payment.included_modules.exclude?(SpreeStripe::PaymentDecorator)

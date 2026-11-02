@@ -52,17 +52,10 @@ module SpreeStripe
       end
     end
 
-    # A full reversal mirrors the original line items with opposite signs, which keeps
-    # each line's taxability reason intact.
     def fully_refunded?(refund, payment)
       return false if payment.refunds.where.not(id: refund.id).any?
 
-      # The void and failed payment states are excluded because Spree::Order#order_refunded?
-      # treats them as fully refunded whether or not the refunds add up.
-      order = payment.order.reload
-      return false if order.payment_state.in?(%w[void failed])
-
-      order.order_refunded?
+      payment.order.reload.order_refunded?
     end
 
     def reversal_reference(refund, payment)

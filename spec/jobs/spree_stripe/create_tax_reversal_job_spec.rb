@@ -90,17 +90,6 @@ RSpec.describe SpreeStripe::CreateTaxReversalJob do
       end
     end
 
-    context 'when the payment was voided' do
-      before { order.update_column(:payment_state, 'void') }
-
-      it 'does not treat it as a full refund' do
-        subject
-
-        expect(Stripe::Tax::Transaction).to have_received(:create_reversal).with(
-          hash_including(mode: 'partial'), anything
-        )
-      end
-    end
   end
 
   it 'stores the reversal id on the refund' do

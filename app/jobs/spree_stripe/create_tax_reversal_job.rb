@@ -53,7 +53,7 @@ module SpreeStripe
     # A full reversal mirrors the original line items with opposite signs, which keeps
     # each line's taxability reason intact.
     def fully_refunded?(refund, payment)
-      return false if reversed_before?(refund, payment)
+      return false if payment.refunds.where.not(id: refund.id).any?
 
       # The void and failed payment states are excluded because Spree::Order#order_refunded?
       # treats them as fully refunded whether or not the refunds add up.
@@ -61,11 +61,6 @@ module SpreeStripe
       return false if order.payment_state.in?(%w[void failed])
 
       order.order_refunded?
-    end
-
-    # A full reversal does not account for earlier partial ones, so it would reverse their amounts a second time.
-    def reversed_before?(refund, payment)
-      payment.refunds.where.not(id: refund.id).any? { |other| other.stripe_tax_reversal_id.present? }
     end
 
     def reversal_reference(refund, payment)

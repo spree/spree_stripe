@@ -61,6 +61,19 @@ RSpec.describe SpreeStripe::CreateTaxReversalJob do
       expect(Stripe::Refund).not_to have_received(:retrieve)
     end
 
+    context 'when a sibling refund is queued but not reversed yet' do
+      let!(:sibling_refund) { create(:refund, payment: payment, amount: 1, transaction_id: 're_sibling') }
+      let(:refund) { create(:refund, payment: payment, amount: order.total - 1, transaction_id: 're_1234567890') }
+
+      it 'still refuses a full reversal, which the sibling job would then exceed' do
+        subject
+
+        expect(Stripe::Tax::Transaction).to have_received(:create_reversal).with(
+          hash_including(mode: 'partial'), anything
+        )
+      end
+    end
+
     context 'when an earlier refund was already reversed' do
       let!(:earlier_refund) do
         create(:refund, payment: payment, amount: 1, transaction_id: 're_earlier',

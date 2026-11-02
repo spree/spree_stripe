@@ -34,7 +34,8 @@ module SpreeStripe
           tax_transaction_id,
           mode: 'full',
           reference: reversal_reference(refund, payment),
-          metadata: { refund: refund.id }
+          metadata: { refund: refund.id },
+          idempotency_key: reversal_reference(refund, payment)
         )
       else
         amount_in_cents = refunded_amount_in_cents(refund, gateway)
@@ -45,7 +46,8 @@ module SpreeStripe
           mode: 'partial',
           reference: reversal_reference(refund, payment),
           flat_amount: -amount_in_cents,
-          metadata: { refund: refund.id }
+          metadata: { refund: refund.id },
+          idempotency_key: reversal_reference(refund, payment)
         )
       end
     end

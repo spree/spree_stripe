@@ -33,7 +33,7 @@ RSpec.describe SpreeStripe::CreateTaxReversalJob do
         metadata: { refund: refund.id },
         expand: ['line_items']
       },
-      { api_key: stripe_gateway.preferred_secret_key }
+      { api_key: stripe_gateway.preferred_secret_key, idempotency_key: "pi_1234567890-refund-#{refund.id}" }
     )
   end
 
@@ -51,7 +51,7 @@ RSpec.describe SpreeStripe::CreateTaxReversalJob do
           metadata: { refund: refund.id },
           expand: ['line_items']
         },
-        { api_key: stripe_gateway.preferred_secret_key }
+        { api_key: stripe_gateway.preferred_secret_key, idempotency_key: "pi_1234567890-refund-#{refund.id}" }
       )
     end
 

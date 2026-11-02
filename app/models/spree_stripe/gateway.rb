@@ -244,7 +244,7 @@ module SpreeStripe
     # no amount. A +partial+ one reverses +flat_amount+, an after-tax amount in cents
     # that Stripe distributes proportionally over whatever is left to refund on the
     # line items and the shipping cost.
-    def create_tax_reversal(tax_transaction_id, mode:, reference:, flat_amount: nil, metadata: {})
+    def create_tax_reversal(tax_transaction_id, mode:, reference:, flat_amount: nil, metadata: {}, idempotency_key: nil)
       protect_from_error do
         payload = {
           mode: mode,
@@ -254,8 +254,9 @@ module SpreeStripe
           expand: ['line_items']
         }
         payload[:flat_amount] = flat_amount if mode.to_s == 'partial'
+        options = idempotency_key.present? ? { idempotency_key: idempotency_key } : {}
 
-        send_request { |opts| Stripe::Tax::Transaction.create_reversal(payload, opts) }
+        send_request { |opts| Stripe::Tax::Transaction.create_reversal(payload, opts.merge(options)) }
       end
     end
 

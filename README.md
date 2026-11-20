@@ -1,3 +1,9 @@
+> [!CAUTION]
+> 
+> This is a repository of the **Spree 5 version** of the Stripe payment gateway.
+> 
+> Spree 6 version was moved to [Spree monorepo](https://github.com/spree/spree/tree/main/spree/providers/stripe) and now also includes **Stripe Connect** for free!
+
 <p align="center">
   <a href="https://spreecommerce.org">
     <img alt="Spree Commerce x Stripe integration" src="https://vendo-production-res.cloudinary.com/image/upload/w_2000/q_auto/v1742930549/docs/github/Spree_Commerce_open-source_eCommerce_Stripe_payments_integration_-_Github_xlrcn8.jpg">
@@ -111,16 +117,3 @@ If you'd like to contribute, please take a look at the
 pull request.
 
 Copyright (c) 2026 [Vendo Connect Inc.](https://getvendo.com), released under [MIT](https://github.com/spree/spree_stripe/blob/main/LICENSE).
-
-## Looking for a Stripe Connect integration for Spree?
-
-Spree Commerce [Enterprise Edition](https://spreecommerce.org/spree-commerce-version-comparison-community-edition-vs-enterprise-edition/) comes with a fully automated Stripe Connect integration for a [multi-vendor marketplace use case](https://spreecommerce.org/marketplace-ecommerce/):
-
-- Automated split payments between marketplace and vendors
-- Support for multiple payment methods including cards and digital wallets
-- Configurable marketplace fees and commission structures
-- Automated payouts to vendors
-- Comprehensive transaction reporting
-- Built-in fraud prevention tools
-
-Feel free to [reach out](https://spreecommerce.org/get-started/) to learn more.

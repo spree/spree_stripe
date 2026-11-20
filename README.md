@@ -2,7 +2,7 @@
 > 
 > This is a repository of the **Spree 5 version** of the Stripe payment gateway.
 > 
-> Spree 6 version was moved to [Spree monorepo](https://github.com/spree/spree/tree/main/spree/providers/stripe) and now also includes **Stripe Connect** for free!
+> Spree 6 version was moved to [Spree monorepo](https://github.com/spree/spree/tree/main/spree/providers/stripe) and now also includes [Stripe Connect](https://spreecommerce.org/docs/integrations/payments/stripe-connect) for free!
 
 <p align="center">
   <a href="https://spreecommerce.org">

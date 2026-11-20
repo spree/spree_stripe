@@ -21,9 +21,6 @@ If you like what you see, consider giving this repo a GitHub star :star:
 
 Thank you for supporting Spree open-source :heart:
 
-> [!TIP]
-> Looking for a [Stripe Connect integration](#looking-for-a-stripe-connect-integration-for-spree) for Spree? It's available with the [Enterprise Edition](https://spreecommerce.org/spree-commerce-version-comparison-community-edition-vs-enterprise-edition/).
-
 ## Features
 
 - Support for quick checkout using Apple Pay, Google Pay, Stripe Link
